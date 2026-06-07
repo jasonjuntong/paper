@@ -27,7 +27,26 @@ Handled by **Firebase Authentication**. The only supported method is **email + p
 
 **Login:**
 - Email + password only
-- **Forgot password** link on the login screen → sends a password reset email
+
+**Forgot password flow:**
+
+Scolar uses a fully custom password reset experience — no Firebase-hosted pages involved.
+
+1. User clicks "Forgot password?" on the login screen → taken to `/forgot-password`
+2. User submits their email address
+3. Server Route Handler (`POST /api/auth/forgot-password`):
+   - Calls `admin.auth().generatePasswordResetLink(email, { url: APP_URL/login })` to obtain a Firebase-signed `oobCode`
+   - Silently catches `auth/user-not-found` — **never reveals whether an email is registered** (same enumeration protection as registration)
+   - Extracts the `oobCode` from the generated link and builds a Scolar-hosted reset URL: `APP_URL/reset-password?code={oobCode}`
+   - Sends a branded transactional email via **Resend** containing a single CTA button linking to that URL
+4. The UI always shows the same "Check your email" success state regardless of outcome
+5. User clicks the link in the email → lands on `/reset-password?code={oobCode}` (on Scolar's own domain)
+6. User enters a new password (minimum 8 characters) and confirms it
+7. Client calls `confirmPasswordReset(auth, oobCode, newPassword)` — Firebase validates the code and updates the password
+8. On success → redirect to `/login`
+9. On error (expired or invalid code) → show a clear error message with a link back to `/forgot-password` to request a new email
+
+**oobCode expiry:** Firebase's default is **24 hours**. An expired code triggers the error state in step 9.
 
 **Not supported:**
 - Google OAuth or any other OAuth provider
