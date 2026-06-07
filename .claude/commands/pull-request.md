@@ -13,7 +13,7 @@ First run `git log develop..HEAD --oneline` to see all commits on this branch. T
 Draft the PR using this structure:
 
 **Title**: `<Type> — <3-5 word concise name of the changes>`
-Types: `Feat` | `Fix` | `Refactor` | `Style` | `Docs` | `Chore` | `Test`
+Types: `Feature` | `Fix` | `Refactor` | `Style` | `Docs` | `Chore` | `Test`
 Example: `Refactor — Typography Audits`
 
 **Body**:
