@@ -1,0 +1,47 @@
+# === DEPENDENCIES ===
+node_modules/*
+!node_modules/next
+node_modules/next/*
+!node_modules/next/dist
+node_modules/next/dist/*
+!node_modules/next/dist/docs
+
+# === BUILD OUTPUT ===
+.next/
+out/
+dist/
+build/
+
+# === SUPABASE ===
+supabase/.branches/
+supabase/.temp/
+
+# === SECRETS ===
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+
+# === CACHES ===
+.cache/
+.eslintcache
+*.tsbuildinfo
+next-env.d.ts
+
+# === LOGS ===
+*.log
+npm-debug.log*
+
+# === TEST ARTIFACTS ===
+coverage/
+.nyc_output/
+__snapshots__/
+playwright-report/
+test-results/
+
+# === OS JUNK ===
+.DS_Store
+Thumbs.db
