@@ -40,7 +40,7 @@ Types: `Feature` | `Fix` | `Refactor` | `Style` | `Docs` | `Chore` | `Test`
 
 **Step 4 — Save the draft**
 
-Save the draft to `.claude/session/pull-request-drafts/<branch-name>-YYYY-MM-DD.md` using today's date.
+Save the draft to `.claude/session/pull-request-drafts/<branch-name>-YYYY-MM-DD_HH-MM-SS.md` using the current date and time.
 
 The file must contain:
 1. The PR title on the first line, prefixed with `# `
