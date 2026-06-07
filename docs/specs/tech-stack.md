@@ -72,7 +72,7 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 
 - Method: **email + password only** — no OAuth providers, no magic links, no SSO
 - Email verification is required before app access — unverified accounts cannot use the application
-- Forgot password flow sends a password reset email via `sendPasswordResetEmail()` (the only case where Scolar sends email to users)
+- **Forgot password flow:** uses `admin.auth().generatePasswordResetLink()` to obtain a Firebase-signed `oobCode`, then sends a branded email via **Resend** linking to Scolar's own `/reset-password` page — no Firebase-hosted UI involved. The client finalises the reset with `confirmPasswordReset(auth, oobCode, newPassword)`. Email is the only channel Scolar uses to contact users.
 - **Duplicate email at registration:** Firebase Authentication throws `auth/email-already-in-use` when registering with an existing email. The server Route Handler catches this error silently and returns the same "Check your email" success response as a genuine new registration — preventing user enumeration. No duplicate account is created; uniqueness is enforced by Firebase Auth.
 - Session management: Firebase ID tokens are exchanged for server-side session cookies managed by `firebase-admin` in Next.js Route Handlers
 
@@ -106,6 +106,13 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 - Cosine similarity search powers the **Idea/Proposal Verification** feature — users input a plain-text idea; it is embedded and searched against stored paper embeddings using `findNearest({ vectorField: 'embedding', queryVector, limit, distanceMeasure: 'COSINE' })`
 - Visibility scoping: the server Route Handler collects the user's accessible paper IDs (from `/users/{userId}/library/` + org `/sharedPapers/` subcollections), then passes them as a pre-filter to `findNearest` — results are restricted to the user's accessible pool
 - Embeddings are generated once per unique global paper and reused by all library entries that reference it — no re-embedding on deduplication hits
+
+### Resend
+
+- Role: **transactional email delivery** — password reset is the only email Scolar sends to users at launch
+- Package: `resend`
+- Env var: `RESEND_API_KEY`
+- Why chosen: Firebase's built-in password reset email cannot be customised (template, sender domain, branding); Resend gives full control over the email while Firebase still owns the cryptographic `oobCode` validation
 
 ---
 
@@ -169,6 +176,7 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 | `clsx` | ^2.1 | Conditional class name utility |
 | `tailwind-merge` | ^3.6 | Merge Tailwind classes without conflicts |
 | `tw-animate-css` | ^1.4 | Animation utility classes |
+| `resend` | — | Transactional email — password reset only at launch |
 | `firebase` | — | Firebase client SDK — Firestore, Auth, Cloud Storage (browser) |
 | `firebase-admin` | — | Firebase Admin SDK — privileged server-side ops in Route Handlers |
 | Firebase Authentication | — | Email + password auth; session cookies via `firebase-admin` |
