@@ -11,7 +11,7 @@ Draft a commit message using this format:
 <type>: <short summary>
 ```
 
-Types: `feat` | `fix` | `refactor` | `style` | `docs` | `chore` | `test`
+Types: `feature` | `fix` | `refactor` | `style` | `docs` | `chore` | `test`
 
 Rules:
 - Summary is lowercase, imperative, under 72 chars
