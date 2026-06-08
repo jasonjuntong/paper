@@ -1,19 +1,27 @@
 Draft a pull request for the current branch without pushing or creating it on GitHub. The draft is saved locally so the user can create the PR manually via the GitHub web UI.
 
-**Step 1 — Pre-push check**
+**Step 1 — Check for unpushed commits**
+
+Run `git status` and `git log @{u}..HEAD --oneline` to check if there are any commits not yet pushed to the remote branch.
+
+- If the remote tracking branch doesn't exist yet (`@{u}` errors), treat all local commits as unpushed.
+- If there are **unpushed commits** — stop here. Do not proceed. Tell the user: "You have unpushed commits. Push your branch first (`git push` or `git push -u origin <branch>`), then re-run this command."
+- If everything is pushed — proceed to Step 2.
+
+**Step 2 — Pre-push check**
 Read and follow all steps in `.claude/commands/push-check.md`. Then:
 - If verdict is 🚫 **Do not push** — stop here. List the blocking issues and wait for them to be fixed.
 - If verdict is ⚠️ **Push with caution** — list the issues, then ask the user to confirm before continuing.
-- If verdict is ✅ **Ready to push** — proceed to Step 2.
+- If verdict is ✅ **Ready to push** — proceed to Step 3.
 
-**Step 2 — Gather branch info**
+**Step 3 — Gather branch info**
 
 Run the following to understand what's on this branch:
 - `git branch --show-current` — current branch name
 - `git log develop..HEAD --oneline` — commits on this branch (fall back to `main..HEAD` if develop doesn't exist locally)
 - `git diff develop...HEAD --stat` — files changed (fall back to `main...HEAD`)
 
-**Step 3 — Draft the PR**
+**Step 4 — Draft the PR**
 
 Use the exact template below. Fill in every section based on the commit log and diff stat.
 
@@ -38,7 +46,7 @@ Types: `Feature` | `Fix` | `Refactor` | `Style` | `Docs` | `Chore` | `Test`
 ## Notes for reviewer
 ```
 
-**Step 4 — Save the draft**
+**Step 5 — Save the draft**
 
 Save the draft to `.claude/session/pull-request-drafts/<branch-name>-YYYY-MM-DD_HH-MM-SS.md` using the current date and time.
 
