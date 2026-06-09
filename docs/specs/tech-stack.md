@@ -118,15 +118,16 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 
 ## 3. AI & Machine Learning
 
-### Google Gemini Flash
+### Groq (`llama-3.3-70b-versatile`)
 
 - Role: **metadata extraction** during paper upload
-- Input: first 1–2 pages of text extracted from the PDF (client-side, via `pdfjs-dist`)
-- Output: structured JSON with fields `title`, `authors`, `year`, `keywords`, `synopsis` — validated via Zod before use
+- Package: `groq-sdk`; env var: `GROQ_API_KEY`
+- Input: first 5 pages of text extracted from the PDF (client-side, via `pdfjs-dist`)
+- Output: structured JSON with fields `title`, `authors`, `year`, `keywords`, `synopsis` — validated via Zod before use; `response_format: { type: 'json_object' }` enforces JSON mode
 - Retried up to **3 times** on any failure, including 429 rate-limit errors (no separate rate-limit handling — 429 counts as a normal failure attempt)
-- If all 3 attempts fail, the user is shown a manual input form pre-filled with whatever partial draft Gemini returned (may be empty)
-- The Gemini output is always a **draft** — metadata is only final once the user reviews and saves it
-- Why chosen: Fast and low-cost; runs once per unique paper (deduplication prevents re-processing); acceptable quality for structured extraction from academic-style text
+- If all 3 attempts fail, the user is shown a manual input form pre-filled with whatever partial draft was returned (may be empty)
+- The extracted output is always a **draft** — metadata is only final once the user reviews and saves it
+- Why chosen: Fast inference, generous free tier; runs once per unique paper (deduplication prevents re-processing); `llama-3.3-70b-versatile` provides reliable structured extraction from academic text
 
 ### Google Gemini Pro
 
@@ -137,10 +138,11 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 - Cache access is gated by the same request-time paper visibility check — losing access to a paper means losing access to its cached AI output
 - Why chosen: Higher quality generation for the paid, quality-sensitive outputs; token streaming provides a responsive UX for longer outputs
 
-### gemini-embedding-001
+### Gemini `gemini-embedding-2`
 
 - Role: **paper embeddings** (generated once at upload) and **query embeddings** (per similarity search)
-- Output dimension: **768** — stored as `VectorValue(768)` in Firestore via native vector search
+- Package: `@google/genai`; env var: `GEMINI_API_KEY`; `apiVersion: 'v1'`
+- Output dimension: **768** — native output truncated via `outputDimensionality: 768`; stored as `VectorValue(768)` in Firestore via native vector search
 - Embedding input per paper: concatenation of `title + synopsis + keywords`
 - Embeddings are generated once on the global paper record and reused forever — all library entries pointing to the same global paper share its embedding; deduplication prevents redundant embedding generation
 - Query embeddings are generated per similarity search request (negligible cost — no generation, purely a vector lookup after embedding the query)
@@ -184,7 +186,7 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 | Firebase Cloud Storage | — | PDF file storage (committed after metadata confirmed) |
 | Firestore Vector Search | — | Cosine similarity search (`findNearest`, `VectorValue(768)`) |
 | `pdfjs-dist` | — | Client-side PDF text extraction and SHA-256 hashing |
-| Gemini Flash | — | Metadata extraction — structured JSON, retried up to 3× |
+| `groq-sdk` | — | Metadata extraction — `llama-3.3-70b-versatile`, structured JSON, retried up to 3× |
 | Gemini Pro | — | Premium AI features — streamed, cached per global paper |
-| `gemini-embedding-001` | — | Paper + query embeddings (768-dim, generated once per paper) |
+| `@google/genai` + `gemini-embedding-2` | — | Paper + query embeddings (768-dim via `outputDimensionality`, generated once per paper) |
 
