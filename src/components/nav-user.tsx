@@ -1,7 +1,7 @@
 'use client'
 
 import { ChevronsUpDown, LogOut, Moon, Settings, Sun } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import { useTheme } from '@/components/theme-provider'
 import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase/client'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'

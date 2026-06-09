@@ -26,19 +26,19 @@ This is similar to how a public library works: there is one copy of each book, b
 - A SHA-256 hash of the file is computed client-side before upload
 - Deduplication is checked at two layers (see Deduplication Strategy below)
 - If a duplicate is detected at either layer, no new paper record is created — a new **library entry** is created for the uploading user, referencing the existing global paper
-- Metadata extraction is handled by **Gemini Flash** using structured JSON output (JSON mode)
+- Metadata extraction is handled by **Groq** (`llama-3.3-70b-versatile`) using structured JSON output (JSON mode)
 - Metadata is extracted from the **first 5 pages** of extracted text only
 - This process is **not labeled as "AI"** in the UI — it appears as automatic paper detail extraction
 
 **Metadata is always a draft until the user saves:**
-- Gemini's output (whether full, partial, or empty) is treated as a **draft**, never as final data
-- The user is always shown a metadata review form pre-filled with whatever Gemini extracted
+- The model's output (whether full, partial, or empty) is treated as a **draft**, never as final data
+- The user is always shown a metadata review form pre-filled with whatever was extracted
 - The metadata becomes final only when the **user reviews and saves** it
 
 **Extraction retry & fallback:**
-- The Gemini call is **retried up to 3 times** on failure
+- The Groq call is **retried up to 3 times** on failure
 - A **rate-limit error (429)** is treated the same as any other failure and counts as one of the 3 attempts (no separate rate-limit handling — see AI Cost Strategy)
-- If all 3 attempts fail, the user is shown the **manual input form** pre-filled with any partial draft Gemini managed to return (may be empty)
+- If all 3 attempts fail, the user is shown the **manual input form** pre-filled with any partial draft that was returned (may be empty)
 
 **All 5 metadata fields are required:**
 - `title`, `authors`, `year`, `keywords`, and `synopsis` must all be present before a paper can be saved
@@ -55,7 +55,7 @@ This is similar to how a public library works: there is one copy of each book, b
 | `keywords` | Tags or keywords |
 | `synopsis` | The summarizing section of the paper, regardless of what it is called (Abstract, Rationale, Executive Summary, Summary, etc.) |
 
-**Gemini prompt strategy for synopsis:**
+**Prompt strategy for synopsis:**
 > Extract the section that summarizes the paper's purpose, methodology, and findings. This section may be titled Abstract, Summary, Executive Summary, Rationale, Overview, or similar — identify it by its role, not its heading.
 
 ---
@@ -113,7 +113,7 @@ No active session-invalidation machinery is needed; correct denial falls out nat
 
 - Free for all users
 - Users input an idea or proposal as plain text
-- The query is embedded using Gemini `gemini-embedding-001`
+- The query is embedded using Gemini `gemini-embedding-2`
 - Cosine similarity search is run against stored paper embeddings via Firestore Vector Search (`findNearest()`)
 - Returns ranked list of matched papers with similarity scores
 - **Zero AI generation cost per search** — purely a vector DB query after embedding the query
@@ -133,7 +133,7 @@ Papers outside this scope are **never** returned in their search results.
 
 **Embedding input per paper (generated once at upload):**
 - Title + Synopsis + Keywords
-- Model: `gemini-embedding-001`
+- Model: `gemini-embedding-2` (via `@google/genai`), output truncated to 768 dims via `outputDimensionality`
 - Storage: `embedding` field as `VectorValue(768)` in Firestore `/papers/{paperId}`
 - Generated once on the global paper record — reused by all library entries that reference it
 
@@ -173,7 +173,7 @@ CLIENT:
 SERVER:
   5. Layer 1 dedup: check hash against the `/papers` Firestore collection
        → if match, create library entry for user pointing to existing paper, notify user, stop
-  6. Send first 5 pages of extracted text to Gemini Flash → receive structured JSON draft
+  6. Send first 5 pages of extracted text to Groq (llama-3.3-70b-versatile) → receive structured JSON draft
      (title, authors, year, keywords, synopsis)
        → retry up to 3 times on failure or rate limit (429)
        → if all 3 attempts fail, return whatever partial draft exists (may be empty)
@@ -189,7 +189,7 @@ SERVER (commit):
        → if match, create library entry pointing to existing paper, notify user, stop
          (no PDF was ever stored, so nothing to clean up)
   10. Store PDF in Firebase Cloud Storage
-  11. Concatenate title + synopsis + keywords → send to gemini-embedding-001 → receive vector (768 dims)
+  11. Concatenate title + synopsis + keywords → send to gemini-embedding-2 → receive vector (768 dims)
   12. Create document in Firestore `/papers/{paperId}` (metadata + VectorValue(768) embedding)
   13. Create library entry document in `/users/{userId}/library/{entryId}`, pointing to the new paper
   14. Return library entry (with paper data) to client
@@ -217,12 +217,12 @@ SERVER (commit):
 
 | Task | Model | Cost Level | When |
 |------|-------|------------|------|
-| Metadata extraction | Gemini Flash | Very low | Once per unique paper (upload, only on Layer 1 miss); retried up to 3x, manual input fallback |
-| Embedding generation | gemini-embedding-001 | Negligible | Once per unique paper (upload, only on Layer 2 miss) |
-| Query embedding (search) | gemini-embedding-001 | Negligible | Per search query |
+| Metadata extraction | Groq llama-3.3-70b-versatile | Very low | Once per unique paper (upload, only on Layer 1 miss); retried up to 3x, manual input fallback |
+| Embedding generation | gemini-embedding-2 (768 dims) | Negligible | Once per unique paper (upload, only on Layer 2 miss) |
+| Query embedding (search) | gemini-embedding-2 (768 dims) | Negligible | Per search query |
 | Premium AI features | Gemini Pro | Moderate | On-demand, cached after first generation |
 
-**Rate-limit handling:** No dedicated rate-limit infrastructure at launch. If Gemini returns a rate-limit error (429), it is treated as a normal failure and counts toward the 3-retry budget. If retries are exhausted, the user falls back to manual metadata input. This reuses the existing failure path rather than adding queue/throttle infrastructure.
+**Rate-limit handling:** No dedicated rate-limit infrastructure at launch. If Groq returns a rate-limit error (429), it is treated as a normal failure and counts toward the 3-retry budget. If retries are exhausted, the user falls back to manual metadata input. This reuses the existing failure path rather than adding queue/throttle infrastructure.
 
 **Key cost-saving rules:**
 - Two-layer deduplication: same paper never processed twice

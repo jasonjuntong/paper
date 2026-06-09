@@ -1,5 +1,7 @@
 import { initializeApp, cert, getApps } from 'firebase-admin/app'
 import { getAuth } from 'firebase-admin/auth'
+import { getFirestore } from 'firebase-admin/firestore'
+import { getStorage } from 'firebase-admin/storage'
 
 function parsePrivateKey(raw: string | undefined): string | undefined {
   if (!raw) return undefined
@@ -13,14 +15,17 @@ function parsePrivateKey(raw: string | undefined): string | undefined {
   return raw.replace(/\\n/g, '\n')
 }
 
-if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID!,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
-      privateKey: parsePrivateKey(process.env.FIREBASE_PRIVATE_KEY),
-    }),
-  })
-}
+const adminApp = getApps().length
+  ? getApps()[0]
+  : initializeApp({
+      credential: cert({
+        projectId: process.env.FIREBASE_PROJECT_ID!,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
+        privateKey: parsePrivateKey(process.env.FIREBASE_PRIVATE_KEY),
+      }),
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    })
 
-export const adminAuth = getAuth()
+export const adminAuth = getAuth(adminApp)
+export const adminFirestore = getFirestore(adminApp)
+export const adminStorage = getStorage(adminApp)
