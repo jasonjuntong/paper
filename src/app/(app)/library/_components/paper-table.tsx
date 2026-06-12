@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { formatDate, formatAuthors, formatKeywords } from './format'
 
 export interface PaperRow {
   entryId: string
@@ -15,11 +16,12 @@ export interface PaperRow {
   authors: string
   year: number
   keywords: string
+  synopsis: string
   addedAt: Date
 }
 
 // Full class names so Tailwind doesn't purge them
-const ACCENT_COLORS = [
+export const ACCENT_COLORS = [
   'bg-orange-400',
   'bg-sky-400',
   'bg-amber-400',
@@ -31,34 +33,6 @@ const ACCENT_COLORS = [
   'bg-emerald-400',
   'bg-yellow-400',
 ] as const
-
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date)
-}
-
-function formatAuthors(raw: string): string {
-  const parts = raw.split(',').map((s) => s.trim()).filter(Boolean)
-  if (parts.length === 0) return raw
-  const words = parts[0].split(' ').filter(Boolean)
-  const abbreviated =
-    words.length >= 2
-      ? `${words[0][0]}. ${words[words.length - 1]}`
-      : parts[0]
-  const extra = parts.length - 1
-  return extra > 0 ? `${abbreviated}, +${extra}` : abbreviated
-}
-
-function formatKeywords(raw: string): string {
-  return raw
-    .split(',')
-    .map((k) => `#${k.trim().toLowerCase().replace(/\s+/g, '-')}`)
-    .filter((k) => k !== '#')
-    .join(' ')
-}
 
 interface PaperTableProps {
   rows: PaperRow[]
