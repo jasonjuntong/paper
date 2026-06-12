@@ -31,18 +31,28 @@ export async function POST(req: NextRequest) {
 
   if (!hashSnap.empty) {
     const existingPaperId = hashSnap.docs[0].id
-    const entryRef = adminFirestore
+
+    const alreadyOwned = await adminFirestore
       .collection('users')
       .doc(session.uid)
       .collection('library')
-      .doc()
+      .where('paperId', '==', existingPaperId)
+      .limit(1)
+      .get()
 
-    await entryRef.set({
-      paperId: existingPaperId,
-      userId: session.uid,
-      shares: [],
-      createdAt: new Date(),
-    })
+    if (alreadyOwned.empty) {
+      await adminFirestore
+        .collection('users')
+        .doc(session.uid)
+        .collection('library')
+        .doc()
+        .set({
+          paperId: existingPaperId,
+          userId: session.uid,
+          shares: [],
+          createdAt: new Date(),
+        })
+    }
 
     return NextResponse.json<InitResponse>({
       status: 'duplicate',
