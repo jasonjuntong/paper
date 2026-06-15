@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <AppSidebar user={session} />
       <SidebarInset>
         <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
+          <div className="@container/main mx-auto flex w-full max-w-[1240px] flex-1 flex-col gap-2 pt-[80px]">
             {children}
           </div>
         </div>

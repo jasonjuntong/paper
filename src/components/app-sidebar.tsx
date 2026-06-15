@@ -21,7 +21,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
-            <span className="group-data-[collapsible=icon]:hidden px-2 text-base font-semibold">Scolar</span>
+            <span className="group-data-[collapsible=icon]:hidden px-2 font-serif text-xl font-semibold">Scolar</span>
             <SidebarTrigger className="ml-auto group-data-[collapsible=icon]:ml-0" />
           </SidebarMenuItem>
         </SidebarMenu>

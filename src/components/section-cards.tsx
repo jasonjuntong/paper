@@ -1,96 +1,29 @@
-import { TrendingDown, TrendingUp } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
+
+type Section = {
+  description: string
+  value: string
+  footer: string
+}
+
+const sections: Section[] = [
+  { description: 'LIBRARY', value: '0', footer: '3 added this week' },
+  { description: 'SHARED WITH YOU', value: '0', footer: 'across 4 orgs' },
+  { description: 'ORGS', value: '—', footer: '1 as admin' },
+  { description: 'AI FEATURED USE', value: '0', footer: 'premium · this month' },
+]
 
 export function SectionCards() {
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Papers in Library</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            0
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <TrendingUp />
-              New
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Start building your library
+    <div className="px-4 lg:px-6">
+      <Card className="@container/card flex flex-col gap-0 divide-y p-0 @3xl/main:flex-row @3xl/main:divide-x @3xl/main:divide-y-0">
+        {sections.map((s) => (
+          <div key={s.description} className="flex flex-1 flex-col gap-3 p-4">
+            <div className="text-muted-foreground text-sm">{s.description}</div>
+            <div className="text-2xl font-normal tabular-nums">{s.value}</div>
+            <div className="text-muted-foreground font-mono text-xs">{s.footer}</div>
           </div>
-          <div className="text-muted-foreground">Upload your first paper to begin</div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Organisations</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            0
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <TrendingUp />
-              Join
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            No orgs yet
-          </div>
-          <div className="text-muted-foreground">Discover and join research groups</div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Similar Papers Found</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            —
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <TrendingDown />
-              Search
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Similarity search ready
-          </div>
-          <div className="text-muted-foreground">Upload papers to find related work</div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Shared to Orgs</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            0
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <TrendingUp />
-              Share
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            No papers shared yet
-          </div>
-          <div className="text-muted-foreground">Share papers with your research groups</div>
-        </CardFooter>
+        ))}
       </Card>
     </div>
   )

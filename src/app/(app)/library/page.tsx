@@ -47,7 +47,7 @@ export default async function LibraryPage({
   const paperRows = rows.filter((r): r is PaperRow => r !== null)
 
   return (
-    <div className="flex flex-1 flex-col gap-4 py-4 md:gap-6 md:py-6">
+    <div className="flex flex-1 flex-col gap-4 md:gap-6">
       <div className="flex items-center justify-between px-4 lg:px-6">
         <h2 className="text-lg font-semibold">Library</h2>
         <div className="flex items-center gap-2">
