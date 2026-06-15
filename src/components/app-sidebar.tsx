@@ -9,7 +9,6 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { NavMain } from '@/components/nav-main'
-import { NavSecondary } from '@/components/nav-secondary'
 import { NavUser } from '@/components/nav-user'
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
@@ -29,7 +28,6 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain />
-        <NavSecondary className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={{ name: user.name, email: user.email }} />
