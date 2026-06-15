@@ -18,7 +18,7 @@ export function SectionCards() {
     <div className="px-4 lg:px-6">
       <Card className="@container/card flex flex-col gap-0 divide-y p-0 @3xl/main:flex-row @3xl/main:divide-x @3xl/main:divide-y-0">
         {sections.map((s) => (
-          <div key={s.description} className="flex flex-1 flex-col gap-3 p-4">
+          <div key={s.description} className="flex flex-1 flex-col gap-3 p-5">
             <div className="text-muted-foreground text-sm">{s.description}</div>
             <div className="text-2xl font-normal tabular-nums">{s.value}</div>
             <div className="text-muted-foreground font-mono text-xs">{s.footer}</div>
