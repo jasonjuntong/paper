@@ -51,10 +51,11 @@ export function PaperTable({ rows }: PaperTableProps) {
 
   return (
     <div className="px-4 lg:px-6">
+      <div className="rounded-xl border overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="hover:bg-transparent">
-            <TableHead className="w-[42%] min-w-[200px] pl-0 text-xs uppercase tracking-wide">
+          <TableRow className="hover:bg-transparent bg-muted">
+            <TableHead className="w-[42%] min-w-[200px] pl-5 text-xs uppercase tracking-wide">
               Title
             </TableHead>
             <TableHead className="w-[22%] min-w-[120px] text-xs uppercase tracking-wide">
@@ -66,7 +67,7 @@ export function PaperTable({ rows }: PaperTableProps) {
             <TableHead className="w-20 text-xs uppercase tracking-wide">
               Shared
             </TableHead>
-            <TableHead className="w-32 pr-0 text-xs uppercase tracking-wide">
+            <TableHead className="w-32 pr-5 text-xs uppercase tracking-wide">
               Added
             </TableHead>
           </TableRow>
@@ -77,7 +78,7 @@ export function PaperTable({ rows }: PaperTableProps) {
             const keywords = formatKeywords(row.keywords)
             return (
               <TableRow key={row.entryId}>
-                <TableCell className="pl-0">
+                <TableCell className="pl-5">
                   <div className="flex items-start gap-2.5">
                     <div className={cn('mt-[3px] w-[3px] shrink-0 self-stretch rounded-full', accent)} />
                     <div className="min-w-0">
@@ -99,7 +100,7 @@ export function PaperTable({ rows }: PaperTableProps) {
                 <TableCell className="text-sm text-muted-foreground">
                   —
                 </TableCell>
-                <TableCell className="pr-0 tabular-nums text-sm text-muted-foreground">
+                <TableCell className="pr-5 tabular-nums text-sm text-muted-foreground">
                   {formatDate(row.addedAt)}
                 </TableCell>
               </TableRow>
@@ -107,6 +108,7 @@ export function PaperTable({ rows }: PaperTableProps) {
           })}
         </TableBody>
       </Table>
+      </div>
     </div>
   )
 }

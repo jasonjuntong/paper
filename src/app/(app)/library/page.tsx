@@ -49,7 +49,12 @@ export default async function LibraryPage({
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-6">
       <div className="flex items-center justify-between px-4 lg:px-6">
-        <h2 className="text-lg font-semibold">Library</h2>
+        <div className="flex flex-col gap-1">
+          <h2 className="font-serif text-2xl font-normal">My Library</h2>
+          <p className="text-muted-foreground font-mono text-xs">
+            {paperRows.length} papers · last updated 2m ago
+          </p>
+        </div>
         <div className="flex items-center gap-2">
           <ViewToggle current={isGrid ? 'grid' : 'list'} />
           <UploadButton />

@@ -34,30 +34,30 @@ export function PaperGrid({ rows }: PaperGridProps) {
           return (
             <Card
               key={row.entryId}
-              className="relative flex min-h-[130px] cursor-pointer flex-col overflow-hidden transition-colors hover:border-border/80"
+              className="relative flex min-h-[130px] cursor-pointer flex-col overflow-hidden p-4 transition-colors hover:border-border/80"
             >
               <div className={cn('absolute inset-y-0 left-0 w-[3px]', accent)} />
-              <div className="flex flex-1 flex-col p-4 pb-3.5">
+              <div className="flex flex-1 flex-col">
                 {/* pinned top */}
                 <p className="font-mono text-xs text-muted-foreground">
                   {row.year} · {formatAuthors(row.authors)}
                 </p>
                 {/* middle content */}
-                <h3 className="mt-[10px] line-clamp-3 text-[14px] font-medium leading-[1.35] tracking-[-0.005em]">
+                <h3 className="mt-1 line-clamp-3 text-base font-normal leading-[1.35] tracking-[-0.005em]">
                   {row.title}
                 </h3>
-                <p className="mt-[10px] truncate text-xs text-foreground/70">
+                <p className="mt-1 truncate text-sm text-foreground/70">
                   {row.synopsis}
                 </p>
                 {/* flexible spacer — min 15px, grows with card height */}
-                <div className="min-h-[15px] flex-1" />
+                <div className="min-h-[24px] flex-1" />
                 {/* pinned bottom */}
                 {keywords.length > 0 && (
                   <div className="flex flex-wrap gap-1">
                     {keywords.map((k) => (
                       <span
                         key={k}
-                        className="rounded-[3px] bg-muted px-1.5 py-px font-mono text-[10px] text-muted-foreground"
+                        className="rounded-[3px] bg-muted px-1.5 py-px font-mono text-xs text-muted-foreground"
                       >
                         #{k}
                       </span>
