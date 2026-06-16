@@ -31,7 +31,7 @@ export function ContinueReading({ papers }: ContinueReadingProps) {
         {papers.map((paper) => (
           <Link
             key={paper.entryId}
-            href={`/library/${paper.entryId}`}
+            href={`/library/${paper.paperId}`}
             className="block p-5 hover:bg-muted/30 transition-colors"
           >
             <div className="flex flex-col gap-2">

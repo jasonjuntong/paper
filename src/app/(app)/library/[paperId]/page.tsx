@@ -98,7 +98,7 @@ export default async function PaperDetailPage({
 
         {/* Sidebar */}
         <div className="shrink-0 flex flex-col gap-2">
-          <Button variant="outline" size="sm" className="rounded-lg gap-2">
+          <Button variant="outline" size="sm" className="rounded-lg gap-2 hover:bg-[oklch(0.9491_0.0041_91.616)]">
             <Pencil className="size-3.5" />
             Edit details
           </Button>

@@ -33,7 +33,7 @@ export function PaperGrid({ rows }: PaperGridProps) {
           return (
             <Link key={row.entryId} href={`/library/${row.paperId}`}>
             <Card
-              className="relative flex min-h-32.5 cursor-pointer flex-col overflow-hidden p-4 transition-colors hover:border-border/80"
+              className="relative flex min-h-32.5 cursor-pointer flex-col overflow-hidden p-4 transition-colors hover:bg-[oklch(0.9491_0.0041_91.616)] hover:border-border/80"
             >
               <div className="flex flex-1 flex-col">
                 {/* pinned top */}

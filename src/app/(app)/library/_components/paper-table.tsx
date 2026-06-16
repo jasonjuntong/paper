@@ -1,4 +1,6 @@
-import Link from 'next/link'
+'use client'
+
+import { useRouter } from 'next/navigation'
 import {
   Table,
   TableBody,
@@ -26,6 +28,7 @@ interface PaperTableProps {
 }
 
 export function PaperTable({ rows }: PaperTableProps) {
+  const router = useRouter()
   if (rows.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center px-4 lg:px-6">
@@ -41,7 +44,7 @@ export function PaperTable({ rows }: PaperTableProps) {
       <div className="rounded-xl border overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="hover:bg-transparent bg-muted">
+          <TableRow className="hover:bg-transparent bg-[oklch(0.9491_0.0041_91.616)]">
             <TableHead className="w-[42%] min-w-50 pl-5 text-xs uppercase tracking-wide">
               Title
             </TableHead>
@@ -63,16 +66,17 @@ export function PaperTable({ rows }: PaperTableProps) {
           {rows.map((row) => {
             const keywords = formatKeywords(row.keywords)
             return (
-              <TableRow key={row.entryId} className="cursor-pointer">
+              <TableRow
+                key={row.entryId}
+                className="cursor-pointer hover:bg-[oklch(0.9491_0.0041_91.616)] transition-colors"
+                onClick={() => router.push(`/library/${row.paperId}`)}
+              >
                 <TableCell className="pl-5">
                   <div className="flex items-start gap-2.5">
                     <div className="min-w-0">
-                      <Link
-                        href={`/library/${row.paperId}`}
-                        className="truncate font-base leading-snug hover:underline underline-offset-2"
-                      >
+                      <span className="truncate font-base leading-snug">
                         {row.title}
-                      </Link>
+                      </span>
                       {keywords && (
                         <p className="mt-0.5 truncate text-xs text-muted-foreground">
                           {keywords}
