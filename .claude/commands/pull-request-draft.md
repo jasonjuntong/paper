@@ -4,13 +4,15 @@ Draft a pull request for the current branch without pushing or creating it on Gi
 
 Run `git branch --show-current` to get the exact branch name. All subsequent steps must use this branch — never infer the branch from prior conversation context.
 
-**Step 2 — Check for unpushed commits**
+**Step 2 — Push any unpushed commits**
 
-Run `git log @{u}..HEAD --oneline` to check if there are any commits not yet pushed to the remote branch.
+Run `git log @{u}..HEAD --oneline` to check for commits not yet on the remote.
 
-- If the remote tracking branch doesn't exist yet (`@{u}` errors), treat all local commits as unpushed.
-- If there are **unpushed commits** — stop here. Do not proceed. Tell the user: "You have unpushed commits. Push your branch first (`git push` or `git push -u origin <branch>`), then re-run this command."
-- If everything is pushed — proceed to Step 3.
+- If the remote tracking branch doesn't exist yet (`@{u}` errors), run `git push -u origin <current-branch>` to create it.
+- If there are unpushed commits, run `git push` to push them now. Tell the user: "Pushing unpushed commits before drafting…"
+- If everything is already pushed, continue.
+
+After pushing (or confirming nothing to push), proceed to Step 3.
 
 **Step 3 — Pre-push check**
 Read and follow all steps in `.claude/commands/push-check.md`. Then:
