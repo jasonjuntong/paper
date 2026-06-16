@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState, useSyncExternalStore } from 'react'
-import { UploadButton } from './upload-button'
+import { AddPaperButton } from '@/components/add-paper-button'
 import { ViewToggle } from './view-toggle'
 import { PaperTable, type PaperRow } from './paper-table'
 import { PaperGrid } from './paper-grid'
@@ -54,7 +54,7 @@ export function LibraryClient({ rows }: { rows: PaperRow[] }) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <UploadButton />
+          <AddPaperButton />
         </div>
       </div>
       <div className="px-4 lg:px-6">

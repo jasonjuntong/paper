@@ -21,6 +21,10 @@ All design tokens live in `src/app/globals.css`. Use Tailwind utilities (`bg-car
 ### Color (intentional exceptions)
 
 - **Nav Plus-icon circle** uses inline `oklch(0.918 0.004 106.937)` — one shade darker than `--pill`. This keeps the circle readable when its row is hovered (because hover bg is `--sidebar-accent` = `--pill`). Do not refactor this to `bg-pill`.
+- **Danger actions** (e.g. Delete paper button) use two inline reds that are warmer and darker than the shadcn `--destructive` token:
+  - Default text: `oklch(0.434 0.140 25deg)` (≈ rgb 142 38 38) — dark crimson, legible on white.
+  - Hover bg + border: `oklch(0.576 0.186 25deg)` (≈ rgb 208 59 60) — brighter red fill; pair with `text-white`.
+  - Pattern: `text-[oklch(0.434_0.140_25deg)] hover:bg-[oklch(0.576_0.186_25deg)] hover:border-[oklch(0.576_0.186_25deg)] hover:text-white`.
 
 ### Radius
 
@@ -29,14 +33,14 @@ Tokens declared in `@theme` as **literal values** (not `var()` refs — Tailwind
 | Token | Value |
 |-------|-------|
 | `--radius-sm` | `0.15rem` |
-| `--radius-md` | `0.2rem` |
-| `--radius-lg` | `0.25rem` |
-| `--radius-xl` | `0.35rem` |
-| `--radius-2xl` | `0.45rem` |
-| `--radius-3xl` | `0.55rem` |
-| `--radius-4xl` | `0.65rem` |
+| `--radius-md` | `0.25rem` |
+| `--radius-lg` | `0.35rem` |
+| `--radius-xl` | `0.45rem` |
+| `--radius-2xl` | `0.55rem` |
+| `--radius-3xl` | `0.65rem` |
+| `--radius-4xl` | `0.75rem` |
 
-Default `--radius` is `0.25rem` — Scolar is squared off, not pill-shaped.
+Default `--radius` is `0.35rem` (= `--radius-lg`). Uniform `0.10rem` step between each size. Scolar is squared off, not pill-shaped.
 
 ### Typography
 

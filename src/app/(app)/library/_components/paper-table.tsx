@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import {
   Table,
   TableBody,
@@ -62,11 +63,16 @@ export function PaperTable({ rows }: PaperTableProps) {
           {rows.map((row) => {
             const keywords = formatKeywords(row.keywords)
             return (
-              <TableRow key={row.entryId}>
+              <TableRow key={row.entryId} className="cursor-pointer">
                 <TableCell className="pl-5">
                   <div className="flex items-start gap-2.5">
                     <div className="min-w-0">
-                      <p className="truncate font-base leading-snug">{row.title}</p>
+                      <Link
+                        href={`/library/${row.paperId}`}
+                        className="truncate font-base leading-snug hover:underline underline-offset-2"
+                      >
+                        {row.title}
+                      </Link>
                       {keywords && (
                         <p className="mt-0.5 truncate text-xs text-muted-foreground">
                           {keywords}
