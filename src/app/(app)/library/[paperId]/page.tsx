@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { ChevronLeft, Pencil, Trash2 } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import { getSession } from '@/lib/session'
 import { adminFirestore } from '@/lib/firebase/admin'
-import { Button } from '@/components/ui/button'
 import { PaperTabs } from './_components/paper-tabs'
+import { PaperActions } from './_components/paper-actions'
 
 function parseKeywords(raw: string): string[] {
   return raw
@@ -36,6 +36,7 @@ export default async function PaperDetailPage({
 
   if (!paperSnap.exists || entrySnap.empty) notFound()
 
+  const entryId = entrySnap.docs[0].id
   const paper = paperSnap.data()!
   const title = paper.title as string
   const authors = paper.authors as string
@@ -98,14 +99,7 @@ export default async function PaperDetailPage({
 
         {/* Sidebar */}
         <div className="shrink-0 flex flex-col gap-2">
-          <Button variant="outline" size="sm" className="rounded-lg gap-2 hover:bg-[oklch(0.9491_0.0041_91.616)]">
-            <Pencil className="size-3.5" />
-            Edit details
-          </Button>
-          <Button variant="outline" size="sm" className="rounded-lg gap-2 text-[oklch(0.434_0.140_25deg)] hover:bg-[oklch(0.576_0.186_25deg)] hover:text-white hover:border-[oklch(0.576_0.186_25deg)]">
-            <Trash2 className="size-3.5" />
-            Delete paper
-          </Button>
+          <PaperActions entryId={entryId} title={title} />
         </div>
       </div>
     </div>
