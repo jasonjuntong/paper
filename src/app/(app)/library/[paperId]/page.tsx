@@ -37,12 +37,21 @@ export default async function PaperDetailPage({
   if (!paperSnap.exists || entrySnap.empty) notFound()
 
   const entryId = entrySnap.docs[0].id
-  const paper = paperSnap.data()!
-  const title = paper.title as string
-  const authors = paper.authors as string
-  const year = paper.year as number
-  const keywords = parseKeywords((paper.keywords as string) ?? '')
-  const synopsis = paper.synopsis as string
+  const data = paperSnap.data()!
+  const title = data.title as string
+  const authors = data.authors as string
+  const year = data.year as number
+  const keywords = parseKeywords((data.keywords as string) ?? '')
+  const synopsis = data.synopsis as string
+
+  const paperMeta = {
+    paperId,
+    title,
+    authors,
+    year,
+    keywords: (data.keywords as string) ?? '',
+    synopsis,
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-4 lg:px-6">
@@ -99,7 +108,7 @@ export default async function PaperDetailPage({
 
         {/* Sidebar */}
         <div className="shrink-0 flex flex-col gap-2">
-          <PaperActions entryId={entryId} title={title} />
+          <PaperActions entryId={entryId} paper={paperMeta} />
         </div>
       </div>
     </div>
