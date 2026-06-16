@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { UploadPaperDialog } from '@/components/upload-paper-dialog'
 
-export function UploadButton() {
+export function AddPaperButton() {
   const [open, setOpen] = useState(false)
 
   return (

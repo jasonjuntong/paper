@@ -55,8 +55,8 @@ export function NavUser({ user }: NavUserProps) {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="size-8 rounded-lg">
-                <AvatarFallback className="rounded-lg text-xs">
+              <Avatar className="size-8">
+                <AvatarFallback className="text-xs">
                   {initials(user.name, user.email)}
                 </AvatarFallback>
               </Avatar>
@@ -70,15 +70,15 @@ export function NavUser({ user }: NavUserProps) {
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            side={isMobile ? 'bottom' : 'right'}
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-64 rounded-lg"
+            side="top"
             align="end"
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="size-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg text-xs">
+                <Avatar className="size-8">
+                  <AvatarFallback className="text-xs">
                     {initials(user.name, user.email)}
                   </AvatarFallback>
                 </Avatar>

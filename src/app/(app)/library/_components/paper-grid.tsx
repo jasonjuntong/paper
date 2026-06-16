@@ -1,7 +1,6 @@
-import { cn } from '@/lib/utils'
 import { Card } from '@/components/ui/card'
 import { formatAuthors } from './format'
-import { type PaperRow, ACCENT_COLORS } from './paper-table'
+import { type PaperRow } from './paper-table'
 
 function parseKeywords(raw: string): string[] {
   return raw
@@ -27,37 +26,35 @@ export function PaperGrid({ rows }: PaperGridProps) {
 
   return (
     <div className="px-4 lg:px-6">
-      <div className="grid grid-cols-1 gap-[14px] sm:grid-cols-2 lg:grid-cols-3">
-        {rows.map((row, i) => {
-          const accent = ACCENT_COLORS[i % ACCENT_COLORS.length]
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+        {rows.map((row) => {
           const keywords = parseKeywords(row.keywords).slice(0, 2)
           return (
             <Card
               key={row.entryId}
-              className="relative flex min-h-[130px] cursor-pointer flex-col overflow-hidden transition-colors hover:border-border/80"
+              className="relative flex min-h-32.5 cursor-pointer flex-col overflow-hidden p-4 transition-colors hover:border-border/80"
             >
-              <div className={cn('absolute inset-y-0 left-0 w-[3px]', accent)} />
-              <div className="flex flex-1 flex-col p-4 pb-3.5">
+              <div className="flex flex-1 flex-col">
                 {/* pinned top */}
                 <p className="font-mono text-xs text-muted-foreground">
                   {row.year} · {formatAuthors(row.authors)}
                 </p>
                 {/* middle content */}
-                <h3 className="mt-[10px] line-clamp-3 text-[14px] font-medium leading-[1.35] tracking-[-0.005em]">
+                <h3 className="font-base mt-1 line-clamp-3 leading-[1.35] tracking-[-0.005em]">
                   {row.title}
                 </h3>
-                <p className="mt-[10px] truncate text-xs text-foreground/70">
+                <p className="mt-1 truncate text-xs text-foreground/70">
                   {row.synopsis}
                 </p>
                 {/* flexible spacer — min 15px, grows with card height */}
-                <div className="min-h-[15px] flex-1" />
+                <div className="min-h- flex-1" />
                 {/* pinned bottom */}
                 {keywords.length > 0 && (
                   <div className="flex flex-wrap gap-1">
                     {keywords.map((k) => (
                       <span
                         key={k}
-                        className="rounded-[3px] bg-muted px-1.5 py-px font-mono text-[10px] text-muted-foreground"
+                        className="bg-pill rounded-[3px] px-1.5 py-px text-xs text-muted-foreground"
                       >
                         #{k}
                       </span>

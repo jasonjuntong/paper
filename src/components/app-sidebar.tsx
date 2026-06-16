@@ -1,16 +1,14 @@
 import type { DecodedIdToken } from 'firebase-admin/auth'
-import { FileText } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { NavMain } from '@/components/nav-main'
-import { NavSecondary } from '@/components/nav-secondary'
 import { NavUser } from '@/components/nav-user'
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
@@ -19,22 +17,17 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:p-1.5!">
-              <a href="/">
-                <FileText className="size-5!" />
-                <span className="text-base font-semibold">Scolar</span>
-              </a>
-            </SidebarMenuButton>
+          <SidebarMenuItem className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
+            <span className="group-data-[collapsible=icon]:hidden px-2 font-serif text-xl font-semibold">Scolar</span>
+            <SidebarTrigger className="ml-auto group-data-[collapsible=icon]:ml-0" />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain />
-        <NavSecondary className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={{ name: user.name, email: user.email }} />
