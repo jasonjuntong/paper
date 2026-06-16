@@ -17,7 +17,7 @@ function AddPaperIcon() {
   return (
     <span
       className="flex size-5 shrink-0 items-center justify-center rounded-full transition-[width,height] duration-200 ease-out group-hover/nav-btn:size-[22px]"
-      style={{ background: 'oklch(0.9180 0.0040 106.937)' }}
+      style={{ background: 'oklch(0.918 0.004 106.937)' }}
     >
       <Plus />
     </span>

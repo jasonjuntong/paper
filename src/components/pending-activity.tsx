@@ -40,7 +40,7 @@ export function PendingActivity() {
                   : `from ${item.from}`}
               </p>
             </div>
-            <span className="text-muted-foreground bg-muted rounded px-1.5 py-0.5 font-mono text-xs shrink-0">
+            <span className="text-muted-foreground bg-pill rounded px-1.5 py-0.5 font-mono text-xs shrink-0">
               {labelMap[item.type]}
             </span>
           </div>

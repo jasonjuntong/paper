@@ -1,11 +1,14 @@
 import { redirect } from 'next/navigation'
+import { Timestamp } from 'firebase-admin/firestore'
 import { getSession } from '@/lib/session'
 import { adminFirestore } from '@/lib/firebase/admin'
 import { AddPaperButton } from '@/components/add-paper-button'
 import { ContinueReading } from '@/components/continue-reading'
 import { Greeting } from '@/components/greeting'
 import { PendingActivity } from '@/components/pending-activity'
-import { SectionCards } from '@/components/section-cards'
+import { SectionCards, type Section } from '@/components/section-cards'
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000
 
 export default async function DashboardPage() {
   const session = await getSession()
@@ -13,13 +16,37 @@ export default async function DashboardPage() {
 
   const firstName = session.name?.split(' ')[0] ?? null
 
-  const recentSnap = await adminFirestore
+  const libraryRef = adminFirestore
     .collection('users')
     .doc(session.uid)
     .collection('library')
-    .orderBy('createdAt', 'desc')
-    .limit(3)
-    .get()
+
+  const [recentSnap, libraryCountSnap, weekCountSnap] = await Promise.all([
+    libraryRef.orderBy('createdAt', 'desc').limit(3).get(),
+    libraryRef.count().get(),
+    libraryRef
+      .where(
+        'createdAt',
+        '>=',
+        Timestamp.fromMillis(Date.now() - WEEK_MS)
+      )
+      .count()
+      .get(),
+  ])
+
+  const libraryCount = libraryCountSnap.data().count
+  const weekCount = weekCountSnap.data().count
+
+  const sections: Section[] = [
+    {
+      description: 'LIBRARY',
+      value: libraryCount,
+      footer: libraryCount === 0 ? null : `${weekCount} added this week`,
+    },
+    { description: 'SHARED WITH YOU', value: null, footer: 'Nothing shared yet' },
+    { description: 'ORGS', value: null, footer: 'No org joined yet' },
+    { description: 'AI FEATURED USE', value: null, footer: 'Premium feature' },
+  ]
 
   const recentPapers = (
     await Promise.all(
@@ -51,7 +78,7 @@ export default async function DashboardPage() {
         </div>
         <AddPaperButton />
       </div>
-      <SectionCards />
+      <SectionCards sections={sections} />
       <div className="flex gap-6 px-4 lg:px-6">
         <div className="flex-[3] min-w-0">
           <ContinueReading papers={recentPapers} />
