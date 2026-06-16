@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState, useSyncExternalStore } from 'react'
 import { UploadButton } from './upload-button'
 import { ViewToggle } from './view-toggle'
 import { PaperTable, type PaperRow } from './paper-table'
@@ -9,19 +9,24 @@ import { LibraryTabs, type LibraryFilter } from './library-tabs'
 
 type View = 'list' | 'grid'
 const STORAGE_KEY = 'library-view'
+const STORAGE_EVENT = 'library-view-change'
+
+function subscribeView(callback: () => void) {
+  window.addEventListener(STORAGE_EVENT, callback)
+  return () => window.removeEventListener(STORAGE_EVENT, callback)
+}
+
+function readView(): View {
+  return localStorage.getItem(STORAGE_KEY) === 'grid' ? 'grid' : 'list'
+}
 
 export function LibraryClient({ rows }: { rows: PaperRow[] }) {
-  const [view, setView] = useState<View>('list')
+  const view = useSyncExternalStore<View>(subscribeView, readView, () => 'list')
   const [filter, setFilter] = useState<LibraryFilter>('all')
 
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved === 'grid' || saved === 'list') setView(saved)
-  }, [])
-
   const handleViewChange = (next: View) => {
-    setView(next)
     localStorage.setItem(STORAGE_KEY, next)
+    window.dispatchEvent(new Event(STORAGE_EVENT))
   }
 
   const counts = useMemo(() => {

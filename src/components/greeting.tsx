@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 
 function timeOfDay(hour: number): string {
   if (hour < 5) return 'evening'
@@ -9,12 +9,16 @@ function timeOfDay(hour: number): string {
   return 'evening'
 }
 
-export function Greeting({ firstName }: { firstName: string | null }) {
-  const [period, setPeriod] = useState<string | null>(null)
+const subscribe = () => () => {}
+const getPeriod = () => timeOfDay(new Date().getHours())
+const getServerPeriod = () => null
 
-  useEffect(() => {
-    setPeriod(timeOfDay(new Date().getHours()))
-  }, [])
+export function Greeting({ firstName }: { firstName: string | null }) {
+  const period = useSyncExternalStore<string | null>(
+    subscribe,
+    getPeriod,
+    getServerPeriod
+  )
 
   const message = period
     ? firstName

@@ -21,17 +21,14 @@ export default async function DashboardPage() {
     .doc(session.uid)
     .collection('library')
 
+  // Server component: re-runs per request, so Date.now() is fine here.
+  // eslint-disable-next-line react-hooks/purity
+  const weekAgo = Timestamp.fromMillis(Date.now() - WEEK_MS)
+
   const [recentSnap, libraryCountSnap, weekCountSnap] = await Promise.all([
     libraryRef.orderBy('createdAt', 'desc').limit(3).get(),
     libraryRef.count().get(),
-    libraryRef
-      .where(
-        'createdAt',
-        '>=',
-        Timestamp.fromMillis(Date.now() - WEEK_MS)
-      )
-      .count()
-      .get(),
+    libraryRef.where('createdAt', '>=', weekAgo).count().get(),
   ])
 
   const libraryCount = libraryCountSnap.data().count
