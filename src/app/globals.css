@@ -42,12 +42,12 @@
   --color-card: var(--card);
   --color-pill: var(--pill);
   --radius-sm: 0.15rem;
-  --radius-md: 0.2rem;
-  --radius-lg: 0.25rem;
-  --radius-xl: 0.35rem;
-  --radius-2xl: 0.45rem;
-  --radius-3xl: 0.55rem;
-  --radius-4xl: 0.65rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.35rem;
+  --radius-xl: 0.45rem;
+  --radius-2xl: 0.55rem;
+  --radius-3xl: 0.65rem;
+  --radius-4xl: 0.75rem;
 }
 
 :root {
@@ -74,7 +74,7 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.25rem;
+  --radius: 0.35rem;
   --pill: oklch(0.9491 0.0041 91.616);
   --sidebar: oklch(0.9756 0.0026 107.195);
   --sidebar-foreground: oklch(0.145 0 0);

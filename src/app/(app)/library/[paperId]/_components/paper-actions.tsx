@@ -1,0 +1,48 @@
+'use client'
+
+import { useState } from 'react'
+import { Pencil, Trash2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { DeletePaperDialog } from './delete-paper-dialog'
+import { EditPaperDialog, type PaperMetadata } from './edit-paper-dialog'
+
+interface PaperActionsProps {
+  entryId: string
+  paper: PaperMetadata
+}
+
+export function PaperActions({ entryId, paper }: PaperActionsProps) {
+  const [editOpen, setEditOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+
+  return (
+    <>
+      <Button
+        variant="outline"
+        size="sm"
+        className="rounded-lg gap-2 hover:bg-[oklch(0.9491_0.0041_91.616)]"
+        onClick={() => setEditOpen(true)}
+      >
+        <Pencil className="size-3.5" />
+        Edit details
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        className="rounded-lg gap-2 text-[oklch(0.434_0.140_25deg)] hover:bg-[oklch(0.576_0.186_25deg)] hover:text-white hover:border-[oklch(0.576_0.186_25deg)]"
+        onClick={() => setDeleteOpen(true)}
+      >
+        <Trash2 className="size-3.5" />
+        Delete paper
+      </Button>
+
+      <EditPaperDialog paper={paper} open={editOpen} onOpenChange={setEditOpen} />
+      <DeletePaperDialog
+        entryId={entryId}
+        title={paper.title}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+      />
+    </>
+  )
+}

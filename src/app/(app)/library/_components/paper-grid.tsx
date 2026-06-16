@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { formatAuthors } from './format'
 import { type PaperRow } from './paper-table'
@@ -30,9 +31,9 @@ export function PaperGrid({ rows }: PaperGridProps) {
         {rows.map((row) => {
           const keywords = parseKeywords(row.keywords).slice(0, 2)
           return (
+            <Link key={row.entryId} href={`/library/${row.paperId}`}>
             <Card
-              key={row.entryId}
-              className="relative flex min-h-32.5 cursor-pointer flex-col overflow-hidden p-4 transition-colors hover:border-border/80"
+              className="relative flex min-h-32.5 cursor-pointer flex-col overflow-hidden p-4 transition-colors hover:bg-[oklch(0.9491_0.0041_91.616)] hover:border-border/80"
             >
               <div className="flex flex-1 flex-col">
                 {/* pinned top */}
@@ -63,6 +64,7 @@ export function PaperGrid({ rows }: PaperGridProps) {
                 )}
               </div>
             </Card>
+            </Link>
           )
         })}
       </div>

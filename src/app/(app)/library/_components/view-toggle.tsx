@@ -20,7 +20,7 @@ export function ViewToggle({
         className={cn(
           'inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors',
           current === 'list'
-            ? 'bg-secondary text-secondary-foreground'
+            ? 'bg-[oklch(0.9491_0.0041_91.616)] text-foreground'
             : 'text-muted-foreground hover:bg-muted hover:text-foreground'
         )}
       >
@@ -33,7 +33,7 @@ export function ViewToggle({
         className={cn(
           'inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors',
           current === 'grid'
-            ? 'bg-secondary text-secondary-foreground'
+            ? 'bg-[oklch(0.9491_0.0041_91.616)] text-foreground'
             : 'text-muted-foreground hover:bg-muted hover:text-foreground'
         )}
       >
