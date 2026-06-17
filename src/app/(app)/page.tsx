@@ -58,6 +58,8 @@ export default async function DashboardPage() {
           paperId: entry.paperId as string,
           title: (entry.title ?? paper.title ?? '') as string,
           authors: (entry.authors ?? paper.authors ?? '') as string,
+          year: (entry.year ?? paper.year ?? 0) as number,
+          keywords: (entry.keywords ?? paper.keywords ?? '') as string,
           synopsis: (entry.synopsis ?? paper.synopsis ?? '') as string,
         }
       })

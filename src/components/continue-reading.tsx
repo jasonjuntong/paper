@@ -7,11 +7,20 @@ interface Paper {
   paperId: string
   title: string
   authors: string
+  year: number
+  keywords: string
   synopsis: string
 }
 
 interface ContinueReadingProps {
   papers: Paper[]
+}
+
+function parseKeywords(raw: string): string[] {
+  return raw
+    .split(',')
+    .map((k) => k.trim().toLowerCase().replace(/\s+/g, '-'))
+    .filter(Boolean)
 }
 
 export function ContinueReading({ papers }: ContinueReadingProps) {
@@ -39,13 +48,37 @@ export function ContinueReading({ papers }: ContinueReadingProps) {
             className="block p-5 hover:bg-muted/30 transition-colors"
           >
             <div className="flex flex-col gap-2">
-              <div className="flex flex-col gap-0.5 min-w-0">
-                <h2 className="truncate text-sm font-normal leading-snug">{paper.title}</h2>
-                <p className="text-muted-foreground font-mono text-xs truncate">{paper.authors}</p>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <h2 className="truncate text-sm font-normal leading-snug">{paper.title}</h2>
+                  <p className="text-muted-foreground font-mono text-xs truncate">
+                    {paper.authors}
+                  </p>
+                </div>
+                {paper.year ? (
+                  <span className="text-muted-foreground font-mono text-xs shrink-0">
+                    {paper.year}
+                  </span>
+                ) : null}
               </div>
-              <p className="text-muted-foreground text-xs line-clamp-2 leading-relaxed">
+              <p className="text-muted-foreground text-xs truncate leading-relaxed">
                 {paper.synopsis}
               </p>
+              {(() => {
+                const keywords = parseKeywords(paper.keywords)
+                return keywords.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {keywords.map((k) => (
+                      <span
+                        key={k}
+                        className="bg-pill rounded-[3px] px-1.5 py-px text-xs text-muted-foreground"
+                      >
+                        #{k}
+                      </span>
+                    ))}
+                  </div>
+                ) : null
+              })()}
             </div>
           </Link>
         ))}

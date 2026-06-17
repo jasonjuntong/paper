@@ -37,9 +37,16 @@ export function PaperGrid({ rows }: PaperGridProps) {
             >
               <div className="flex flex-1 flex-col">
                 {/* pinned top */}
-                <p className="font-mono text-xs text-muted-foreground">
-                  {row.year} · {formatAuthors(row.authors)}
-                </p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="truncate font-mono text-xs text-muted-foreground">
+                    {formatAuthors(row.authors)}
+                  </p>
+                  {row.year ? (
+                    <span className="shrink-0 font-mono text-xs text-muted-foreground">
+                      {row.year}
+                    </span>
+                  ) : null}
+                </div>
                 {/* middle content */}
                 <h3 className="font-base mt-1 line-clamp-3 leading-[1.35] tracking-[-0.005em]">
                   {row.title}
