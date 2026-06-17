@@ -20,6 +20,7 @@ export function PdfReaderDialog({ paperId, title, open, onOpenChange }: PdfReade
   const renderTaskRef = useRef<RenderTask | null>(null)
   const pageRef = useRef(1)
 
+  const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null)
   const [numPages, setNumPages] = useState(0)
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
@@ -63,7 +64,7 @@ export function PdfReaderDialog({ paperId, title, open, onOpenChange }: PdfReade
     }
   }, [])
 
-  // Load the document when the dialog opens.
+  // Load the document when the dialog opens; tear it down on close.
   useEffect(() => {
     if (!open) return
     let cancelled = false
@@ -72,6 +73,7 @@ export function PdfReaderDialog({ paperId, title, open, onOpenChange }: PdfReade
     setError(false)
     setNumPages(0)
     setPage(1)
+    setPdfDoc(null)
 
     ;(async () => {
       try {
@@ -87,7 +89,7 @@ export function PdfReaderDialog({ paperId, title, open, onOpenChange }: PdfReade
         pdfDocRef.current = pdf
         setNumPages(pdf.numPages)
         setLoading(false)
-        await renderPage(1)
+        setPdfDoc(pdf)
       } catch (err) {
         console.error('[pdf-reader] failed to load PDF:', err)
         if (!cancelled) {
@@ -101,23 +103,27 @@ export function PdfReaderDialog({ paperId, title, open, onOpenChange }: PdfReade
       cancelled = true
       renderTaskRef.current?.cancel()
       renderTaskRef.current = null
-      pdfDocRef.current?.destroy()
+      const doc = pdfDocRef.current
       pdfDocRef.current = null
+      setPdfDoc(null)
+      doc?.destroy()
     }
-  }, [open, paperId, renderPage])
+  }, [open, paperId])
 
-  // Re-render on page change.
+  // Render the current page whenever the doc becomes ready or the page changes.
   useEffect(() => {
-    if (!open || loading || error) return
+    if (!pdfDoc) return
     renderPage(page)
-  }, [page, open, loading, error, renderPage])
+  }, [pdfDoc, page, renderPage])
 
-  // Re-render on container resize.
+  // Re-render on container resize (covers initial layout settling).
   useEffect(() => {
     if (!open) return
     const container = containerRef.current
     if (!container) return
-    const observer = new ResizeObserver(() => renderPage(pageRef.current))
+    const observer = new ResizeObserver(() => {
+      if (pdfDocRef.current) renderPage(pageRef.current)
+    })
     observer.observe(container)
     return () => observer.disconnect()
   }, [open, renderPage])

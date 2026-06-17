@@ -31,10 +31,26 @@ export async function GET(
   const [metadata] = await file.getMetadata()
   const size = Number(metadata.size)
 
+  // Stable, content-derived validator (the PDF bytes for a paperId never change).
+  const etag = `"${metadata.md5Hash ?? metadata.generation ?? size}"`
+
+  // Revalidation: the access check above already ran, so a user who lost access
+  // gets 403 before reaching here. Otherwise the cached copy is still valid →
+  // 304, and the browser reuses its bytes without re-downloading.
+  if (req.headers.get('if-none-match') === etag) {
+    return new Response(null, {
+      status: 304,
+      headers: { ETag: etag, 'Cache-Control': 'private, no-cache' },
+    })
+  }
+
   const baseHeaders: Record<string, string> = {
     'Content-Type': 'application/pdf',
     'Accept-Ranges': 'bytes',
-    'Cache-Control': 'private, no-store',
+    // private: browser-only (never a shared/CDN cache, since access is gated).
+    // no-cache: stored, but revalidated every use so access is re-checked.
+    'Cache-Control': 'private, no-cache',
+    ETag: etag,
   }
 
   // Range request — serve the requested byte slice as 206 Partial Content.

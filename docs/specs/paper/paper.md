@@ -172,6 +172,18 @@ Reading a paper is a core Scolar feature. Papers are read in a **large modal rea
 - The handler honors HTTP **Range** requests (`206 Partial Content`) so `pdfjs-dist` loads pages efficiently, and streams bytes rather than buffering the whole file
 - Bandwidth flows through the server; at launch scale this is negligible. If reading volume grows, the serving layer can be swapped to short-TTL signed URLs without touching the reader UI
 
+**Caching (browser-private, revalidated):**
+
+A paper's PDF bytes are **immutable** (the file for a `paperId` never changes — it is content-addressed by hash), so responses are cacheable in the user's own browser. Caching is configured to keep access enforcement intact:
+
+- `Cache-Control: private, no-cache` — `private` means only the user's own browser may store it (never a shared/CDN cache, since the content is access-gated); `no-cache` means the browser **may store** the bytes but **must revalidate before every use**.
+- Each response carries an `ETag` derived from the Cloud Storage object's `md5Hash` (stable, since the bytes never change).
+- On revalidation (`If-None-Match`), the route runs the **`checkVisibility` access check first**:
+  - Access lost → `403`, and the browser does **not** serve its cached copy (effectively revoked).
+  - Still allowed → `304 Not Modified` with no body — the browser reuses its cached bytes with **no re-download**.
+
+This gives near-instant reopen and minimal bandwidth (only headers travel on a cache hit) while access is re-checked on **every** request. Note: a server cannot force-evict an already-cached browser copy; revocation is enforced via the mandatory revalidation, not by pushing a purge.
+
 > Org members can only reach the reader for papers already in their own library today — the detail page (and thus the reader entry point) is owner-only until paper sharing UI lands. The proxy's access check already supports org-shared reading for when that arrives.
 
 ---
