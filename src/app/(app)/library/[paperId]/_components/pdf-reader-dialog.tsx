@@ -1,10 +1,11 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Loader2, MoveHorizontal, MoveVertical, X } from 'lucide-react'
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogClose, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { cn } from '@/lib/utils'
 
 interface PdfReaderDialogProps {
   paperId: string
@@ -25,10 +26,13 @@ export function PdfReaderDialog({ paperId, title, open, onOpenChange }: PdfReade
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [ready, setReady] = useState(false)
+  const [fitMode, setFitMode] = useState<'width' | 'height'>('width')
 
   pageRef.current = page
 
-  // Render a single page, scaled to fit the container (contain), crisp on HiDPI.
+  // Render a single page scaled to fit either the container width (default;
+  // page scrolls vertically) or its height (whole page visible), crisp on HiDPI.
   const renderPage = useCallback(async (num: number) => {
     const pdf = pdfDocRef.current
     const canvas = canvasRef.current
@@ -44,7 +48,8 @@ export function PdfReaderDialog({ paperId, title, open, onOpenChange }: PdfReade
     if (availW <= 0 || availH <= 0) return
 
     const dpr = window.devicePixelRatio || 1
-    const cssScale = Math.min(availW / unscaled.width, availH / unscaled.height)
+    const cssScale =
+      fitMode === 'width' ? availW / unscaled.width : availH / unscaled.height
     const viewport = pageObj.getViewport({ scale: cssScale * dpr })
 
     canvas.width = Math.floor(viewport.width)
@@ -56,13 +61,14 @@ export function PdfReaderDialog({ paperId, title, open, onOpenChange }: PdfReade
       const task = pageObj.render({ canvas, viewport })
       renderTaskRef.current = task
       await task.promise
+      setReady(true)
     } catch (err) {
       // Cancelled renders throw — ignore those, surface anything else.
       if ((err as { name?: string })?.name !== 'RenderingCancelledException') {
         setError(true)
       }
     }
-  }, [])
+  }, [fitMode])
 
   // Load the document when the dialog opens; tear it down on close.
   useEffect(() => {
@@ -71,6 +77,8 @@ export function PdfReaderDialog({ paperId, title, open, onOpenChange }: PdfReade
 
     setLoading(true)
     setError(false)
+    setReady(false)
+    setFitMode('width')
     setNumPages(0)
     setPage(1)
     setPdfDoc(null)
@@ -116,6 +124,11 @@ export function PdfReaderDialog({ paperId, title, open, onOpenChange }: PdfReade
     renderPage(page)
   }, [pdfDoc, page, renderPage])
 
+  // Start each page (and each fit-mode change) at the top.
+  useEffect(() => {
+    if (containerRef.current) containerRef.current.scrollTop = 0
+  }, [page, fitMode])
+
   // Re-render on container resize (covers initial layout settling).
   useEffect(() => {
     if (!open) return
@@ -149,15 +162,25 @@ export function PdfReaderDialog({ paperId, title, open, onOpenChange }: PdfReade
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         aria-describedby={undefined}
-        className="flex h-[92vh] w-[92vw] select-none flex-col gap-0 overflow-hidden p-0 sm:max-w-none"
+        showCloseButton={false}
+        className="flex h-[92vh] w-[92vw] select-none flex-col gap-0 overflow-hidden p-0 sm:max-w-[1240px]"
       >
-        <div className="flex items-center border-b px-4 py-3 pr-12">
-          <DialogTitle className="truncate">{title}</DialogTitle>
-        </div>
+        <DialogTitle className="sr-only">{title}</DialogTitle>
+
+        <DialogClose asChild>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="absolute right-4 top-4 z-10 rounded-lg border bg-background/80 shadow-lg backdrop-blur supports-backdrop-filter:bg-background/60"
+          >
+            <X className="size-4" />
+            <span className="sr-only">Close</span>
+          </Button>
+        </DialogClose>
 
         <div
           ref={containerRef}
-          className="relative flex flex-1 items-center justify-center overflow-hidden bg-muted/40 p-4"
+          className="relative flex flex-1 items-start justify-center overflow-y-auto overflow-x-hidden bg-muted/40 p-4 pb-20 [scrollbar-gutter:stable]"
         >
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center">
@@ -169,34 +192,59 @@ export function PdfReaderDialog({ paperId, title, open, onOpenChange }: PdfReade
               This paper could not be loaded.
             </p>
           )}
-          {!error && <canvas ref={canvasRef} className="shadow-sm" />}
+          {!error && (
+            <canvas ref={canvasRef} className={cn('shadow-sm', !ready && 'invisible')} />
+          )}
         </div>
 
-        <div className="flex items-center justify-center gap-4 border-t px-4 py-3">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1"
-            onClick={goPrev}
-            disabled={loading || error || page <= 1}
-          >
-            <ChevronLeft className="size-4" />
-            Previous
-          </Button>
-          <span className="font-mono text-xs tabular-nums text-muted-foreground">
-            {numPages ? `${page} / ${numPages}` : '—'}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1"
-            onClick={goNext}
-            disabled={loading || error || page >= numPages}
-          >
-            Next
-            <ChevronRight className="size-4" />
-          </Button>
-        </div>
+        {!loading && !error && numPages > 0 && (
+          <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-lg border bg-background/80 px-2 py-1.5 shadow-lg backdrop-blur supports-backdrop-filter:bg-background/60">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={goPrev}
+              disabled={page <= 1}
+            >
+              <ChevronLeft className="size-4" />
+              <span className="sr-only">Previous page</span>
+            </Button>
+            <span className="min-w-14 text-center font-mono text-xs tabular-nums text-muted-foreground">
+              {page} / {numPages}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={goNext}
+              disabled={page >= numPages}
+            >
+              <ChevronRight className="size-4" />
+              <span className="sr-only">Next page</span>
+            </Button>
+
+            <span className="mx-0.5 h-5 w-px bg-border" />
+
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className={cn(fitMode === 'width' && 'bg-muted text-foreground')}
+              aria-pressed={fitMode === 'width'}
+              onClick={() => setFitMode('width')}
+            >
+              <MoveHorizontal className="size-4" />
+              <span className="sr-only">Fit width</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className={cn(fitMode === 'height' && 'bg-muted text-foreground')}
+              aria-pressed={fitMode === 'height'}
+              onClick={() => setFitMode('height')}
+            >
+              <MoveVertical className="size-4" />
+              <span className="sr-only">Fit height</span>
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )
