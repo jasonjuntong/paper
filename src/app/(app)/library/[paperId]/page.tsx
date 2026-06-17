@@ -5,6 +5,7 @@ import { getSession } from '@/lib/session'
 import { adminFirestore } from '@/lib/firebase/admin'
 import { PaperTabs } from './_components/paper-tabs'
 import { PaperActions } from './_components/paper-actions'
+import { MarkOpened } from './_components/mark-opened'
 
 function parseKeywords(raw: string): string[] {
   return raw
@@ -34,27 +35,32 @@ export default async function PaperDetailPage({
     adminFirestore.collection('papers').doc(paperId).get(),
   ])
 
-  if (!paperSnap.exists || entrySnap.empty) notFound()
+  if (entrySnap.empty) notFound()
 
   const entryId = entrySnap.docs[0].id
-  const data = paperSnap.data()!
-  const title = data.title as string
-  const authors = data.authors as string
-  const year = data.year as number
-  const keywords = parseKeywords((data.keywords as string) ?? '')
-  const synopsis = data.synopsis as string
+  const entryData = entrySnap.docs[0].data()
+
+  // Library entry owns display fields; global paper is fallback for old entries
+  const globalData = paperSnap.exists ? paperSnap.data()! : {}
+  const title = (entryData.title ?? globalData.title ?? '') as string
+  const authors = (entryData.authors ?? globalData.authors ?? '') as string
+  const year = (entryData.year ?? globalData.year ?? 0) as number
+  const rawKeywords = (entryData.keywords ?? globalData.keywords ?? '') as string
+  const keywords = parseKeywords(rawKeywords)
+  const synopsis = (entryData.synopsis ?? globalData.synopsis ?? '') as string
 
   const paperMeta = {
     paperId,
     title,
     authors,
     year,
-    keywords: (data.keywords as string) ?? '',
+    keywords: rawKeywords,
     synopsis,
   }
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-4 lg:px-6">
+      <MarkOpened entryId={entryId} />
       <Link
         href="/library"
         className="inline-flex items-center gap-1 text-sm hover:text-foreground transition-colors w-fit"

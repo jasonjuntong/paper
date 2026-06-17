@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { UploadPaperDialog } from '@/components/upload-paper-dialog'
+import { AddPaperDialog } from '@/components/add-paper-dialog'
 
 export function AddPaperButton() {
   const [open, setOpen] = useState(false)
@@ -14,7 +14,7 @@ export function AddPaperButton() {
         <Plus />
         Add paper
       </Button>
-      <UploadPaperDialog open={open} onOpenChange={setOpen} />
+      <AddPaperDialog open={open} onOpenChange={setOpen} />
     </>
   )
 }

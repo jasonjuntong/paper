@@ -3,7 +3,8 @@ import { z } from 'zod'
 import { getSession } from '@/lib/session'
 import { adminFirestore } from '@/lib/firebase/admin'
 import { extractPaperMetadata } from '@/lib/groq'
-import type { InitResponse } from '@/types/paper'
+import { checkVisibility } from '@/lib/paper-dedup'
+import type { InitResponse, ExistingPaperInfo } from '@/types/paper'
 
 const InitSchema = z.object({
   hash: z.string().min(1),
@@ -31,35 +32,51 @@ export async function POST(req: NextRequest) {
 
   if (!hashSnap.empty) {
     const existingPaperId = hashSnap.docs[0].id
+    const data = hashSnap.docs[0].data()
+    const em = (data.extractedMetadata ?? {}) as Record<string, unknown>
 
-    const alreadyOwned = await adminFirestore
-      .collection('users')
-      .doc(session.uid)
-      .collection('library')
-      .where('paperId', '==', existingPaperId)
-      .limit(1)
-      .get()
-
-    if (alreadyOwned.empty) {
-      await adminFirestore
-        .collection('users')
-        .doc(session.uid)
-        .collection('library')
-        .doc()
-        .set({
-          paperId: existingPaperId,
-          userId: session.uid,
-          shares: [],
-          createdAt: new Date(),
-        })
+    const paper: ExistingPaperInfo = {
+      paperId: existingPaperId,
+      title: (em.title ?? data.title ?? '') as string,
+      authors: (em.authors ?? data.authors ?? '') as string,
+      year: String(em.year ?? data.year ?? ''),
+      keywords: (em.keywords ?? data.keywords ?? '') as string,
+      synopsis: (em.synopsis ?? data.synopsis ?? '') as string,
     }
 
+    const vis = await checkVisibility(session.uid, existingPaperId)
+
+    if (vis.visibility === 'in-library') {
+      return NextResponse.json<InitResponse>({
+        status: 'in-library',
+        paper,
+        entryId: vis.entryId,
+      })
+    }
+
+    if (vis.visibility === 'in-org') {
+      return NextResponse.json<InitResponse>({
+        status: 'in-org',
+        paper,
+        orgs: vis.orgs,
+        existingPaperId,
+      })
+    }
+
+    // Not visible — silent dedup: return extracted fields as draft
     return NextResponse.json<InitResponse>({
-      status: 'duplicate',
-      message: 'This paper already exists in Scolar — it has been added to your library anyway.',
+      status: 'ok',
+      draft: {
+        title: paper.title,
+        authors: paper.authors,
+        year: paper.year,
+        keywords: paper.keywords,
+        synopsis: paper.synopsis,
+      },
+      existingPaperId,
     })
   }
 
   const draft = await extractPaperMetadata(pages)
-  return NextResponse.json<InitResponse>({ status: 'ok', draft })
+  return NextResponse.json<InitResponse>({ status: 'ok', draft, existingPaperId: null })
 }

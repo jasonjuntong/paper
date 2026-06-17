@@ -1,3 +1,4 @@
+import { Inbox } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 
 type PendingItem =
@@ -18,8 +19,6 @@ const labelMap: Record<PendingItem['type'], string> = {
 }
 
 export function PendingActivity() {
-  if (!mockItems.length) return null
-
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -27,6 +26,15 @@ export function PendingActivity() {
           pending
         </span>
       </div>
+      {mockItems.length === 0 ? (
+        <Card className="flex flex-col items-center gap-2 px-5 py-10 text-center">
+          <Inbox className="size-6 text-muted-foreground/60" />
+          <p className="text-sm font-medium">Nothing pending</p>
+          <p className="text-muted-foreground text-xs max-w-xs">
+            Invites, join requests, and transfer offers will show up here.
+          </p>
+        </Card>
+      ) : (
       <Card className="gap-0 divide-y p-0">
         {mockItems.map((item, i) => (
           <div key={i} className="flex items-center gap-5 overflow-hidden px-5 py-3">
@@ -46,6 +54,7 @@ export function PendingActivity() {
           </div>
         ))}
       </Card>
+      )}
     </div>
   )
 }

@@ -12,7 +12,7 @@ export async function extractPaperMetadata(pages: string[]): Promise<PaperMetada
 - authors: all authors comma-separated (e.g. "Smith, J., Jones, A.")
 - year: publication year as a 4-digit string (e.g. "2023")
 - keywords: keywords or topics comma-separated
-- synopsis: a 2-3 sentence summary of the paper's contribution
+- synopsis: the section that summarizes the paper's purpose, methodology, and findings. This section may be titled Abstract, Summary, Executive Summary, Rationale, Overview, or similar — identify it by its role, not its heading
 
 Paper text:
 ${text.slice(0, 12000)}`

@@ -23,22 +23,27 @@ export default async function LibraryPage() {
     paperRefs.length > 0 ? await adminFirestore.getAll(...paperRefs) : []
 
   const paperRows: PaperRow[] = entriesSnap.docs.flatMap((entryDoc, i) => {
-    const paperDoc = paperDocs[i]
-    if (!paperDoc.exists) return []
-    const paper = paperDoc.data()!
     const entry = entryDoc.data()
-    const sharedWith = (paper.sharedWith as string[] | undefined) ?? []
+    // Library entry owns display fields; global paper is fallback for old entries
+    const paperDoc = paperDocs[i]
+    const paper = paperDoc?.exists ? paperDoc.data()! : {}
+    const title = (entry.title ?? paper.title ?? '') as string
+    const authors = (entry.authors ?? paper.authors ?? '') as string
+    const year = (entry.year ?? paper.year ?? 0) as number
+    const keywords = (entry.keywords ?? paper.keywords ?? '') as string
+    const synopsis = (entry.synopsis ?? paper.synopsis ?? '') as string
+    const shares = (entry.shares as string[] | undefined) ?? []
     return [
       {
         entryId: entryDoc.id,
         paperId: entry.paperId as string,
-        title: paper.title as string,
-        authors: paper.authors as string,
-        year: paper.year as number,
-        keywords: paper.keywords as string,
-        synopsis: paper.synopsis as string,
+        title,
+        authors,
+        year,
+        keywords,
+        synopsis,
         addedAt: (entry.createdAt as Timestamp).toDate(),
-        shared: sharedWith.length > 0,
+        shared: shares.length > 0,
       },
     ]
   })

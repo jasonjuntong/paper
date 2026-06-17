@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { CircleCheck } from 'lucide-react'
+import { CircleCheck, Pencil } from 'lucide-react'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,6 +16,7 @@ import {
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
 
 const MetadataSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -38,12 +39,49 @@ export interface PaperMetadata {
 }
 
 interface EditPaperDialogProps {
+  entryId: string
   paper: PaperMetadata
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-export function EditPaperDialog({ paper, open, onOpenChange }: EditPaperDialogProps) {
+function ReadOnlyInput({ value, onUnlock }: { value: string; onUnlock: () => void }) {
+  return (
+    <div className="relative flex h-9 w-full items-center rounded-md border border-input bg-muted/40 px-3 text-sm">
+      <span className={cn('flex-1 min-w-0 truncate', !value && 'text-muted-foreground italic')}>
+        {value || 'Not set'}
+      </span>
+      <button
+        type="button"
+        aria-label="Edit field"
+        className="ml-2 shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+        onClick={onUnlock}
+      >
+        <Pencil className="size-3.5" />
+      </button>
+    </div>
+  )
+}
+
+function ReadOnlyTextarea({ value, onUnlock }: { value: string; onUnlock: () => void }) {
+  return (
+    <div className="relative rounded-md border border-input bg-muted/40 px-3 py-2 text-sm min-h-[100px]">
+      <p className={cn('leading-relaxed pr-7', !value && 'text-muted-foreground italic')}>
+        {value || 'Not set'}
+      </p>
+      <button
+        type="button"
+        aria-label="Edit field"
+        className="absolute right-2 top-2 text-muted-foreground hover:text-foreground transition-colors"
+        onClick={onUnlock}
+      >
+        <Pencil className="size-3.5" />
+      </button>
+    </div>
+  )
+}
+
+export function EditPaperDialog({ entryId, paper, open, onOpenChange }: EditPaperDialogProps) {
   const router = useRouter()
   const [form, setForm] = useState<FormState>({
     title: paper.title,
@@ -52,6 +90,7 @@ export function EditPaperDialog({ paper, open, onOpenChange }: EditPaperDialogPr
     keywords: paper.keywords,
     synopsis: paper.synopsis,
   })
+  const [unlockedFields, setUnlockedFields] = useState<Set<keyof FormState>>(new Set())
   const [errors, setErrors] = useState<FormErrors>({})
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -65,9 +104,14 @@ export function EditPaperDialog({ paper, open, onOpenChange }: EditPaperDialogPr
         keywords: paper.keywords,
         synopsis: paper.synopsis,
       })
+      setUnlockedFields(new Set())
       setErrors({})
     }
     onOpenChange(next)
+  }
+
+  function unlockField(field: keyof FormState) {
+    setUnlockedFields((prev) => new Set([...prev, field]))
   }
 
   function handleChange(field: keyof FormState, value: string) {
@@ -95,7 +139,7 @@ export function EditPaperDialog({ paper, open, onOpenChange }: EditPaperDialogPr
       const res = await fetch('/api/papers/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paperId: paper.paperId, ...result.data }),
+        body: JSON.stringify({ entryId, ...result.data }),
       })
       if (!res.ok) throw new Error('Failed')
       setSaved(true)
@@ -125,88 +169,108 @@ export function EditPaperDialog({ paper, open, onOpenChange }: EditPaperDialogPr
             <p className="text-sm font-medium">Details updated</p>
           </div>
         ) : (
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>Edit details</DialogTitle>
-            <DialogDescription>
-              Update the metadata for this paper. All fields are required.
-            </DialogDescription>
-          </DialogHeader>
+          <form onSubmit={handleSubmit} className="min-w-0">
+            <DialogHeader>
+              <DialogTitle>Edit paper details</DialogTitle>
+              <DialogDescription>
+                Click the pencil icon to edit a field. All fields are required.
+              </DialogDescription>
+            </DialogHeader>
 
-          <div className="mt-4 flex flex-col gap-4">
-            <Field>
-              <FieldLabel>Title</FieldLabel>
-              <Input
-                value={form.title}
-                onChange={(e) => handleChange('title', e.target.value)}
-                aria-invalid={!!errors.title}
-              />
-              {errors.title && <FieldError>{errors.title}</FieldError>}
-            </Field>
-
-            <Field>
-              <FieldLabel>Authors</FieldLabel>
-              <Input
-                value={form.authors}
-                placeholder="e.g. Smith, J.; Jones, A."
-                onChange={(e) => handleChange('authors', e.target.value)}
-                aria-invalid={!!errors.authors}
-              />
-              {errors.authors && <FieldError>{errors.authors}</FieldError>}
-            </Field>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Field>
-                <FieldLabel>Year</FieldLabel>
-                <Input
-                  type="number"
-                  min={1000}
-                  max={9999}
-                  value={form.year}
-                  onChange={(e) => handleChange('year', e.target.value)}
-                  aria-invalid={!!errors.year}
-                />
-                {errors.year && <FieldError>{errors.year}</FieldError>}
+            <div className="mt-4 flex flex-col gap-4 min-w-0">
+              <Field className="min-w-0">
+                <FieldLabel>Title</FieldLabel>
+                {unlockedFields.has('title') ? (
+                  <Input
+                    value={form.title}
+                    onChange={(e) => handleChange('title', e.target.value)}
+                    aria-invalid={!!errors.title}
+                  />
+                ) : (
+                  <ReadOnlyInput value={form.title} onUnlock={() => unlockField('title')} />
+                )}
+                {errors.title && <FieldError>{errors.title}</FieldError>}
               </Field>
 
-              <Field>
-                <FieldLabel>Keywords</FieldLabel>
-                <Input
-                  value={form.keywords}
-                  placeholder="comma-separated"
-                  onChange={(e) => handleChange('keywords', e.target.value)}
-                  aria-invalid={!!errors.keywords}
-                />
-                {errors.keywords && <FieldError>{errors.keywords}</FieldError>}
+              <Field className="min-w-0">
+                <FieldLabel>Authors</FieldLabel>
+                {unlockedFields.has('authors') ? (
+                  <Input
+                    value={form.authors}
+                    placeholder="e.g. Smith, J.; Jones, A."
+                    onChange={(e) => handleChange('authors', e.target.value)}
+                    aria-invalid={!!errors.authors}
+                  />
+                ) : (
+                  <ReadOnlyInput value={form.authors} onUnlock={() => unlockField('authors')} />
+                )}
+                {errors.authors && <FieldError>{errors.authors}</FieldError>}
+              </Field>
+
+              <div className="grid grid-cols-[88px_minmax(0,1fr)] gap-4">
+                <Field className="min-w-0">
+                  <FieldLabel>Year</FieldLabel>
+                  {unlockedFields.has('year') ? (
+                    <Input
+                      type="number"
+                      min={1000}
+                      max={9999}
+                      value={form.year}
+                      onChange={(e) => handleChange('year', e.target.value)}
+                      aria-invalid={!!errors.year}
+                    />
+                  ) : (
+                    <ReadOnlyInput value={form.year} onUnlock={() => unlockField('year')} />
+                  )}
+                  {errors.year && <FieldError>{errors.year}</FieldError>}
+                </Field>
+
+                <Field className="min-w-0">
+                  <FieldLabel>Keywords</FieldLabel>
+                  {unlockedFields.has('keywords') ? (
+                    <Input
+                      value={form.keywords}
+                      placeholder="comma-separated"
+                      onChange={(e) => handleChange('keywords', e.target.value)}
+                      aria-invalid={!!errors.keywords}
+                    />
+                  ) : (
+                    <ReadOnlyInput value={form.keywords} onUnlock={() => unlockField('keywords')} />
+                  )}
+                  {errors.keywords && <FieldError>{errors.keywords}</FieldError>}
+                </Field>
+              </div>
+
+              <Field className="min-w-0">
+                <FieldLabel>Synopsis</FieldLabel>
+                {unlockedFields.has('synopsis') ? (
+                  <Textarea
+                    value={form.synopsis}
+                    rows={4}
+                    onChange={(e) => handleChange('synopsis', e.target.value)}
+                    aria-invalid={!!errors.synopsis}
+                  />
+                ) : (
+                  <ReadOnlyTextarea value={form.synopsis} onUnlock={() => unlockField('synopsis')} />
+                )}
+                {errors.synopsis && <FieldError>{errors.synopsis}</FieldError>}
               </Field>
             </div>
 
-            <Field>
-              <FieldLabel>Synopsis</FieldLabel>
-              <Textarea
-                value={form.synopsis}
-                rows={4}
-                onChange={(e) => handleChange('synopsis', e.target.value)}
-                aria-invalid={!!errors.synopsis}
-              />
-              {errors.synopsis && <FieldError>{errors.synopsis}</FieldError>}
-            </Field>
-          </div>
-
-          <DialogFooter className="mt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              disabled={saving}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={saving}>
-              {saving ? 'Saving…' : 'Save changes'}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="mt-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+                disabled={saving}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={saving}>
+                {saving ? 'Saving…' : 'Save changes'}
+              </Button>
+            </DialogFooter>
+          </form>
         )}
       </DialogContent>
     </Dialog>

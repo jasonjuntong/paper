@@ -26,7 +26,7 @@ export default async function DashboardPage() {
   const weekAgo = Timestamp.fromMillis(Date.now() - WEEK_MS)
 
   const [recentSnap, libraryCountSnap, weekCountSnap] = await Promise.all([
-    libraryRef.orderBy('createdAt', 'desc').limit(3).get(),
+    libraryRef.orderBy('lastOpenedAt', 'desc').limit(5).get(),
     libraryRef.count().get(),
     libraryRef.where('createdAt', '>=', weekAgo).count().get(),
   ])
@@ -39,6 +39,7 @@ export default async function DashboardPage() {
       description: 'LIBRARY',
       value: libraryCount,
       footer: libraryCount === 0 ? null : `${weekCount} added this week`,
+      href: '/library',
     },
     { description: 'SHARED WITH YOU', value: null, footer: 'Nothing shared yet' },
     { description: 'ORGS', value: null, footer: 'No org joined yet' },
@@ -49,16 +50,15 @@ export default async function DashboardPage() {
     await Promise.all(
       recentSnap.docs.map(async (entryDoc) => {
         const entry = entryDoc.data()
+        // Library entry owns display fields; global paper is fallback for old entries
         const paperDoc = await adminFirestore.collection('papers').doc(entry.paperId).get()
-        if (!paperDoc.exists) return null
-        const paper = paperDoc.data()!
+        const paper = paperDoc.exists ? paperDoc.data()! : {}
         return {
           entryId: entryDoc.id,
-          paperId: entry.paperId,
-          title: paper.title as string,
-          authors: paper.authors as string,
-          synopsis: paper.synopsis as string,
-          progress: 0,
+          paperId: entry.paperId as string,
+          title: (entry.title ?? paper.title ?? '') as string,
+          authors: (entry.authors ?? paper.authors ?? '') as string,
+          synopsis: (entry.synopsis ?? paper.synopsis ?? '') as string,
         }
       })
     )

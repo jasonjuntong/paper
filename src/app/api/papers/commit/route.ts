@@ -4,8 +4,8 @@ import { FieldValue } from 'firebase-admin/firestore'
 import { getSession } from '@/lib/session'
 import { adminFirestore, adminStorage } from '@/lib/firebase/admin'
 import { generatePaperEmbedding } from '@/lib/gemini'
-import { normalizeTitle, normalizeFirstAuthor } from '@/lib/normalize'
-import type { CommitResponse } from '@/types/paper'
+import { checkVisibility, ensureLibraryEntry } from '@/lib/paper-dedup'
+import type { CommitResponse, ExistingPaperInfo } from '@/types/paper'
 
 const CommitSchema = z.object({
   title: z.string().min(1),
@@ -13,6 +13,12 @@ const CommitSchema = z.object({
   year: z.string().regex(/^\d{4}$/, 'Year must be a 4-digit number'),
   keywords: z.string().min(1),
   synopsis: z.string().min(1),
+  emTitle: z.string().optional(),
+  emAuthors: z.string().optional(),
+  emYear: z.string().optional(),
+  emKeywords: z.string().optional(),
+  emSynopsis: z.string().optional(),
+  existingPaperId: z.string().optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -28,79 +34,115 @@ export async function POST(req: NextRequest) {
     year: formData.get('year'),
     keywords: formData.get('keywords'),
     synopsis: formData.get('synopsis'),
+    emTitle: formData.get('emTitle') ?? undefined,
+    emAuthors: formData.get('emAuthors') ?? undefined,
+    emYear: formData.get('emYear') ?? undefined,
+    emKeywords: formData.get('emKeywords') ?? undefined,
+    emSynopsis: formData.get('emSynopsis') ?? undefined,
+    existingPaperId: formData.get('existingPaperId') ?? undefined,
   }
 
   const parsed = CommitSchema.safeParse(fields)
   if (!parsed.success) {
     return NextResponse.json(
-      { error: 'Invalid metadata', issues: parsed.error.flatten() },
+      { error: 'Invalid paper details', issues: parsed.error.flatten() },
       { status: 400 }
     )
   }
 
-  const { title, authors, year, keywords, synopsis } = parsed.data
+  const { title, authors, year, keywords, synopsis, existingPaperId } = parsed.data
+  const yearNum = parseInt(year, 10)
   const hash = formData.get('hash') as string | null
 
-  const titleNorm = normalizeTitle(title)
-  const firstAuthorNorm = normalizeFirstAuthor(authors)
-  const yearNum = parseInt(year, 10)
-
-  // Layer 2 dedup — check by normalized metadata
-  const metaSnap = await adminFirestore
-    .collection('papers')
-    .where('titleNorm', '==', titleNorm)
-    .where('firstAuthorNorm', '==', firstAuthorNorm)
-    .where('year', '==', yearNum)
-    .limit(1)
-    .get()
-
-  if (!metaSnap.empty) {
-    const existingPaperId = metaSnap.docs[0].id
-
-    const alreadyOwned = await adminFirestore
-      .collection('users')
-      .doc(session.uid)
-      .collection('library')
-      .where('paperId', '==', existingPaperId)
-      .limit(1)
-      .get()
-
-    if (alreadyOwned.empty) {
-      await adminFirestore
-        .collection('users')
-        .doc(session.uid)
-        .collection('library')
-        .doc()
-        .set({
-          paperId: existingPaperId,
-          userId: session.uid,
-          shares: [],
-          createdAt: new Date(),
-        })
-    }
-
-    return NextResponse.json<CommitResponse>({
-      status: 'duplicate',
-      message: 'This paper already exists in Scolar — it has been added to your library anyway.',
+  // Fast path — Layer 1 hit (hash matched on init) or "Proceed anyway" from in-org
+  if (existingPaperId) {
+    const entryId = await ensureLibraryEntry(session.uid, existingPaperId, {
+      title,
+      authors,
+      year: yearNum,
+      keywords,
+      synopsis,
     })
+    return NextResponse.json<CommitResponse>({ status: 'ok', entryId, paperId: existingPaperId })
   }
 
-  // Get uploaded PDF
-  const pdfFile = formData.get('pdf') as File | null
-  if (!pdfFile) return NextResponse.json({ error: 'PDF file required' }, { status: 400 })
+  // Require extracted metadata fields for new papers
+  const { emTitle, emAuthors, emYear, emKeywords, emSynopsis } = parsed.data
+  if (!emTitle || !emAuthors || !emYear || !emKeywords || !emSynopsis) {
+    return NextResponse.json({ error: 'Extracted paper details required' }, { status: 400 })
+  }
 
-  // Generate embedding before touching Storage — avoids orphaned files on failure
-  const embeddingInput = `${title} ${synopsis} ${keywords}`
+  // Generate embedding from extracted metadata (not user's confirmed version)
+  const embeddingInput = `${emTitle} ${emSynopsis} ${emKeywords}`
   const embeddingValues = await generatePaperEmbedding(embeddingInput)
   if (embeddingValues.length === 0) {
     return NextResponse.json({ error: 'Embedding generation failed' }, { status: 500 })
   }
 
+  // Layer 2 dedup — embedding similarity (cosine distance ≤ 0.08 = similarity ≥ 0.92)
+  const nearestSnap = await adminFirestore
+    .collection('papers')
+    .findNearest({
+      vectorField: 'embedding',
+      queryVector: FieldValue.vector(embeddingValues),
+      limit: 1,
+      distanceMeasure: 'COSINE',
+      distanceThreshold: 0.08,
+    })
+    .get()
+
+  if (!nearestSnap.empty) {
+    const matchedPaperId = nearestSnap.docs[0].id
+    const matchedData = nearestSnap.docs[0].data()
+    const em = (matchedData.extractedMetadata ?? {}) as Record<string, unknown>
+
+    const paper: ExistingPaperInfo = {
+      paperId: matchedPaperId,
+      title: (em.title ?? matchedData.title ?? '') as string,
+      authors: (em.authors ?? matchedData.authors ?? '') as string,
+      year: String(em.year ?? matchedData.year ?? ''),
+      keywords: (em.keywords ?? matchedData.keywords ?? '') as string,
+      synopsis: (em.synopsis ?? matchedData.synopsis ?? '') as string,
+    }
+
+    const vis = await checkVisibility(session.uid, matchedPaperId)
+
+    if (vis.visibility === 'in-library') {
+      return NextResponse.json<CommitResponse>({
+        status: 'in-library',
+        paper,
+        entryId: vis.entryId,
+      })
+    }
+
+    if (vis.visibility === 'in-org') {
+      return NextResponse.json<CommitResponse>({
+        status: 'in-org',
+        paper,
+        orgs: vis.orgs,
+        existingPaperId: matchedPaperId,
+      })
+    }
+
+    // Silent dedup — create library entry for the matched paper
+    const entryId = await ensureLibraryEntry(session.uid, matchedPaperId, {
+      title,
+      authors,
+      year: yearNum,
+      keywords,
+      synopsis,
+    })
+    return NextResponse.json<CommitResponse>({ status: 'ok', entryId, paperId: matchedPaperId })
+  }
+
+  // Genuinely new paper — upload PDF, create global paper + library entry
+  const pdfFile = formData.get('pdf') as File | null
+  if (!pdfFile) return NextResponse.json({ error: 'PDF file required' }, { status: 400 })
+
   const paperId = adminFirestore.collection('papers').doc().id
   const safeFilename = pdfFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')
   const storagePath = `papers/${paperId}/${safeFilename}`
 
-  // Upload PDF to Cloud Storage
   const pdfBuffer = Buffer.from(await pdfFile.arrayBuffer())
   await adminStorage.bucket().file(storagePath).save(pdfBuffer, {
     contentType: 'application/pdf',
@@ -109,23 +151,21 @@ export async function POST(req: NextRequest) {
   const now = new Date()
   const batch = adminFirestore.batch()
 
-  // Create global paper document
   const paperRef = adminFirestore.collection('papers').doc(paperId)
   batch.set(paperRef, {
     hash: hash ?? '',
-    title,
-    authors,
-    year: yearNum,
-    keywords,
-    synopsis,
-    titleNorm,
-    firstAuthorNorm,
-    storagePath,
+    extractedMetadata: {
+      title: emTitle,
+      authors: emAuthors,
+      year: parseInt(emYear, 10),
+      keywords: emKeywords,
+      synopsis: emSynopsis,
+    },
     embedding: FieldValue.vector(embeddingValues),
+    storagePath,
     createdAt: now,
   })
 
-  // Create user library entry
   const entryRef = adminFirestore
     .collection('users')
     .doc(session.uid)
@@ -135,6 +175,11 @@ export async function POST(req: NextRequest) {
   batch.set(entryRef, {
     paperId,
     userId: session.uid,
+    title,
+    authors,
+    year: yearNum,
+    keywords,
+    synopsis,
     shares: [],
     createdAt: now,
   })
