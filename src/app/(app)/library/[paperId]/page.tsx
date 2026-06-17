@@ -6,6 +6,7 @@ import { adminFirestore } from '@/lib/firebase/admin'
 import { PaperTabs } from './_components/paper-tabs'
 import { PaperActions } from './_components/paper-actions'
 import { MarkOpened } from './_components/mark-opened'
+import { ReadButton } from './_components/read-button'
 
 function parseKeywords(raw: string): string[] {
   return raw
@@ -94,6 +95,9 @@ export default async function PaperDetailPage({
                 ))}
               </div>
             )}
+            <div className="w-fit">
+              <ReadButton paperId={paperId} title={title} />
+            </div>
           </div>
 
           <PaperTabs
