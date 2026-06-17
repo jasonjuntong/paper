@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { UploadPaperDialog } from '@/components/upload-paper-dialog'
+import { AddPaperDialog } from '@/components/add-paper-dialog'
 
 function AddPaperIcon() {
   return (
@@ -69,7 +69,7 @@ export function NavMain() {
           ))}
         </SidebarMenu>
       </SidebarGroupContent>
-      <UploadPaperDialog open={uploadOpen} onOpenChange={setUploadOpen} />
+      <AddPaperDialog open={uploadOpen} onOpenChange={setUploadOpen} />
     </SidebarGroup>
   )
 }

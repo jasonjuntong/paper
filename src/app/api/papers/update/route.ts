@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSession } from '@/lib/session'
 import { adminFirestore } from '@/lib/firebase/admin'
-import { normalizeTitle, normalizeFirstAuthor } from '@/lib/normalize'
 
 const UpdateSchema = z.object({
-  paperId: z.string().min(1),
+  entryId: z.string().min(1),
   title: z.string().min(1, 'Title is required'),
   authors: z.string().min(1, 'Authors are required'),
   year: z.string().regex(/^\d{4}$/, 'Enter a valid 4-digit year'),
@@ -21,35 +20,43 @@ export async function POST(req: NextRequest) {
   const parsed = UpdateSchema.safeParse(body)
   if (!parsed.success) {
     return NextResponse.json(
-      { error: 'Invalid metadata', issues: parsed.error.flatten() },
+      { error: 'Invalid paper details', issues: parsed.error.flatten() },
       { status: 400 }
     )
   }
 
-  const { paperId, title, authors, year, keywords, synopsis } = parsed.data
+  const { entryId, title, authors, year, keywords, synopsis } = parsed.data
+  const yearNum = parseInt(year, 10)
 
-  // Verify the user has this paper in their library
-  const entrySnap = await adminFirestore
+  const entryRef = adminFirestore
     .collection('users')
     .doc(session.uid)
     .collection('library')
-    .where('paperId', '==', paperId)
-    .limit(1)
-    .get()
+    .doc(entryId)
 
-  if (entrySnap.empty) {
+  const entrySnap = await entryRef.get()
+  if (!entrySnap.exists) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  await adminFirestore.collection('papers').doc(paperId).update({
-    title,
-    authors,
-    year: parseInt(year, 10),
-    keywords,
-    synopsis,
-    titleNorm: normalizeTitle(title),
-    firstAuthorNorm: normalizeFirstAuthor(authors),
-  })
+  const { paperId, shares } = entrySnap.data() as { paperId: string; shares: string[] }
+
+  const updatedFields = { title, authors, year: yearNum, keywords, synopsis }
+  const batch = adminFirestore.batch()
+
+  batch.update(entryRef, updatedFields)
+
+  // Write fan-out — keep org snapshots in sync with library entry
+  for (const orgId of shares ?? []) {
+    const sharedRef = adminFirestore
+      .collection('orgs')
+      .doc(orgId)
+      .collection('sharedPapers')
+      .doc(paperId)
+    batch.update(sharedRef, updatedFields)
+  }
+
+  await batch.commit()
 
   return NextResponse.json({ status: 'ok' })
 }

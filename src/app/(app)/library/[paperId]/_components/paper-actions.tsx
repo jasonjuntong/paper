@@ -36,7 +36,7 @@ export function PaperActions({ entryId, paper }: PaperActionsProps) {
         Delete paper
       </Button>
 
-      <EditPaperDialog paper={paper} open={editOpen} onOpenChange={setEditOpen} />
+      <EditPaperDialog entryId={entryId} paper={paper} open={editOpen} onOpenChange={setEditOpen} />
       <DeletePaperDialog
         entryId={entryId}
         title={paper.title}

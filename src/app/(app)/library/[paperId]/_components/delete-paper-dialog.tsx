@@ -71,8 +71,7 @@ export function DeletePaperDialog({
               <DialogTitle>Remove from library</DialogTitle>
               <DialogDescription>
                 This removes{' '}
-                <span className="font-medium text-foreground">{title}</span> from your library. If
-                the same PDF was uploaded by someone else, their copy is unaffected.
+                <span className="font-medium text-foreground">{title}</span> from your library.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
