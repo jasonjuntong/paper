@@ -153,7 +153,30 @@ No active session-invalidation machinery is needed; correct denial falls out nat
 
 ---
 
-### 4. Similarity Search (Idea/Proposal Verification)
+### 4. PDF Reader
+
+Reading a paper is a core Scolar feature. Papers are read in a **large modal reader** rendered directly with `pdfjs-dist` (the same library used at upload) — no third-party viewer dependency.
+
+**Behavior:**
+- Opened via a **"Read paper"** button on the paper detail page
+- Renders **one page at a time**, scaled so the whole page fits within the modal at a readable size (no scrolling)
+- Controls are intentionally minimal: **Previous page**, **Next page**, and **Close** (plus arrow-key navigation and a page indicator `X / N`)
+- **No text selection / highlighting** — pages render to a canvas only (no text layer)
+- **No download affordance** — there is no download button in the UI
+
+> Download cannot be technically prevented (the bytes must reach the browser to render); "no download" means no UI affordance, not DRM.
+
+**Serving (proxy, access-gated):**
+- A route handler at `/api/papers/{paperId}/file` streams the PDF from Cloud Storage through the server (same-origin, no signed URLs or bucket CORS)
+- Access is checked on **every request** using the same visibility logic as everywhere else (`checkVisibility`) — only papers the user can see (own library or an org they belong to) are served; otherwise `403`
+- The handler honors HTTP **Range** requests (`206 Partial Content`) so `pdfjs-dist` loads pages efficiently, and streams bytes rather than buffering the whole file
+- Bandwidth flows through the server; at launch scale this is negligible. If reading volume grows, the serving layer can be swapped to short-TTL signed URLs without touching the reader UI
+
+> Org members can only reach the reader for papers already in their own library today — the detail page (and thus the reader entry point) is owner-only until paper sharing UI lands. The proxy's access check already supports org-shared reading for when that arrives.
+
+---
+
+### 5. Similarity Search (Idea/Proposal Verification)
 
 - Free for all users
 - Users input an idea or proposal as plain text
@@ -183,7 +206,7 @@ Papers outside this scope are **never** returned in their search results.
 
 ---
 
-### 5. Premium AI Features (On-Demand, Gated)
+### 6. Premium AI Features (On-Demand, Gated)
 
 - Available to **premium users only**
 - Generated using **Gemini Pro** (higher quality for the paid, quality-sensitive outputs)
