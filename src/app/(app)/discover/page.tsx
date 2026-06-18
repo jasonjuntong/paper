@@ -1,56 +1,33 @@
-import { Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { adminFirestore } from '@/lib/firebase/admin'
 import { DiscoverClient } from './_components/discover-client'
+import { CreateOrgButton } from './_components/create-org-button'
 import type { OrgItem } from './_components/org-card'
 
-const MOCK_ALL: OrgItem[] = [
-  {
-    id: '1',
-    name: 'ML Reading Group',
-    description: 'Weekly discussions on machine learning papers, from theory to applications.',
-    memberCount: 42,
-    joinPolicy: 'open',
-  },
-  {
-    id: '2',
-    name: 'Computational Biology',
-    description: 'Bridging computer science and biology through shared literature.',
-    memberCount: 18,
-    joinPolicy: 'request',
-  },
-  {
-    id: '3',
-    name: 'NLP Research Collective',
-    description: null,
-    memberCount: 91,
-    joinPolicy: 'open',
-  },
-  {
-    id: '4',
-    name: 'Climate & Earth Systems',
-    description: 'Papers on climate modeling, atmospheric science, and earth system dynamics.',
-    memberCount: 27,
-    joinPolicy: 'request',
-  },
-  {
-    id: '5',
-    name: 'Quantum Computing Papers',
-    description: 'Curated reading list for quantum algorithms and hardware.',
-    memberCount: 55,
-    joinPolicy: 'open',
-  },
-  {
-    id: '6',
-    name: 'Robotics & Embodied AI',
-    description: null,
-    memberCount: 33,
-    joinPolicy: 'invite',
-  },
-]
+async function getPublicOrgs(): Promise<OrgItem[]> {
+  const snap = await adminFirestore
+    .collection('orgs')
+    .where('visibility', '==', 'public')
+    .get()
 
-const MOCK_SUGGESTED: OrgItem[] = [MOCK_ALL[0], MOCK_ALL[2], MOCK_ALL[4]]
+  return snap.docs
+    .map((doc) => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        name: (data.name ?? '') as string,
+        description: (data.description as string) || null,
+        memberCount: (data.memberCount ?? 0) as number,
+        joinPolicy: (data.joinPolicy ?? 'request') as OrgItem['joinPolicy'],
+        createdAt: (data.createdAt?.toMillis?.() ?? 0) as number,
+      }
+    })
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .map(({ createdAt: _createdAt, ...org }) => org)
+}
 
-export default function DiscoverPage() {
+export default async function DiscoverPage() {
+  const all = await getPublicOrgs()
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 px-4 lg:px-6">
@@ -61,13 +38,10 @@ export default function DiscoverPage() {
               Find and join public research groups
             </p>
           </div>
-          <Button>
-            <Plus />
-            Create org
-          </Button>
+          <CreateOrgButton />
         </div>
       </div>
-      <DiscoverClient suggested={MOCK_SUGGESTED} all={MOCK_ALL} />
+      <DiscoverClient suggested={[]} all={all} />
     </div>
   )
 }

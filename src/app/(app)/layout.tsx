@@ -20,7 +20,14 @@ async function getUserOrgs(uid: string): Promise<OrgNavItem[]> {
 
   return orgDocs
     .filter((doc) => doc.exists)
-    .map((doc) => ({ id: doc.id, name: doc.data()!.name as string }))
+    .map((doc) => {
+      const data = doc.data()!
+      const name = data.name as string
+      const mark =
+        ((data.mark as string | undefined) ?? '').trim() ||
+        name.slice(0, 2).toUpperCase()
+      return { id: doc.id, name, mark }
+    })
 }
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
