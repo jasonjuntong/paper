@@ -1,6 +1,5 @@
-import { Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { DiscoverClient } from './_components/discover-client'
+import { CreateOrgButton } from './_components/create-org-button'
 import type { OrgItem } from './_components/org-card'
 
 const MOCK_ALL: OrgItem[] = [
@@ -61,10 +60,7 @@ export default function DiscoverPage() {
               Find and join public research groups
             </p>
           </div>
-          <Button>
-            <Plus />
-            Create org
-          </Button>
+          <CreateOrgButton />
         </div>
       </div>
       <DiscoverClient suggested={MOCK_SUGGESTED} all={MOCK_ALL} />
