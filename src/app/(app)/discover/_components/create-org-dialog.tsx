@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import {
@@ -71,23 +72,29 @@ interface CreateOrgDialogProps {
 }
 
 export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
+  const router = useRouter()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [visibility, setVisibility] = useState<Visibility>('public')
   const [joinPolicy, setJoinPolicy] = useState<JoinPolicy>('request')
   const [nameError, setNameError] = useState<string | null>(null)
   const [descError, setDescError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (open) {
+  function handleOpenChange(next: boolean) {
+    if (submitting) return
+    if (!next) {
       setName('')
       setDescription('')
       setVisibility('public')
       setJoinPolicy('request')
       setNameError(null)
       setDescError(null)
+      setSubmitError(null)
     }
-  }, [open])
+    onOpenChange(next)
+  }
 
   function handleNameChange(val: string) {
     setName(val)
@@ -105,7 +112,7 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
     else if (joinPolicy === 'invite') setJoinPolicy('request')
   }
 
-  function handleCreate() {
+  async function handleCreate() {
     const result = OrgSchema.safeParse({ name, description })
     if (!result.success) {
       const flat = result.error.flatten().fieldErrors
@@ -113,7 +120,32 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
       setDescError(flat.description?.[0] ?? null)
       return
     }
-    onOpenChange(false)
+
+    setSubmitError(null)
+    setSubmitting(true)
+    try {
+      const res = await fetch('/api/orgs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: result.data.name,
+          description: result.data.description,
+          visibility,
+          joinPolicy,
+        }),
+      })
+      if (!res.ok) throw new Error('Failed to create org')
+
+      setSubmitting(false)
+      handleOpenChange(false)
+      // The org detail route (/orgs/[orgId]) does not exist yet; send the
+      // creator to their orgs list and refresh so the new org shows up.
+      router.push('/orgs')
+      router.refresh()
+    } catch {
+      setSubmitting(false)
+      setSubmitError('Something went wrong. Please try again.')
+    }
   }
 
   const joinPolicyHint =
@@ -124,7 +156,7 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
         : 'Members join by invite only.'
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Create a new org</DialogTitle>
@@ -237,11 +269,24 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleCreate}>Create org</Button>
+        <DialogFooter className="items-center sm:justify-between">
+          {submitError ? (
+            <p className="text-xs text-destructive">{submitError}</p>
+          ) : (
+            <span />
+          )}
+          <div className="flex flex-col-reverse gap-2 sm:flex-row">
+            <Button
+              variant="ghost"
+              onClick={() => handleOpenChange(false)}
+              disabled={submitting}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleCreate} disabled={submitting}>
+              {submitting ? 'Creating…' : 'Create org'}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -1,19 +1,42 @@
 rules_version = '2';
 
+// All privileged data access in this app goes through `firebase-admin`
+// (server-side route handlers and server components), which bypasses these
+// rules. The client SDK is used for Auth only — it never reads or writes
+// Firestore directly. These rules therefore default to deny, and only open up
+// the reads that a future client-side surface would legitimately need.
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // This rule allows anyone with your Firestore database reference to view, edit,
-    // and delete all data in your Firestore database. It is useful for getting
-    // started, but it is configured to expire after 30 days because it
-    // leaves your app open to attackers. At that time, all client
-    // requests to your Firestore database will be denied.
-    //
-    // Make sure to write security rules for your app before that time, or else
-    // all client requests to your Firestore database will be denied until you Update
-    // your rules
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOrgMember(orgId) {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/orgs/$(orgId)/members/$(request.auth.uid));
+    }
+
+    // Orgs. Writes are server-only (firebase-admin) so they can enforce the
+    // member cap, role rules, and visibility invariants — never trust the
+    // client. Reads: public orgs are discoverable by anyone; private orgs and
+    // all org subcollections (members, invites, joinRequests, sharedPapers,
+    // adminTransferOffers) are restricted to members.
+    match /orgs/{orgId} {
+      allow read: if resource.data.visibility == 'public' || isOrgMember(orgId);
+      allow write: if false;
+
+      match /{sub=**} {
+        allow read: if isOrgMember(orgId);
+        allow write: if false;
+      }
+    }
+
+    // Everything else is server-managed via firebase-admin. Deny all direct
+    // client access by default.
     match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2026, 7, 9);
+      allow read, write: if false;
     }
   }
 }
