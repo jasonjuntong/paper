@@ -17,6 +17,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 
 const NAME_MAX = 60
+const MARK_MAX = 2
 const DESCRIPTION_MAX = 280
 
 const OrgSchema = z.object({
@@ -25,6 +26,11 @@ const OrgSchema = z.object({
     .trim()
     .min(1, 'Name is required')
     .max(NAME_MAX, `Name must be ${NAME_MAX} characters or less`),
+  mark: z
+    .string()
+    .trim()
+    .min(1, 'Mark is required')
+    .max(MARK_MAX, `Mark is ${MARK_MAX} letters max`),
   description: z
     .string()
     .trim()
@@ -33,6 +39,13 @@ const OrgSchema = z.object({
 
 type Visibility = 'public' | 'private'
 type JoinPolicy = 'open' | 'request' | 'invite'
+
+function getInitials(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean)
+  if (words.length === 0) return ''
+  if (words.length === 1) return words[0].slice(0, MARK_MAX).toUpperCase()
+  return (words[0][0] + words[1][0]).toUpperCase()
+}
 
 function Segmented<T extends string>({
   value,
@@ -74,10 +87,13 @@ interface CreateOrgDialogProps {
 export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
   const router = useRouter()
   const [name, setName] = useState('')
+  const [mark, setMark] = useState('')
+  const [markOverridden, setMarkOverridden] = useState(false)
   const [description, setDescription] = useState('')
   const [visibility, setVisibility] = useState<Visibility>('public')
   const [joinPolicy, setJoinPolicy] = useState<JoinPolicy>('request')
   const [nameError, setNameError] = useState<string | null>(null)
+  const [markError, setMarkError] = useState<string | null>(null)
   const [descError, setDescError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -86,10 +102,13 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
     if (submitting) return
     if (!next) {
       setName('')
+      setMark('')
+      setMarkOverridden(false)
       setDescription('')
       setVisibility('public')
       setJoinPolicy('request')
       setNameError(null)
+      setMarkError(null)
       setDescError(null)
       setSubmitError(null)
     }
@@ -98,7 +117,15 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
 
   function handleNameChange(val: string) {
     setName(val)
+    // Auto-derive the mark from the name until the user edits it directly.
+    if (!markOverridden) setMark(getInitials(val))
     if (nameError) setNameError(null)
+  }
+
+  function handleMarkChange(val: string) {
+    setMark(val.toUpperCase().slice(0, MARK_MAX))
+    setMarkOverridden(true)
+    if (markError) setMarkError(null)
   }
 
   function handleDescriptionChange(val: string) {
@@ -113,10 +140,11 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
   }
 
   async function handleCreate() {
-    const result = OrgSchema.safeParse({ name, description })
+    const result = OrgSchema.safeParse({ name, mark, description })
     if (!result.success) {
       const flat = result.error.flatten().fieldErrors
       setNameError(flat.name?.[0] ?? null)
+      setMarkError(flat.mark?.[0] ?? null)
       setDescError(flat.description?.[0] ?? null)
       return
     }
@@ -129,6 +157,7 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: result.data.name,
+          mark: result.data.mark,
           description: result.data.description,
           visibility,
           joinPolicy,
@@ -163,25 +192,48 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
-          {/* Name */}
-          <div className="flex flex-col gap-1.5">
-            <Label
-              htmlFor="org-name"
-              className="font-mono text-xs font-normal text-muted-foreground"
-            >
-              NAME *
-            </Label>
-            <Input
-              id="org-name"
-              value={name}
-              onChange={(e) => handleNameChange(e.target.value)}
-              placeholder="e.g. Diffusion Models Reading Group"
-              maxLength={NAME_MAX}
-              aria-invalid={!!nameError}
-            />
-            {nameError && (
-              <p className="text-xs text-destructive">{nameError}</p>
-            )}
+          {/* Name + Mark */}
+          <div className="flex gap-3">
+            <div className="flex flex-1 flex-col gap-1.5">
+              <Label
+                htmlFor="org-name"
+                className="font-mono text-xs font-normal text-muted-foreground"
+              >
+                NAME *
+              </Label>
+              <Input
+                id="org-name"
+                value={name}
+                onChange={(e) => handleNameChange(e.target.value)}
+                placeholder="e.g. Diffusion Models Reading Group"
+                maxLength={NAME_MAX}
+                aria-invalid={!!nameError}
+              />
+              {nameError && (
+                <p className="text-xs text-destructive">{nameError}</p>
+              )}
+            </div>
+
+            <div className="flex w-16 shrink-0 flex-col gap-1.5">
+              <Label
+                htmlFor="org-mark"
+                className="font-mono text-xs font-normal text-muted-foreground"
+              >
+                MARK *
+              </Label>
+              <Input
+                id="org-mark"
+                value={mark}
+                onChange={(e) => handleMarkChange(e.target.value)}
+                maxLength={MARK_MAX}
+                placeholder="AB"
+                aria-invalid={!!markError}
+                className="text-center font-mono uppercase"
+              />
+              {markError && (
+                <p className="text-xs text-destructive">{markError}</p>
+              )}
+            </div>
           </div>
 
           {/* Description */}

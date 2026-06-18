@@ -4,11 +4,18 @@ import { getSession } from '@/lib/session'
 import { adminFirestore } from '@/lib/firebase/admin'
 
 const NAME_MAX = 60
+const MARK_MAX = 2
 const DESCRIPTION_MAX = 280
 
 const CreateOrgSchema = z
   .object({
     name: z.string().trim().min(1, 'Name is required').max(NAME_MAX),
+    mark: z
+      .string()
+      .trim()
+      .min(1, 'Mark is required')
+      .max(MARK_MAX)
+      .transform((m) => m.toUpperCase()),
     description: z.string().trim().max(DESCRIPTION_MAX).optional().default(''),
     visibility: z.enum(['public', 'private']),
     joinPolicy: z.enum(['open', 'request', 'invite']),
@@ -36,7 +43,7 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const { name, description, visibility, joinPolicy } = parsed.data
+  const { name, mark, description, visibility, joinPolicy } = parsed.data
   const now = new Date()
 
   const orgRef = adminFirestore.collection('orgs').doc()
@@ -45,6 +52,7 @@ export async function POST(req: NextRequest) {
   const batch = adminFirestore.batch()
   batch.set(orgRef, {
     name,
+    mark,
     description,
     visibility,
     joinPolicy,

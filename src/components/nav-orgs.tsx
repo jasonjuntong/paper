@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Building2 } from 'lucide-react'
 
 function FindOrCreateIcon() {
   return (
@@ -23,6 +22,7 @@ import {
 export interface OrgNavItem {
   id: string
   name: string
+  mark: string
 }
 
 interface NavOrgsProps {
@@ -53,7 +53,13 @@ export function NavOrgs({ orgs }: NavOrgsProps) {
                   className={itemClassName}
                 >
                   <Link href={href}>
-                    <Building2 />
+                    <span
+                      data-org-mark
+                      style={{ background: 'oklch(0.918 0.004 106.937)' }}
+                      className="flex size-5 shrink-0 items-center justify-center rounded-md font-mono text-xs font-semibold leading-none text-foreground/80 transition-[width,height] duration-200 ease-out group-hover/nav-btn:size-5.5"
+                    >
+                      {org.mark}
+                    </span>
                     <span>{org.name}</span>
                   </Link>
                 </SidebarMenuButton>
