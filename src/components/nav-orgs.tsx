@@ -70,10 +70,10 @@ export function NavOrgs({ orgs }: NavOrgsProps) {
             <SidebarMenuButton
               asChild
               tooltip="Find or create"
-              isActive={pathname === '/orgs'}
+              isActive={false}
               className={itemClassName}
             >
-              <Link href="/orgs">
+              <Link href="/discover">
                 <FindOrCreateIcon />
                 <span>Find or create</span>
               </Link>
