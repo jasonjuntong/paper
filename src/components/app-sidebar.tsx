@@ -9,13 +9,15 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { NavMain } from '@/components/nav-main'
+import { NavOrgs, type OrgNavItem } from '@/components/nav-orgs'
 import { NavUser } from '@/components/nav-user'
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: DecodedIdToken
+  orgs: OrgNavItem[]
 }
 
-export function AppSidebar({ user, ...props }: AppSidebarProps) {
+export function AppSidebar({ user, orgs, ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -28,6 +30,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain />
+        <NavOrgs orgs={orgs} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={{ name: user.name, email: user.email }} />
