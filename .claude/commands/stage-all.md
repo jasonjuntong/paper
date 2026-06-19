@@ -5,6 +5,7 @@ Before staging anything, scan every filename and extension against this blocklis
 **Never stage — skip silently and warn:**
 - `.env`, `.env.*`, `.env.local`, `.env.production`, `.env.staging` — environment secrets
 - `*.pem`, `*.key`, `*.cert`, `*.p12`, `*.pfx`, `*.secret` — certificates and keys
+- `*firebase-adminsdk*.json`, `*service-account*.json`, `*serviceaccount*.json`, `*service_account*.json` — Firebase/Google service-account private keys, downloaded during setup; not in `.gitignore` (case-insensitive)
 - `*.log` — log files
 - `.DS_Store`, `Thumbs.db` — OS metadata
 - `*.tsbuildinfo`, `next-env.d.ts` — generated files
