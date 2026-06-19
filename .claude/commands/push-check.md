@@ -1,9 +1,16 @@
-Evaluate whether the current staged and unpushed changes are safe to push to remote.
+Evaluate whether the current staged and unpushed changes are safe to push to remote. This command is **read-only** — it never stages, commits, pushes, or merges; it only inspects and reports.
+
+**Determine the comparison base (`BASE`):**
+- If a base branch is passed as an argument (the pull-request flow calls this with `develop`), run `git fetch origin <base>` and use `origin/<base>`.
+- Otherwise use the current branch's upstream, `@{u}`.
+- If neither resolves (no upstream and no argument), compare against `origin/develop` — the project's integration base. Never fall back to `main` or any other branch. Note in the report that the branch has no upstream.
 
 Run these in order:
 1. `git diff --cached` — staged but uncommitted changes
-2. `git log origin/HEAD..HEAD --oneline` — committed but unpushed commits
-3. `git diff origin/HEAD..HEAD` — full diff of everything not yet on remote
+2. `git log BASE..HEAD --oneline` — commits not yet on the base
+3. `git diff BASE..HEAD` — full diff of everything not yet on the base
+
+If any of these commands error (e.g. `BASE` can't be resolved), stop and report it — do not fall through to a ✅ verdict on an empty or failed diff.
 
 Then scan for the following red flags and report findings under each:
 
