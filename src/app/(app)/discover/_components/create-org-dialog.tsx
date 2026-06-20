@@ -165,11 +165,12 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
       })
       if (!res.ok) throw new Error('Failed to create org')
 
+      const { orgId } = (await res.json()) as { orgId: string }
+
       setSubmitting(false)
       handleOpenChange(false)
-      // The org detail route (/orgs/[orgId]) does not exist yet; send the
-      // creator to their orgs list and refresh so the new org shows up.
-      router.push('/orgs')
+      // Land the creator on their new org's detail page.
+      router.push(`/orgs/${orgId}`)
       router.refresh()
     } catch {
       setSubmitting(false)
@@ -301,17 +302,17 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
                 options={[
                   {
                     value: 'open',
-                    label: 'Open',
+                    label: 'open',
                     disabled: visibility === 'private',
                   },
                   {
                     value: 'request',
-                    label: 'By request',
+                    label: 'by request',
                     disabled: visibility === 'private',
                   },
                   {
                     value: 'invite',
-                    label: 'Invite-only',
+                    label: 'invite-only',
                     disabled: visibility === 'public',
                   },
                 ]}

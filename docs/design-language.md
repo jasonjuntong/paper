@@ -80,6 +80,21 @@ Default `--radius` is `0.35rem` (= `--radius-lg`). Uniform `0.10rem` step betwee
 - All raised surfaces use `<Card>`. Background = `--card`. No drop shadows.
 - Divided multi-section cards: use `gap-0 divide-y` (or `divide-x`) and override default `gap-(--card-spacing)`.
 
+### Tables & large lists (pagination, not infinite scroll)
+Reference implementation: the org member roster (`MemberTable`) — cap 1000, page size 50.
+
+- **Paginate; do not infinite-scroll.** Scolar's lists are *directories* you look someone/something up in (member rosters, library entries), not feeds you skim endlessly. Pagination keeps the `<Card>` a fixed, predictable rectangle — in line with "squared off, controlled" — and avoids a nested scroll region fighting the window scroll inside the `max-w-[1240px]` page. Infinite scroll is reserved for genuine feeds (none exist yet).
+- **Page size: 50 rows.** Don't pad the last (short) page — a partial final page is fine; never inject filler to keep height constant.
+- **Pager form — range + chevrons, no numbered buttons.** Render `‹  {start}–{end} of {total}  ›`:
+  - Range/total in `font-mono text-xs tabular-nums text-muted-foreground` (same numeric voice as count pills and timestamps).
+  - Chevrons are `ChevronLeft` / `ChevronRight` (`size-4`) icon buttons, `text-muted-foreground hover:text-foreground`, `disabled:opacity-40 disabled:pointer-events-none` at the first/last page.
+  - No `1 2 3 … 20` page buttons and no "Page X of Y" prose — too busy for a minimal warm UI.
+- **Placement.** Render the pager as the final `divide-y` row *inside* the `<Card>`, right-aligned (`flex items-center justify-end px-4 py-2.5`), so the card stays one unified surface.
+- **Hide when it doesn't earn its place:** render nothing when `total <= pageSize`.
+- **Search must be server-side once a list is paginated.** A client-side filter over only the loaded page silently hides matches on other pages. The header-search pattern (search occupying the first column header) stays, but it drives a debounced server query and resets to page 1 — it does not filter an in-memory array. Client-side filtering is acceptable *only* for lists that are never paginated (fully loaded, bounded small).
+- **"Load more" is a narrower alternative.** A single squared ghost button that appends the next page is acceptable for short *secondary* lists (a few hundred max). Never use it for the 1000-cap roster — unbounded DOM growth makes the page very tall and defeats the fixed-rectangle goal.
+- **shadcn:** compose shadcn's `Pagination` primitive in your own wrapper, or hand-roll the small range+chevron row — either is fine, but never edit `src/components/ui/pagination.tsx`.
+
 ## Layout
 
 - Content area capped at `max-w-[1240px]` and centered.
@@ -96,6 +111,7 @@ Default `--radius` is `0.35rem` (= `--radius-lg`). Uniform `0.10rem` step betwee
 
 - Batch related Firestore reads with `adminFirestore.getAll(...refs)` — never `Promise.all` a list of individual `.get()` calls. The library page list went from O(N) round trips to one.
 - Use `.count().get()` aggregations for stat counters — no document reads needed.
+- **Paginate with cursors, not offsets.** Use `orderBy(field).startAfter(cursor).limit(pageSize)`; carry the last row's ordering value (plus doc id as a tiebreaker) as the cursor. Firestore charges reads for `offset`-skipped docs, so numeric offset paging is both slow and costly. Get the pager's "of N" total from a single `.count().get()` and reuse it across pages. See [Tables & large lists](#tables--large-lists-pagination-not-infinite-scroll) for the matching UI.
 
 ## TODO
 
