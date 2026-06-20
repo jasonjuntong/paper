@@ -72,19 +72,6 @@ type SharedPaper = {
   year: number
 }
 
-// TEMP: mock members so the roster table renders populated. Remove once real
-// membership data exists.
-const MOCK_MEMBERS: Member[] = [
-  { uid: 'mock-1', name: 'Luca Marchetti', handle: 'lmarchetti', role: 'member', joinedAt: Date.parse('2026-03-15'), sharedCount: 22 },
-  { uid: 'mock-2', name: 'Ashish Vaswani', handle: 'avaswani', role: 'member', joinedAt: Date.parse('2026-04-02'), sharedCount: 14 },
-  { uid: 'mock-3', name: 'Yui Okuda', handle: 'yokuda', role: 'member', joinedAt: Date.parse('2026-05-19'), sharedCount: 9 },
-  { uid: 'mock-4', name: 'Frances Park', handle: 'fpark', role: 'member', joinedAt: Date.parse('2026-06-08'), sharedCount: 11 },
-  { uid: 'mock-5', name: 'Carolina Brookes', handle: 'cbrookes', role: 'member', joinedAt: Date.parse('2026-07-21'), sharedCount: 6 },
-  { uid: 'mock-6', name: 'Daniel Mwangi', handle: 'dmwangi', role: 'member', joinedAt: Date.parse('2026-08-30'), sharedCount: 8 },
-  { uid: 'mock-7', name: 'Naomi Berg', handle: 'nberg', role: 'member', joinedAt: Date.parse('2026-09-04'), sharedCount: 4 },
-  { uid: 'mock-8', name: 'Saira Iqbal', handle: 'siqbal', role: 'member', joinedAt: Date.parse('2026-09-19'), sharedCount: 5 },
-]
-
 type Profile = { name: string; handle: string }
 
 async function resolveProfiles(uids: string[]): Promise<Map<string, Profile>> {
@@ -198,8 +185,6 @@ export default async function OrgDetailPage({
         sharedCount: 0,
       }
     })
-    // TEMP: pad the roster with mock members so the table looks populated.
-    members = [...members, ...MOCK_MEMBERS]
     // Surface the admin first, then by join order.
     members.sort((a, b) => {
       if (a.role !== b.role) return a.role === 'admin' ? -1 : 1
@@ -305,7 +290,7 @@ export default async function OrgDetailPage({
       {isMember && (
         <OrgTabs
           paperCount={paperCount}
-          memberCount={members.length}
+          memberCount={memberCount}
           papers={
             papers.length > 0 ? (
               <Card className="gap-0 divide-y py-0">
