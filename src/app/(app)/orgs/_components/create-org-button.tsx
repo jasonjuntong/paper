@@ -12,7 +12,7 @@ export function CreateOrgButton() {
     <>
       <Button onClick={() => setOpen(true)}>
         <Plus />
-        Create org
+        Create Org
       </Button>
       <CreateOrgDialog open={open} onOpenChange={setOpen} />
     </>

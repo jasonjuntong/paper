@@ -73,7 +73,7 @@ export function NavOrgs({ orgs }: NavOrgsProps) {
               isActive={false}
               className={itemClassName}
             >
-              <Link href="/discover">
+              <Link href="/orgs?tab=discover">
                 <FindOrCreateIcon />
                 <span>Find or create</span>
               </Link>
