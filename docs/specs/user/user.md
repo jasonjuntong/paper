@@ -1,7 +1,7 @@
 # Scolar — User
 
 > Domain: `user/`. Related domains: `org/`, `paper/`.
-> Part of: [Scolar Specifications](../scolar-specs.md)
+> Part of the Scolar specs (`docs/specs/`).
 > See also: [Paper](../paper/paper.md) | [Org Overview](../org/org-overview.md)
 
 ---
@@ -63,6 +63,7 @@ Scolar uses a fully custom password reset experience — no Firebase-hosted page
   - Email
   - No avatar
 - **Premium status** is tracked separately — handled in the Premium Account, Plans & Billing chunk
+- **Keyword preference profile** (`keywordProfile`) — a weighted keyword map maintained on the user doc from the papers they add to their library; powers Discover ranking. Defined in [Paper › Keyword Preference Profile](../paper/paper.md#7-keyword-preference-profile). Removed with the account (the user doc is deleted in the cascade).
 
 ---
 

@@ -1,7 +1,7 @@
 # Scolar — Org: Overview & Profile
 
 > Domain: `org/`.
-> Part of: [Scolar Specifications](../scolar-specs.md)
+> Part of the Scolar specs (`docs/specs/`).
 > See also: [Org Membership](./org-membership.md) | [Org Joining & Invites](./org-joining-invites.md) | [Org Discovery](./org-discovery.md) | [Org Papers & Permissions](./org-papers-permissions.md)
 
 ---
@@ -31,13 +31,17 @@ Orgs are the user-grouping primitive in Scolar — conceptually similar to a gro
 
 ## Visibility
 
-- **Public:** Org appears in a public, discoverable list. Searchable by name/keyword. Eligible for suggestions.
-- **Private:** Org is hidden from public listings. Users only know it exists via direct invite.
+- **Public:** Org appears in a public, discoverable list. Searchable by name/keyword. Eligible for suggestions. Its **shared-paper list is browsable by anyone** (metadata only — reading the PDF still requires membership; see [Org Papers & Permissions](./org-papers-permissions.md)).
+- **Private:** Org is hidden from public listings. Users only know it exists via direct invite. Its shared papers are visible to members only.
 - The Admin can **toggle visibility at any time**.
 
 **Visibility toggle — join policy transitions:** because join policy options depend on visibility, toggling visibility adjusts the join policy automatically:
 - **Private → Public:** join policy switches to **request** (the safe default); the Admin can change it to **open** later. **Pending invites remain valid** and can still be accepted.
 - **Public → Private:** join policy switches to **invite-only** (the only valid private policy). **Pending join requests remain valid** — they carry over and the Admin can still approve them.
+
+**Visibility toggle — shared-paper pool fan-out:** because a public Org's shared papers are listable by non-members (and feed Discover + similarity search), toggling visibility must update the denormalized `publicOrgIds` flag on every paper in this Org's `sharedPapers`:
+- **Private → Public:** add this Org's ID to each shared paper's `publicOrgIds` — its papers enter the public list/discovery/search pool (list access only; content stays member-only).
+- **Public → Private:** remove this Org's ID from each shared paper's `publicOrgIds` — its papers leave the public pool. See [Paper › Identifying the public-Org pool](../paper/paper.md#identifying-the-public-org-pool-denormalized-flag).
 
 **Default visibility:** the creation form **pre-selects public** visibility. The creator may choose private at creation, and the Admin can switch it at any time afterward.
 

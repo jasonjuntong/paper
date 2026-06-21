@@ -1,7 +1,7 @@
 # Scolar — Tech Stack
 
 > Domain: `all`. Related domains: `user/`, `paper/`, `org/`.
-> Part of: [Scolar Specifications](./scolar-specs.md)
+> Part of the Scolar specs (`docs/specs/`).
 > See also: [Paper](./paper/paper.md) | [To Be Determined](./tbd.md)
 
 ---

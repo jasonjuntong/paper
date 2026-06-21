@@ -1,7 +1,7 @@
 # Scolar — Paper
 
 > Domain: `paper/`. Related domains: `user/`, `org/`.
-> Part of: [Scolar Specifications](../scolar-specs.md)
+> Part of the Scolar specs (`docs/specs/`).
 > See also: [User](../user/user.md) | [Org Papers & Permissions](../org/org-papers-permissions.md)
 
 ---
@@ -135,6 +135,20 @@ A paper's visibility is **derived from its share state**, not stored as an expli
 
 There is no global/public visibility for papers. Sharing is always scoped to specific Orgs.
 
+**Two access tiers — list vs. content:** access to a shared paper comes in two levels:
+- **List access (metadata only)** — the paper appears in a list with its snapshot details (`title`, `authors`, `year`, `keywords`, `synopsis`) and source Org. **No** PDF reader, **no** premium AI.
+- **Full access (content)** — the full paper detail page, the **PDF reader**, and **premium AI**.
+
+Who gets which:
+
+| Where the paper is shared | Owner | Org members | Anyone else (incl. non-members) |
+|---------------------------|-------|-------------|---------------------------------|
+| Private library (no shares) | Full | — | None |
+| Shared to a **private** Org | Full | Full | None |
+| Shared to a **public** Org | Full | Full | **List access only** (metadata) |
+
+The **public-Org list exception** is the only way a non-member sees an Org's papers. It applies wherever a public Org's papers surface for a non-member — the **Org page**, the **Discover** surface, and **similarity search results** ([§5](#5-similarity-search-ideaproposal-verification)): each shows the shared-paper **list** (metadata snapshot), but opening the reader or premium AI is denied unless the user is a member (or the owner). To read such a paper, a non-member must **join the public Org**.
+
 **What org members see:**
 - Papers shared to an org are displayed using the **org snapshot** (`/orgs/{orgId}/sharedPapers/{paperId}`) — the paper details captured from the sharer's library entry at time of sharing, kept up to date via write fan-out
 - Once an org member adds the paper to their own library (via "Proceed anyway"), they see their own library entry's version
@@ -198,17 +212,23 @@ This gives near-instant reopen and minimal bandwidth (only headers travel on a c
 - **Zero AI generation cost per search** — purely a vector DB query after embedding the query
 
 **Search scope (per user):** The searchable pool for User X consists of:
-- All papers in User X's library (including private library entries)
-- All papers shared to any Org User X is currently a member of
+- All papers in User X's library (including private library entries) — **full access**
+- All papers shared to any Org User X is currently a member of — **full access**
+- All papers shared to any **public** Org (even ones User X has not joined) — **list access only** (metadata + score), consistent with the [public-Org list exception](#3-paper-visibility)
 
-Papers outside this scope are **never** returned in their search results.
+The public-Org portion of the pool is identified by the denormalized **`publicOrgIds`** flag on the global paper (see [Identifying the public-Org pool](#identifying-the-public-org-pool-denormalized-flag)) — `findNearest()` pre-filters on `publicOrgIds` being non-empty (unioned with the user's own library + member-Org papers) so the vector query never scans private papers.
 
-**Edge case — user has zero Orgs:** Search runs against the user's library only. No error or empty-state warning.
+Papers outside this scope — private library entries of other users, and papers shared only to **private** Orgs User X does not belong to — are **never** returned.
+
+**Accessing a public-Org result:** a result from a public Org User X has not joined is returned as a **list entry only** — title, authors, year, synopsis, similarity score, and the source public Org. Opening the full view (PDF reader + premium AI) is denied by the request-time access check; the result's action is **"Join [Org] to read"**. Once User X joins, the same paper becomes a full-access result.
+
+**Edge case — user has zero Orgs:** Search still runs against the user's library **plus all public-Org papers** (list access). No error or empty-state warning.
 
 **Search result fields:**
-- Paper details (title, authors, year, synopsis) — from the user's library entry if owned, from the org snapshot if not
+- Paper details (title, authors, year, synopsis) — from the user's library entry if owned, otherwise from the org snapshot
 - Similarity score
 - **Source indicator** — which Org(s) the matched paper came from (or "your library" if it's the user's own)
+- **Access indicator** — whether the result is full-access (owned / member Org) or list-only (public Org the user hasn't joined → "Join to read")
 
 **Embedding input per paper:**
 - `extractedMetadata.title + extractedMetadata.synopsis + extractedMetadata.keywords` — always based on Groq's raw output, never the user's modified version
@@ -237,6 +257,60 @@ Papers outside this scope are **never** returned in their search results.
 | Conclusions | The paper's conclusions |
 | Key Findings | Notable findings from the paper |
 | Methodology | The research methodology used |
+
+---
+
+### 7. Keyword Preference Profile
+
+A per-user **keyword preference profile** records which topics a user cares about, derived entirely from the papers they add to their library. It powers personalized ranking on the **Discover** surface — both papers and Orgs — using **keyword overlap, no embeddings**, consistent with the existing Org suggestion approach.
+
+**Storage:**
+- A `keywordProfile` map on the user document `/users/{uid}`: `{ [keyword: string]: number }` — keyword → weight (occurrence count across the user's library).
+- Keywords are **normalized** before keying: trimmed and lowercased, so `"Machine Learning"` and `"machine learning"` aggregate to one entry. The normalized form is the map key; display surfaces may still use the original casing from the paper.
+
+**Maintenance (kept in lockstep with the library):**
+- **On add** — when a library entry is created, increment the count for each keyword in the user's confirmed `keywords` by 1.
+- **On delete** — when a library entry is removed (including the account-deletion cascade and the dedup/auto-cleanup paths), decrement the count for each of that entry's keywords by 1; drop any key whose count reaches 0.
+- The profile is written in the **same atomic operation** as the library-entry create/delete so it can never drift from the library.
+- The keyword source is the **user's confirmed** `keywords` on the library entry (what they actually saved) — not Groq's raw `extractedMetadata`. The profile reflects the user's own curation.
+
+**Zero-paper users:** the profile is empty (`{}`). Discovery still works — surfaces fall back to non-personalized browse/recency (see [Paper Discovery](#8-paper-discovery)).
+
+**Why materialized (not computed on read):** ranking reads the profile on every Discover load; re-aggregating it live from the whole library each time is wasteful. Maintaining a small map incrementally on write keeps Discover reads cheap and avoids per-request fan-out over the library.
+
+---
+
+### 8. Paper Discovery
+
+The **Discover** surface recommends **papers** the user does not already have, alongside Orgs (see [Org Discovery](../org/org-discovery.md) for the Org half of the same surface).
+
+**Source pool — papers in public Orgs:**
+- A paper is eligible for discovery if it is **shared to at least one public Org**. This reuses the existing visibility model — there is **no separate "public paper" state**; papers remain private or Org-shared per [Paper Visibility](#3-paper-visibility).
+- **Excluded:** papers already in the user's own library, and papers in Orgs the user is already a member of (neither is new to them).
+
+**What a non-member may see (list access only):**
+- Discovery exposes the shared-paper **snapshot metadata** — `title`, `authors`, `year`, `keywords`, `synopsis` — plus the **source public Org(s)**. This is the same **list access** a non-member gets when browsing the public Org's own page (see [Paper Visibility › Two access tiers](#3-paper-visibility)); Discover just ranks and surfaces it. Private-Org shares are never surfaced.
+- **PDF content and premium AI stay member-only.** A non-member cannot open the reader or generate AI outputs for a discovered paper — the request-time access check still denies it. The card's primary action is **"Join [Org] to read"**, linking to the public Org.
+
+**Ranking (keyword overlap, no embeddings):**
+- Rank eligible papers by the overlap between the paper's `keywords` and the user's `keywordProfile` (see [Keyword Preference Profile](#7-keyword-preference-profile)): the higher the summed weight of matching keywords, the higher the paper ranks.
+- **Zero-paper users:** empty profile → no personalized ranking; fall back to recency (most recently shared to a public Org first). No error or forced prompt.
+
+**Card display:** title, authors, year, a synopsis snippet, source public-Org badge(s), and the "Join to read" CTA.
+
+#### Identifying the public-Org pool (denormalized flag)
+
+Both Paper Discovery (§8) and Similarity Search ([§5](#5-similarity-search-ideaproposal-verification)) need to ask *"is this paper shared to any public Org?"* efficiently — including as a **pre-filter on the vector query** (`findNearest()`). Re-deriving that live (scan every Org's `sharedPapers`, intersect with Org visibility) is too expensive per request, so it is **denormalized onto the global paper**:
+
+- **`publicOrgIds: string[]`** on `/papers/{paperId}` — the set of **public** Orgs the paper is currently shared to. **Non-empty ⇒ in the public pool** (discoverable + searchable as list access). Empty ⇒ private to its owner and member Orgs only.
+- This is the **only** "public" signal stored on a paper; it does not change the [derived-visibility model](#3-paper-visibility) (full access is still re-checked at request time). It is a query-acceleration index, not an access grant — a stale `publicOrgIds` never widens content access, only which papers appear in a list.
+
+**Maintenance (kept in sync wherever public-share state changes):**
+- **Share to public Org O** → add `O` to `publicOrgIds`.
+- **Unshare from public Org O** (explicit, or auto-unshare on leave/kick, or entry delete) → remove `O` **only if no other library entry still shares this paper to O**.
+- **Org O visibility toggles** → fan out across `O`'s `sharedPapers`: `private → public` adds `O` to each paper's `publicOrgIds`; `public → private` removes it. This is part of the Org visibility-toggle side-effects (see [Org Overview › Visibility](../org/org-overview.md#visibility)).
+
+**Why a set of Org IDs (not a bare boolean):** removal on unshare/visibility-toggle must know whether *any other* public Org still keeps the paper in the pool; a counter or boolean would drift. The set is also reused to render the "Join to read" source-Org badges without a second lookup.
 
 ---
 
@@ -285,14 +359,17 @@ SERVER (commit — receives: extractedMeta, user's confirmed fields, existingPap
   15. Store PDF in Firebase Cloud Storage
   16. Create document in /papers/{paperId}:
         { hash, extractedMetadata: { title, authors, year, keywords, synopsis },
-          embedding: VectorValue(768), storagePath, createdAt }
+          embedding: VectorValue(768), storagePath, publicOrgIds: [], createdAt }
+        → publicOrgIds starts empty; it is populated when the paper is shared to a public Org (§8)
   17. Create library entry in /users/{userId}/library/{entryId}:
         { paperId, title, authors, year, keywords, synopsis (user's confirmed copy),
           userId, shares: [], createdAt }
+        → in the same write, increment /users/{userId}.keywordProfile for each confirmed keyword (§7)
   18. Return { status: 'ok', entryId, paperId }
 ```
 
 **Key principles:**
+- Any path that creates a library entry — including the dedup `ensureLibraryEntry` shortcuts (steps 13, 14d) — increments the user's `keywordProfile` in the same write; any path that deletes one decrements it (§7)
 - The PDF is **never stored in Firebase Cloud Storage until the user confirms paper details** — eliminates orphaned PDFs by design
 - The global paper stores Groq's raw extracted output only — never the user's modified version
 - The library entry is the source of truth for all user-facing paper display
@@ -316,6 +393,9 @@ SERVER (delete — receives: entryId):
   2. Atomic batch:
        a. Delete the library entry  /users/{uid}/library/{entryId}
        b. For each orgId in shares[]: delete  /orgs/{orgId}/sharedPapers/{paperId}   (unshare)
+            → if that orgId is public and no other library entry still shares this paper to it,
+              remove orgId from /papers/{paperId}.publicOrgIds (§8)
+       c. Decrement /users/{uid}.keywordProfile for each of the entry's keywords; drop keys at 0 (§7)
   3. Orphan check: collectionGroup('library').where('paperId', '==', paperId).limit(1)
        → if NOT empty: another user still references the paper — stop (leave global paper intact)
        → if empty: the global paper is now orphaned →
