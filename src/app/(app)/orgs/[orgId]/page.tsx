@@ -140,11 +140,11 @@ export default async function OrgDetailPage({
     return (
       <div className="flex flex-1 flex-col gap-6 px-4 lg:px-6">
         <Link
-          href="/discover"
+          href="/orgs"
           className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ChevronLeft className="size-4" />
-          Discover
+          Orgs
         </Link>
         <Card className="items-center gap-2 px-6 py-12 text-center">
           <span className="flex size-12 items-center justify-center rounded-xl bg-pill font-mono text-lg font-semibold text-muted-foreground">
@@ -231,7 +231,7 @@ export default async function OrgDetailPage({
   return (
     <div className="flex flex-1 flex-col gap-6 px-4 lg:px-6">
       <Link
-        href={isMember ? '/orgs' : '/discover'}
+        href={isMember ? '/orgs' : '/orgs?tab=discover'}
         className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ChevronLeft className="size-4" />

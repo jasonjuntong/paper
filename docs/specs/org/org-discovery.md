@@ -1,7 +1,7 @@
 # Scolar — Org: Discovery
 
 > Domain: `org/`.
-> Part of: [Scolar Specifications](../scolar-specs.md)
+> Part of the Scolar specs (`docs/specs/`).
 > See also: [Org Overview](./org-overview.md) | [Org Joining & Invites](./org-joining-invites.md)
 
 ---
@@ -9,6 +9,8 @@
 ## Overview
 
 Org Discovery lets users — especially those in zero or few Orgs — find public Orgs that may interest them. Only **public** Orgs ever appear in any discovery surface. Private Orgs are never listed and can only be joined via direct invite.
+
+The **Discover** surface spans **both Orgs and papers** — this doc covers the Org half; the paper half (recommending papers shared to public Orgs) is specified in [Paper Discovery](../paper/paper.md#8-paper-discovery). Both halves rank by the same per-user [Keyword Preference Profile](../paper/paper.md#7-keyword-preference-profile).
 
 ---
 
@@ -37,9 +39,9 @@ Each Org shown in any discovery surface displays:
 ## Suggested / Recommended Logic
 
 Recommendations are based on **keyword/tag overlap** (not embeddings — kept simple intentionally):
-1. Collect the keywords/tags from the papers in the user's own library
+1. Read the user's materialized [Keyword Preference Profile](../paper/paper.md#7-keyword-preference-profile) (`keywordProfile` on `/users/{uid}`) — the weighted keyword map built from papers in their library
 2. For each public Org, collect the keywords/tags from papers shared to it
-3. Rank public Orgs by the degree of keyword/tag overlap with the user's keywords
+3. Rank public Orgs by the degree of keyword/tag overlap with the user's profile (matching keywords scored by their profile weight)
 4. Show the top-ranked Orgs as "Suggested"
 
 ---

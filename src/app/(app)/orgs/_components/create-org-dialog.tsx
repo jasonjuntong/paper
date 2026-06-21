@@ -337,7 +337,7 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={submitting}>
-              {submitting ? 'Creating…' : 'Create org'}
+              {submitting ? 'Creating…' : 'Create Org'}
             </Button>
           </div>
         </DialogFooter>

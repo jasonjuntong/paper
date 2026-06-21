@@ -1,7 +1,7 @@
 # Scolar — Org: Membership, Roles & Deletion
 
 > Domain: `org/`.
-> Part of: [Scolar Specifications](../scolar-specs.md)
+> Part of the Scolar specs (`docs/specs/`).
 > See also: [Org Overview](./org-overview.md) | [Org Joining & Invites](./org-joining-invites.md) | [Org Papers & Permissions](./org-papers-permissions.md)
 
 ---

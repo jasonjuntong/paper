@@ -1,7 +1,7 @@
 # Scolar — Org: Joining, Requests & Invites
 
 > Domain: `org/`.
-> Part of: [Scolar Specifications](../scolar-specs.md)
+> Part of the Scolar specs (`docs/specs/`).
 > See also: [Org Overview](./org-overview.md) | [Org Membership](./org-membership.md) | [Org Papers & Permissions](./org-papers-permissions.md)
 
 ---

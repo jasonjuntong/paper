@@ -1,7 +1,7 @@
 # Scolar — Org: Papers, Notifications & Permissions
 
 > Domain: `org/`.
-> Part of: [Scolar Specifications](../scolar-specs.md)
+> Part of the Scolar specs (`docs/specs/`).
 > See also: [Paper](../paper/paper.md) | [Org Membership](./org-membership.md) | [Org Joining & Invites](./org-joining-invites.md)
 
 ---
@@ -22,6 +22,8 @@ A library entry is in one of two states, derived from its share data:
 
 There is no global/public visibility state for papers.
 
+**Public-Org list exception:** when a paper is shared to a **public** Org, anyone viewing that Org (members or not) sees it in the Org's shared-paper **list** with metadata only — opening the full view (PDF reader + premium AI) stays restricted to members and the owner. Full detail in [Paper › Two access tiers](../paper/paper.md#3-paper-visibility).
+
 ### Sharing
 - A user can **share a paper to one or more Orgs**
 - A user can **only share to Orgs they are currently a member of**
@@ -31,6 +33,8 @@ There is no global/public visibility state for papers.
 ### Auto-Unshare on Membership Change
 - When a user **leaves an Org** (voluntarily), all of their shared papers are **automatically unshared from that Org**
 - When a user is **kicked from an Org**, all of their shared papers are **automatically unshared from that Org**
+
+> **Public-pool upkeep:** sharing to / unsharing from a **public** Org (including these auto-unshares) maintains the paper's denormalized `publicOrgIds` set — added on share, removed on unshare when no other entry still shares it to that Org. This is what keeps a public Org's papers in (or out of) the Discover + search list pool. See [Paper › Identifying the public-Org pool](../paper/paper.md#identifying-the-public-org-pool-denormalized-flag).
 
 ---
 
@@ -83,4 +87,5 @@ In-app notifications are sent for all Org-related events, delivered **real-time*
 | Join an Org | Any registered user (via accepted invite, approved request, or open public join) |
 | Share a paper to an Org | Paper owner only, and only if they are a current member of that Org |
 | Unshare a paper from an Org | Paper owner only |
-| View papers shared in an Org | Any member of that Org |
+| Open a shared paper's **content** (full view: PDF reader + premium AI) | Members of that Org only (or the paper's owner) |
+| View the **list** of papers shared in a **public** Org (metadata only: title, authors, year, keywords, synopsis) | Any authenticated user — public Orgs only; on the Org page, via Discover, or as similarity-search results (see [Paper Visibility › two access tiers](../paper/paper.md#3-paper-visibility)) |

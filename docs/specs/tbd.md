@@ -1,6 +1,6 @@
 # Scolar — To Be Determined
 
-> Part of: [Scolar Specifications](./scolar-specs.md)
+> Part of the Scolar specs (`docs/specs/`).
 
 Features and additions that are planned but not required for launch. These are not blocking anything now — they are future enhancements to be implemented when the core product is stable.
 

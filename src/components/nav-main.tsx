@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Compass, House, Library, Plus, Search } from 'lucide-react'
+import { Compass, House, Library, Plus } from 'lucide-react'
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -30,7 +30,6 @@ const itemClassName =
 const items = [
   { title: 'Home', href: '/', icon: House },
   { title: 'Library', href: '/library', icon: Library },
-  { title: 'Idea Search', href: '/idea-search', icon: Search },
   { title: 'Discover', href: '/discover', icon: Compass },
 ]
 

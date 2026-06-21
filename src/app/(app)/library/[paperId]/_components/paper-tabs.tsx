@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { cn } from '@/lib/utils'
+import { TabBar, type TabBarItem } from '@/components/tab-bar'
 
 type Tab = 'overview' | 'ai-insights' | 'discussion'
 
-const TABS: { value: Tab; label: string }[] = [
+const TABS: TabBarItem<Tab>[] = [
   { value: 'overview', label: 'Overview' },
   { value: 'ai-insights', label: 'AI Insights' },
   { value: 'discussion', label: 'Discussion' },
@@ -16,31 +16,7 @@ export function PaperTabs({ overview }: { overview: React.ReactNode }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="border-b">
-        <div className="flex items-end gap-6">
-          {TABS.map((tab) => {
-            const isActive = active === tab.value
-            return (
-              <button
-                key={tab.value}
-                type="button"
-                onClick={() => setActive(tab.value)}
-                className={cn(
-                  'relative pb-2.5 text-sm transition-colors',
-                  isActive
-                    ? 'text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                {tab.label}
-                {isActive && (
-                  <span className="absolute inset-x-0 -bottom-px h-px bg-foreground" />
-                )}
-              </button>
-            )
-          })}
-        </div>
-      </div>
+      <TabBar<Tab> tabs={TABS} value={active} onChange={setActive} />
 
       {active === 'overview' && overview}
       {active === 'ai-insights' && (
