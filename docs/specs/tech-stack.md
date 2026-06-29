@@ -13,9 +13,9 @@
 - Version: **16.2.6** — has breaking changes from prior major versions; all code must follow conventions in `node_modules/next/dist/docs/` before writing any Next.js code (see `AGENTS.md`)
 - Uses the **App Router** (not Pages Router) — file-based routing under `src/app/`, co-located layouts, and nested route segments
 - **React Server Components (RSC)** are the default — components are server-rendered unless explicitly opted in with `"use client"`
-- **Streaming responses** power the premium AI feature output — token-by-token delivery to the client via SSE / Next.js streaming response APIs
+- **Streaming responses** power the AI-generated insights output — token-by-token delivery to the client via SSE / Next.js streaming response APIs
 - **Route Handlers** (`src/app/api/`) handle all server-side processing: the paper upload pipeline, Gemini API calls, embedding generation, and Firebase interactions that must not run in the browser
-- Why chosen: RSC and streaming are essential for the token-by-token premium AI output flow; the App Router's nested layouts and server-first model simplify the authenticated shell and reduce client-side JS
+- Why chosen: RSC and streaming are essential for the token-by-token AI-generated insights output flow; the App Router's nested layouts and server-first model simplify the authenticated shell and reduce client-side JS
 
 ### React 19
 
@@ -131,12 +131,12 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 
 ### Google Gemini Pro
 
-- Role: **premium AI features** — Summary, Conclusions, Key Findings, Methodology
-- Triggered **on-demand** by premium users only; free users see a locked state with an upgrade prompt
+- Role: **AI-generated insights** — Summary, Conclusions, Key Findings, Methodology
+- Triggered **on-demand** by any user with access to the paper
 - Output is **streamed token-by-token** to the client (SSE / Next.js streaming responses)
-- Generated output is **cached on the global paper record** — once generated for a paper, it is served instantly to all subsequent premium users who can access that paper; no re-generation needed
+- Generated output is **cached on the global paper record** — once generated for a paper, it is served instantly to all subsequent users who can access that paper; no re-generation needed
 - Cache access is gated by the same request-time paper visibility check — losing access to a paper means losing access to its cached AI output
-- Why chosen: Higher quality generation for the paid, quality-sensitive outputs; token streaming provides a responsive UX for longer outputs
+- Why chosen: Higher quality generation for the quality-sensitive outputs; token streaming provides a responsive UX for longer outputs
 
 ### Gemini `gemini-embedding-2`
 
@@ -187,6 +187,6 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 | Firestore Vector Search | — | Cosine similarity search (`findNearest`, `VectorValue(768)`) |
 | `pdfjs-dist` | — | Client-side PDF text extraction and SHA-256 hashing |
 | `groq-sdk` | — | Metadata extraction — `llama-3.3-70b-versatile`, structured JSON, retried up to 3× |
-| Gemini Pro | — | Premium AI features — streamed, cached per global paper |
+| Gemini Pro | — | AI-generated insights — streamed, cached per global paper |
 | `@google/genai` + `gemini-embedding-2` | — | Paper + query embeddings (768-dim via `outputDimensionality`, generated once per paper) |
 

@@ -10,8 +10,7 @@
 
 - A user can be a member of **multiple Orgs**
 - An Org can have multiple members
-- **Member cap:** a flat **1000 members** per Org, regardless of the Admin's account tier
-- Premium benefits apply solely to the paper tools — they do **not** affect Org member limits
+- **Member cap:** a flat **1000 members** per Org
 
 **Cap calculation (all pending paths count as possible members):**
 - The effective count is always **current members + pending invites + pending join requests**, and it can never exceed **1000**. This projection is calculated before any invite or join request is created.

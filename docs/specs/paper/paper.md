@@ -11,7 +11,7 @@
 Scolar uses a **three-layer data model** for papers.
 
 - **Global paper (`/papers/{paperId}`) — backend only:**
-  Each unique paper exists exactly once as a global record. It holds the PDF file, Groq's raw extracted details, the embedding vector, and any cached premium AI outputs. The global paper is **never shown directly to users as a paper entry** — it exists solely for deduplication and caching.
+  Each unique paper exists exactly once as a global record. It holds the PDF file, Groq's raw extracted details, the embedding vector, and any cached AI-generated insights. The global paper is **never shown directly to users as a paper entry** — it exists solely for deduplication and caching.
 
 - **Library entry (`/users/{uid}/library/{entryId}`) — all user-facing data:**
   Each user has their own library entries. A library entry references a global paper and holds the user's **personal confirmed copy** of the paper details (`title`, `authors`, `year`, `keywords`, `synopsis`). This is what the user sees in their library and paper detail pages. The user's copy starts as Groq's extracted output and may be modified by the user.
@@ -136,8 +136,8 @@ A paper's visibility is **derived from its share state**, not stored as an expli
 There is no global/public visibility for papers. Sharing is always scoped to specific Orgs.
 
 **Two access tiers — list vs. content:** access to a shared paper comes in two levels:
-- **List access (metadata only)** — the paper appears in a list with its snapshot details (`title`, `authors`, `year`, `keywords`, `synopsis`) and source Org. **No** PDF reader, **no** premium AI.
-- **Full access (content)** — the full paper detail page, the **PDF reader**, and **premium AI**.
+- **List access (metadata only)** — the paper appears in a list with its snapshot details (`title`, `authors`, `year`, `keywords`, `synopsis`) and source Org. **No** PDF reader, **no** AI-generated insights.
+- **Full access (content)** — the full paper detail page, the **PDF reader**, and **AI-generated insights**.
 
 Who gets which:
 
@@ -147,7 +147,7 @@ Who gets which:
 | Shared to a **private** Org | Full | Full | None |
 | Shared to a **public** Org | Full | Full | **List access only** (metadata) |
 
-The **public-Org list exception** is the only way a non-member sees an Org's papers. It applies wherever a public Org's papers surface for a non-member — the **Org page**, the **Discover** surface, and **similarity search results** ([§5](#5-similarity-search-ideaproposal-verification)): each shows the shared-paper **list** (metadata snapshot), but opening the reader or premium AI is denied unless the user is a member (or the owner). To read such a paper, a non-member must **join the public Org**.
+The **public-Org list exception** is the only way a non-member sees an Org's papers. It applies wherever a public Org's papers surface for a non-member — the **Org page**, the **Discover** surface, and **similarity search results** ([§5](#5-similarity-search-ideaproposal-verification)): each shows the shared-paper **list** (metadata snapshot), but opening the reader or AI-generated insights is denied unless the user is a member (or the owner). To read such a paper, a non-member must **join the public Org**.
 
 **What org members see:**
 - Papers shared to an org are displayed using the **org snapshot** (`/orgs/{orgId}/sharedPapers/{paperId}`) — the paper details captured from the sharer's library entry at time of sharing, kept up to date via write fan-out
@@ -156,7 +156,7 @@ The **public-Org list exception** is the only way a non-member sees an Org's pap
 **Access is evaluated at request time (no stale access):** a paper's visibility is always re-derived from the **current** share state on every request. The practical consequences when a paper is unshared (e.g., the sharer leaves or is kicked from an Org):
 - A **stale search result** still showing the paper does not grant access — clicking through re-checks and denies if it is no longer shared to an Org the user belongs to
 - An **already-open** paper detail page does not keep access alive — the next request re-evaluates and denies
-- **Cached premium AI outputs** on the global paper are still gated by the same request-time access check
+- **Cached AI-generated insights** on the global paper are still gated by the same request-time access check
 
 No active session-invalidation machinery is needed; correct denial falls out naturally from deriving visibility live on each request.
 
@@ -220,7 +220,7 @@ The public-Org portion of the pool is identified by the denormalized **`publicOr
 
 Papers outside this scope — private library entries of other users, and papers shared only to **private** Orgs User X does not belong to — are **never** returned.
 
-**Accessing a public-Org result:** a result from a public Org User X has not joined is returned as a **list entry only** — title, authors, year, synopsis, similarity score, and the source public Org. Opening the full view (PDF reader + premium AI) is denied by the request-time access check; the result's action is **"Join [Org] to read"**. Once User X joins, the same paper becomes a full-access result.
+**Accessing a public-Org result:** a result from a public Org User X has not joined is returned as a **list entry only** — title, authors, year, synopsis, similarity score, and the source public Org. Opening the full view (PDF reader + AI-generated insights) is denied by the request-time access check; the result's action is **"Join [Org] to read"**. Once User X joins, the same paper becomes a full-access result.
 
 **Edge case — user has zero Orgs:** Search still runs against the user's library **plus all public-Org papers** (list access). No error or empty-state warning.
 
@@ -238,18 +238,17 @@ Papers outside this scope — private library entries of other users, and papers
 
 ---
 
-### 6. Premium AI Features (On-Demand, Gated)
+### 6. AI-Generated Insights (On-Demand)
 
-- Available to **premium users only**
-- Generated using **Gemini Pro** (higher quality for the paid, quality-sensitive outputs)
+- Available to **all users** who can access the paper
+- Generated using **Gemini Pro** (higher quality for the quality-sensitive outputs)
 - Clearly labeled as **"AI"** in the UI
-- Free users see a locked state with an upgrade CTA
-- Generated **on-demand** when a premium user requests them
+- Generated **on-demand** when a user requests them
 - Streamed **token-by-token** to the client (SSE or Next.js streaming responses)
-- **Shared cache:** once generated for a global paper, the result is stored on that paper record and served instantly to all premium users who can access the paper — no re-generation needed
+- **Shared cache:** once generated for a global paper, the result is stored on that paper record and served instantly to all users who can access the paper — no re-generation needed
 - Cache access is bounded by paper visibility
 
-**Premium AI features:**
+**AI-generated insights:**
 
 | Feature | Description |
 |---------|-------------|
@@ -290,7 +289,7 @@ The **Discover** surface recommends **papers** the user does not already have, a
 
 **What a non-member may see (list access only):**
 - Discovery exposes the shared-paper **snapshot metadata** — `title`, `authors`, `year`, `keywords`, `synopsis` — plus the **source public Org(s)**. This is the same **list access** a non-member gets when browsing the public Org's own page (see [Paper Visibility › Two access tiers](#3-paper-visibility)); Discover just ranks and surfaces it. Private-Org shares are never surfaced.
-- **PDF content and premium AI stay member-only.** A non-member cannot open the reader or generate AI outputs for a discovered paper — the request-time access check still denies it. The card's primary action is **"Join [Org] to read"**, linking to the public Org.
+- **PDF content and AI-generated insights stay member-only.** A non-member cannot open the reader or generate AI outputs for a discovered paper — the request-time access check still denies it. The card's primary action is **"Join [Org] to read"**, linking to the public Org.
 
 **Ranking (keyword overlap, no embeddings):**
 - Rank eligible papers by the overlap between the paper's `keywords` and the user's `keywordProfile` (see [Keyword Preference Profile](#7-keyword-preference-profile)): the higher the summed weight of matching keywords, the higher the paper ranks.
@@ -423,16 +422,15 @@ Lazy GC handles the common path, but cleanup can still be skipped — bulk accou
 
 ---
 
-## On-Demand Premium AI Flow (Step by Step)
+## On-Demand AI-Generated Insights Flow (Step by Step)
 
 ```
-  1. Premium user clicks a feature (e.g., "Generate Summary") on a paper they can access
+  1. User clicks a feature (e.g., "Generate Summary") on a paper they can access
   2. Verify the user can access the paper → if not, return 403
   3. Check shared cache on the global paper record → if exists, stream cached result immediately
-  4. If not cached: verify user is premium → if not, return 403
-  5. Call Gemini → stream response token-by-token to client
-  6. Save generated output to the global paper record's cache field
-  7. Done — future requests for the same paper serve from cache
+  4. If not cached: call Gemini → stream response token-by-token to client
+  5. Save generated output to the global paper record's cache field
+  6. Done — future requests for the same paper serve from cache
 ```
 
 ---
@@ -444,15 +442,15 @@ Lazy GC handles the common path, but cleanup can still be skipped — bulk accou
 | Paper details extraction | Groq llama-3.3-70b-versatile | Very low | Once per unique paper (Layer 1 miss only); single attempt, no retries |
 | Embedding generation | gemini-embedding-2 (768 dims) | Negligible | At commit time only (after user confirms); used for Layer 2 dedup check and stored on global paper |
 | Query embedding (search) | gemini-embedding-2 (768 dims) | Negligible | Per similarity search query |
-| Premium AI features | Gemini Pro | Moderate | On-demand, cached after first generation |
+| AI-generated insights | Gemini Pro | Moderate | On-demand, cached after first generation |
 
 **Key cost-saving rules:**
 - Two-layer deduplication: same paper never stored or processed twice
 - Groq extraction: single attempt only — no retries to avoid rate limit cascades
 - Embedding generated at commit time only — no wasted calls if user cancels during review
 - Embedding generated once per global paper, reused by all library entries that reference it
-- Premium AI outputs cached and shared across all premium users with access
-- Heavy generation only triggered by explicit premium user action
+- AI-generated insights cached and shared across all users with access
+- Heavy generation only triggered by explicit user action
 
 ---
 

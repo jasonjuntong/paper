@@ -22,7 +22,7 @@ A library entry is in one of two states, derived from its share data:
 
 There is no global/public visibility state for papers.
 
-**Public-Org list exception:** when a paper is shared to a **public** Org, anyone viewing that Org (members or not) sees it in the Org's shared-paper **list** with metadata only — opening the full view (PDF reader + premium AI) stays restricted to members and the owner. Full detail in [Paper › Two access tiers](../paper/paper.md#3-paper-visibility).
+**Public-Org list exception:** when a paper is shared to a **public** Org, anyone viewing that Org (members or not) sees it in the Org's shared-paper **list** with metadata only — opening the full view (PDF reader + AI-generated insights) stays restricted to members and the owner. Full detail in [Paper › Two access tiers](../paper/paper.md#3-paper-visibility).
 
 ### Sharing
 - A user can **share a paper to one or more Orgs**
@@ -87,5 +87,5 @@ In-app notifications are sent for all Org-related events, delivered **real-time*
 | Join an Org | Any registered user (via accepted invite, approved request, or open public join) |
 | Share a paper to an Org | Paper owner only, and only if they are a current member of that Org |
 | Unshare a paper from an Org | Paper owner only |
-| Open a shared paper's **content** (full view: PDF reader + premium AI) | Members of that Org only (or the paper's owner) |
+| Open a shared paper's **content** (full view: PDF reader + AI-generated insights) | Members of that Org only (or the paper's owner) |
 | View the **list** of papers shared in a **public** Org (metadata only: title, authors, year, keywords, synopsis) | Any authenticated user — public Orgs only; on the Org page, via Discover, or as similarity-search results (see [Paper Visibility › two access tiers](../paper/paper.md#3-paper-visibility)) |
