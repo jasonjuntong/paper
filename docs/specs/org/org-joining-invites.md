@@ -56,7 +56,8 @@ Email is reserved only for actions that cannot happen inside Scolar (e.g., passw
 - Each invite is **single-use**: it is consumed upon acceptance or decline
 
 **Expiry:**
-- Invites expire after **7 days** (fixed — not configurable by the Admin for now)
+- The Admin sets each invite's expiry at creation: **any whole number of days from 1 to 14**, with **7 pre-selected as the default**. The chosen duration is stored as a concrete `expiresAt` timestamp on the invite (creation time + N days).
+- If the Admin doesn't change it, the invite expires after the default **7 days**
 - Expired invites cannot be used
 
 **Limits:**

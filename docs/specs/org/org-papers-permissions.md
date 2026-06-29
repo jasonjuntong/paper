@@ -42,25 +42,30 @@ There is no global/public visibility state for papers.
 
 ## Notifications
 
-In-app notifications are sent for all Org-related events, delivered **real-time** via Firestore real-time listeners (`onSnapshot` on `/users/{userId}/notifications/`). No email/push notifications at this time.
+In-app notifications are sent for all Org-related events, delivered **real-time** via Firestore real-time listeners (`onSnapshot` on `/users/{userId}/notifications/`). **In-app is the baseline channel for every event.** A subset of **high-priority, time-sensitive** events is **additionally delivered by email** (via Resend) so users who aren't in the app don't miss them. **Push is not offered.**
 
-| Event | Recipient |
-|-------|-----------|
-| User is invited to an Org (in-app notification) | The invited user |
-| User declines an Org invite | The inviting Admin |
-| User is kicked from an Org | The kicked user |
-| Admin sends a transfer offer | The targeted member(s) |
-| Member declines a transfer offer | The Admin |
-| Member accepts a transfer offer (becomes Admin) | The newly promoted user (and the now-former Admin) |
-| Admin initiates Step Down | All members of the Org |
-| Member requests to become Admin (during Step Down) | The Admin |
-| Admin accepts/declines a "request to be Admin" | The requesting member |
-| Step Down expires with no handoff → Org deleted | All members of the Org |
-| Join request approved | The requesting user |
-| Join request rejected | The requesting user |
-| Org is deleted (enters Ghost Mode) | All members of the Org |
+| Event | Recipient | Also email? |
+|-------|-----------|-------------|
+| User is invited to an Org (in-app notification) | The invited user | **Email** |
+| User declines an Org invite | The inviting Admin | — |
+| User is kicked from an Org | The kicked user | **Email** |
+| Admin sends a transfer offer | The targeted member(s) | **Email** |
+| Member declines a transfer offer | The Admin | — |
+| Member accepts a transfer offer (becomes Admin) | The newly promoted user (and the now-former Admin) | — |
+| Admin initiates Step Down | All members of the Org | **Email** |
+| Member requests to become Admin (during Step Down) | The Admin | — |
+| Admin accepts/declines a "request to be Admin" | The requesting member | **Email** |
+| Step Down expires with no handoff → Org deleted | All members of the Org | **Email** |
+| Join request approved | The requesting user | — |
+| Join request rejected | The requesting user | — |
+| Org is deleted (enters Ghost Mode) | All members of the Org | **Email** |
 
 > Invite **acceptance** and join-request **submission** deliberately do **not** fire notifications — they surface to the Admin via the live members / join-requests list (`onSnapshot`), not the notifications feed. Only declines and final results (approve/reject) are notified.
+
+**Email delivery details:**
+- The in-app notification always fires regardless of email; email is an *additional* channel for the marked high-priority events only. The non-email events stay in-app exclusively.
+- Email is sent via **Resend** (the same provider used for auth emails), addressed to the user's verified email and using their display `name`.
+- **User opt-out:** users can disable the email channel in account settings. A `notificationPrefs.email` boolean on `/users/{userId}` gates email delivery (default **on**); the in-app channel is always on and cannot be disabled. (Per-event granularity is out of scope — it's a single email on/off switch.)
 
 ---
 

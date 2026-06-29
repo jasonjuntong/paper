@@ -12,6 +12,7 @@ Handled by **Firebase Authentication**. The only supported method is **email + p
 
 **Registration collects:**
 - **Name** — display name; how Scolar addresses and identifies the user across the app
+- **Handle** — a unique `@handle` (see [Handle](#handle) below)
 - **Email**
 - **Password**
 
@@ -54,14 +55,38 @@ Scolar uses a fully custom password reset experience — no Firebase-hosted page
 
 ---
 
+## Handle
+
+Every user has a unique **`@handle`**, separate from their display name, collected at registration.
+
+- **Required at registration** — a user cannot be created without a handle; uniqueness is enforced (no two users share a handle).
+- **Permanent (immutable):** once set at registration, a handle can never be changed. It is a stable, public-facing identity that other users and future features (mentions/tagging) can rely on. There is no rename flow.
+- **Never recycled:** a handle is **retired permanently** once claimed — even after the owner deletes their account it is **not** released back into the pool (see [Account Deletion](#account-deletion)). This prevents a new user from taking a known person's old handle and being mistaken for them. There is no way to reclaim a previously-used handle.
+- **Format:** **3–20 characters**, from a safe ASCII set — letters (`a–z`, `A–Z`), digits (`0–9`), and special characters. **Excluded** for safety: whitespace and control characters; `/` (it is the `/handles/{handle}` doc-id delimiter); the HTML/JS-injection characters `< > & " ' ` and the backtick; and any non-ASCII characters (blocked to prevent Unicode-homoglyph look-alike handles). The leading `@` is presentation only — it is not stored as part of the handle value.
+- **XSS guard:** the handle is validated server-side (Zod) against the allowed set above at registration — anything outside it is rejected and never stored. Because handles are user-supplied and rendered widely, they are **always HTML-escaped on output**; the input filter is defense-in-depth, output encoding is the primary guard.
+- **Case-insensitive uniqueness:** uniqueness is enforced on the **lowercased** form, so `Alice` and `alice` cannot both exist (prevents case-only impersonation). The lowercased form is the uniqueness key and the `/handles/{handle}` doc id; the user's original casing is preserved for display.
+- **Reserved handles:** a small blocklist of handles is rejected at registration (checked against the lowercased form) — Scolar/system terms and route-collision risks such as `admin`, `support`, `help`, `scolar`, `api`, `app`, `system`, `root`, `me`, `you`, `null`, `undefined`. Because handles are permanent and never recycled, this list is enforced from day one so reserved identities can't be grabbed first-come.
+- **Why separate from name:** display names are not unique and can change, so they cannot reliably identify a specific user; the handle provides a consistent, stable identifier.
+- **Uniqueness enforcement (data model):** Firestore has no native unique constraint, so handles are reserved via a dedicated `/handles/{handle}` lookup collection (doc id = the lowercased handle, value = `{ uid }`). A pre-existing **or tombstoned** `/handles/{handle}` doc means the handle is taken; registration is rejected with a "handle already taken" error. (Unlike duplicate **email**, a taken handle **is** surfaced to the user — it must be, so they can pick another; this is not an enumeration concern since handles are public by design.)
+- **Never persisted until registration fully succeeds — order matters:**
+  1. **Validate** inputs first (handle format + XSS filter, email, password) — reject before touching any account.
+  2. **Create the Firebase Auth account** (email validity + uniqueness are enforced here). On `auth/email-already-in-use`, return the **silent "Check your email" success** and **stop — no handle is written** for a duplicate-email attempt.
+  3. **Only then** reserve `/handles/{handle}` together with the user doc in a **transaction**, re-checking availability *inside* the transaction to catch races.
+  4. If the handle was taken in that race, **delete the just-created Auth account** and surface "handle already taken" — so a failed registration leaves **no orphaned Auth user and no orphaned handle reservation**.
+  The handle reservation is always the **final, gated write**: never saved until the email/auth step and the availability check have both passed.
+
+---
+
 ## Users (App-Wide)
 
 - **No global roles** — all users are equal at the app level
 - A user's role/permissions only exist *within an Org* (see Org specs)
 - **User profile data:**
   - Name (display name, set at registration)
+  - Handle (unique `@handle`, set at registration, immutable — see [Handle](#handle))
   - Email
   - No avatar
+  - **Notification email preference** (`notificationPrefs.email`, default on) — toggles whether high-priority Org events are also emailed; the in-app channel is always on. See [Org Papers & Permissions › Notifications](../org/org-papers-permissions.md#notifications).
 - **Keyword preference profile** (`keywordProfile`) — a weighted keyword map maintained on the user doc from the papers they add to their library; powers Discover ranking. Defined in [Paper › Keyword Preference Profile](../paper/paper.md#7-keyword-preference-profile). Removed with the account (the user doc is deleted in the cascade).
 
 ---
@@ -74,3 +99,4 @@ When a user deletes their Scolar account:
 - Their **library entries are removed**; the underlying global paper data is unaffected (it remains for other users who reference it)
 - **If they are the Admin of any Org**, that Org is deleted (enters Ghost Mode) — see [Org Membership](../org/org-membership.md). The user is warned before deletion proceeds (e.g., *"This will delete X Orgs with Y members."*) and may transfer Admin first to preserve an Org.
 - **All pending items tied to the user are cascaded (invalidated)** — anywhere in the system. This includes: invites sent to them, join requests they submitted, transfer offers they sent or received, and any "request to be Admin" they made. Deleting an account leaves no dangling pending state referencing that user.
+- **Their `@handle` is intentionally NOT released.** The `/handles/{handle}` reservation doc is **retained as a tombstone** (its `uid` is cleared / marked retired) rather than deleted, so the handle can never be reclaimed by anyone. This is deliberate — recycling a deleted user's handle would let a new account be confused with, or impersonate, the original owner. This is the one piece of user-scoped data that survives the cascade.

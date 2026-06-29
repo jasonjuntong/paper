@@ -90,8 +90,21 @@ Two layers of deduplication are applied in order during upload. Deduplication is
 **Layer 2 — Embedding similarity (at commit, after details are confirmed):**
 - Generate an embedding of the paper's **extracted** `title + synopsis + keywords` (Groq's raw output — never the user's edits) using `gemini-embedding-2`
 - Run `findNearest()` against the `embedding` field on global papers (cosine similarity)
-- If top result has similarity **≥ 0.92** → duplicate detected
+- If top result has similarity **≥ 0.92** → **automatic** duplicate (no prompt)
+- If top result has similarity in the **borderline band `0.85 ≤ similarity < 0.92`** → **borderline match** — resolved by a user confirm (see below) rather than auto-merged
+- If top result has similarity **< 0.85** → not a duplicate; treat as a genuinely new paper
 - Catches "same paper, different file" cases (re-exports, different scans, different sources)
+
+**Borderline-match confirm (`0.85 ≤ similarity < 0.92`):**
+
+The band below the auto-threshold is deliberately uncertain — close enough to *possibly* be the same paper, not close enough to merge automatically. Resolution depends on whether the candidate is already **visible** to the uploading user (same visibility check as the rest of dedup):
+
+- **Candidate is visible** (in the user's library, or shared to an org the user belongs to) → show a confirm prompt: *"Is this the same as [candidate title]?"*
+  - **"Yes, same paper"** → link to the existing global record (`ensureLibraryEntry` against `existingPaperId`); no new global paper, PDF, or embedding is created — identical to a confirmed duplicate.
+  - **"No, different paper"** → continue the normal new-paper flow (upload PDF, create a new global record).
+- **Candidate is *not* visible** (private to another user, or in a private org the user is not in) → **no prompt is shown and the paper is treated as new.** Revealing another user's private paper title to ask "is this the same?" would leak private data, and the sub-0.92 confidence is not high enough to silently link. Accepting a possible duplicate global record here is the intended trade-off (it can still be caught later by fuzzy-matching refinements).
+
+> Only the **≥ 0.92** tier ever links silently to a non-visible paper. The borderline tier never does — it either asks (visible) or defers to a new record (not visible).
 
 **Visibility-based response (applies to both layers):**
 
@@ -348,13 +361,20 @@ SERVER (commit — receives: extractedMeta, user's confirmed fields, existingPap
         → ensureLibraryEntry(uid, existingPaperId) — create if not exists
         → return { status: 'ok', entryId, paperId }
   14. Layer 2 dedup: generate embedding from extractedMeta (title + synopsis + keywords)
-        → findNearest() against /papers embeddings, cosine similarity ≥ 0.92
-        → if match:
+        → findNearest() against /papers embeddings; inspect top result's cosine similarity
+        → if similarity ≥ 0.92 (automatic duplicate):
             a. Check visibility — user's library first, then user's org memberships
             b. In-library  → return { status: 'in-library', paper, entryId }
             c. In-org      → return { status: 'in-org', paper, orgs, existingPaperId }
             d. Not visible → ensureLibraryEntry(uid, existingPaperId) → return { status: 'ok' }
-        → if no match: genuinely new paper — continue
+        → else if 0.85 ≤ similarity < 0.92 (borderline):
+            a. Check visibility of the candidate
+            b. Visible (library/org) → return { status: 'borderline', paper/orgs, existingPaperId }
+                 → client prompts "Is this the same as [title]?"
+                 → "Yes"  → commit again with existingPaperId → ensureLibraryEntry → { status: 'ok' }
+                 → "No"   → commit again with existingPaperId: null → new-paper flow (continue at step 15)
+            c. Not visible → no prompt; fall through to new-paper flow (step 15)
+        → else (similarity < 0.85): genuinely new paper — continue
   15. Store PDF in Firebase Cloud Storage
   16. Create document in /papers/{paperId}:
         { hash, extractedMetadata: { title, authors, year, keywords, synopsis },
