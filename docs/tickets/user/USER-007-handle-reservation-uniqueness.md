@@ -1,7 +1,7 @@
 # USER-007 — Handle reservation & uniqueness (`/handles/{handle}`)
 
 **Domain:** user
-**Status:** Todo
+**Status:** Done — mechanism + rules shipped; exercised end-to-end when USER-001 lands
 **Spec:** docs/specs/user/user.md#handle
 **Depends on:** —
 
@@ -26,5 +26,13 @@ Every user has a unique, permanent, never-recycled `@handle`. Firestore has no n
 - [ ] Deletion tombstones the handle (uid cleared/retired) rather than removing it; the handle is never recycled.
 
 ## Affected files
-- `src/lib/handles.ts` (new — validator, blocklist, reserve/tombstone helpers)
-- Firestore security rules for `/handles/{handle}` (ORG-025)
+- `src/lib/handles.ts` (new — pure/isomorphic: `normalizeHandle`, `RESERVED_HANDLES`, `handleSchema`, `HandleTakenError`)
+- `src/lib/handles.server.ts` (new — Admin SDK: `reserveHandleInTransaction`, `tombstoneHandle`)
+- `src/lib/handles.client.ts` (new — client SDK: `checkHandleAvailability` for live form feedback)
+- `src/lib/firebase/client.ts` (add `db` Firestore export for the `/handles` read exception)
+- `firestore.rules` (`/handles/{handle}` — public read, server-only write; documented exception)
+
+## Notes
+- Pure validators are split from Admin-SDK code so the client form (USER-001) and server can share them without bundling `firebase-admin`.
+- `/handles` is deliberately client-readable (registration is pre-auth) for live "handle available?" feedback; the authoritative reservation is still a server transaction, so the read is UX-only, never a security boundary.
+- `reserveHandleInTransaction` is designed to be called inside USER-001's registration transaction (reserve handle + write user doc atomically); run all other reads before it.
