@@ -33,6 +33,16 @@ service cloud.firestore {
       }
     }
 
+    // Handle reservations. Deliberate exception to the "client never reads
+    // Firestore" rule above: the registration form reads this collection
+    // (before the user is signed in) to give live "handle available?" feedback.
+    // Handles are public by design, so reads are open. Writes (reserve on
+    // registration, tombstone on deletion) stay server-only via firebase-admin.
+    match /handles/{handle} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // Everything else is server-managed via firebase-admin. Deny all direct
     // client access by default.
     match /{document=**} {

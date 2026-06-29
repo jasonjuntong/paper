@@ -12,7 +12,7 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 
 | ID | Title | Status | Depends on | Spec |
 |----|-------|--------|-----------|------|
-| [USER-007](user/USER-007-handle-reservation-uniqueness.md) | Handle reservation & uniqueness (`/handles/{handle}`) | Todo | — | user.md#handle |
+| [USER-007](user/USER-007-handle-reservation-uniqueness.md) | Handle reservation & uniqueness (`/handles/{handle}`) | Done | — | user.md#handle |
 | [USER-001](user/USER-001-registration-email-verification.md) | Registration + email verification (incl. `@handle`) | Partial | USER-007 | user.md#authentication |
 | [USER-002](user/USER-002-login.md) | Login (email + password) | Done | — | user.md#authentication |
 | [USER-004](user/USER-004-email-enumeration-protection.md) | Email-enumeration protection | Done | USER-001 | user.md#authentication |

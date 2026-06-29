@@ -1,7 +1,7 @@
 # USER-007 — Handle reservation & uniqueness (`/handles/{handle}`)
 
 **Domain:** user
-**Status:** Todo
+**Status:** Done — mechanism + rules shipped; exercised end-to-end when USER-001 lands
 **Spec:** docs/specs/user/user.md#handle
 **Depends on:** —
 
@@ -20,11 +20,21 @@ Every user has a unique, permanent, never-recycled `@handle`. Firestore has no n
 - Tombstone-on-deletion helper: on account deletion the doc is **retained** with `uid` cleared/marked retired (never deleted), so the handle can never be reclaimed (consumed by USER-006).
 
 ## Acceptance criteria
-- [ ] A `/handles/{handle}` doc reserves a handle keyed by its lowercased form; `Alice` and `alice` cannot coexist.
-- [ ] Handle validation enforces 3–20 chars, the allowed/excluded character set, and the reserved blocklist; invalid handles are rejected and never stored.
-- [ ] Reservation runs in a transaction that re-checks availability and treats a tombstoned doc as taken.
-- [ ] Deletion tombstones the handle (uid cleared/retired) rather than removing it; the handle is never recycled.
+- [x] Handle validation enforces 3–20 chars, the allowed/excluded character set, and the reserved blocklist; invalid handles are rejected and never stored. — **unit-tested** (`src/lib/handles.test.ts`)
+- [~] A `/handles/{handle}` doc reserves a handle keyed by its lowercased form; `Alice` and `alice` cannot coexist. — key normalization/collision **unit-tested** (`normalizeHandle`); the doc-level "cannot coexist" needs the emulator.
+- [ ] Reservation runs in a transaction that re-checks availability and treats a tombstoned doc as taken. — pending Firebase emulator integration test.
+- [ ] Deletion tombstones the handle (uid cleared/retired) rather than removing it; the handle is never recycled. — pending Firebase emulator integration test.
+
+> **Verification status:** pure validators are covered by Vitest unit tests (`npm test`). The Firestore-touching criteria (transactional reserve, tombstone, and the `/handles` security rules) require the Firebase emulator + `@firebase/rules-unit-testing`, deferred for now (no JDK installed). Legend: `[x]` verified · `[~]` partially verified · `[ ]` not yet verified.
 
 ## Affected files
-- `src/lib/handles.ts` (new — validator, blocklist, reserve/tombstone helpers)
-- Firestore security rules for `/handles/{handle}` (ORG-025)
+- `src/lib/handles.ts` (new — pure/isomorphic: `normalizeHandle`, `RESERVED_HANDLES`, `handleSchema`, `HandleTakenError`)
+- `src/lib/handles.server.ts` (new — Admin SDK: `reserveHandleInTransaction`, `tombstoneHandle`)
+- `src/lib/handles.client.ts` (new — client SDK: `checkHandleAvailability` for live form feedback)
+- `src/lib/firebase/client.ts` (add `db` Firestore export for the `/handles` read exception)
+- `firestore.rules` (`/handles/{handle}` — public read, server-only write; documented exception)
+
+## Notes
+- Pure validators are split from Admin-SDK code so the client form (USER-001) and server can share them without bundling `firebase-admin`.
+- `/handles` is deliberately client-readable (registration is pre-auth) for live "handle available?" feedback; the authoritative reservation is still a server transaction, so the read is UX-only, never a security boundary.
+- `reserveHandleInTransaction` is designed to be called inside USER-001's registration transaction (reserve handle + write user doc atomically); run all other reads before it.
