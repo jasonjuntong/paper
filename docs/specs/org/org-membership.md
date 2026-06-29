@@ -142,4 +142,4 @@ Deletion is an **intentional, permanent process**. Only the Admin can delete the
 
 ## Open Items
 
-- None outstanding. (The 7-day windows are intentionally aligned across invite expiry, ghost period, transfer offers, and Step Down.)
+- None outstanding. (The 7-day windows are intentionally aligned across the ghost period, transfer offers, and Step Down. **Invite expiry is the exception**: it is Admin-configurable from 1 to 14 days with a 7-day default — see [Org Joining & Invites › Expiry](./org-joining-invites.md#invites) — so it only coincides with the others when left at the default.)

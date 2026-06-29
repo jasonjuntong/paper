@@ -2,7 +2,7 @@
 
 > Domain: `all`. Related domains: `user/`, `paper/`, `org/`.
 > Part of the Scolar specs (`docs/specs/`).
-> See also: [Paper](./paper/paper.md) | [To Be Determined](./tbd.md)
+> See also: [Paper](./paper/paper.md)
 
 ---
 
@@ -80,7 +80,8 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 
 - Primary NoSQL document database for all application data
 - **Collection structure:**
-  - `/users/{userId}` — user profile documents; subcollections: `/library/{entryId}`, `/notifications/{notifId}`
+  - `/users/{userId}` — user profile documents (includes the immutable `handle` and notification-channel preferences); subcollections: `/library/{entryId}`, `/notifications/{notifId}`
+  - `/handles/{handle}` — handle reservation/lookup; doc id is the normalized (lowercased) handle, value `{ uid }`. Created atomically with the user doc at registration to enforce handle uniqueness (Firestore has no native unique constraint). See [User › Handle](./user/user.md#handle)
   - `/papers/{paperId}` — global paper records (metadata, `VectorValue(768)` embedding, cached AI outputs)
   - `/orgs/{orgId}` — org documents with atomic counters (`memberCount`, `inviteCount`, `requestCount`, `paperCount`); subcollections: `/members/{userId}`, `/invites/{inviteId}`, `/joinRequests/{requestId}`, `/sharedPapers/{paperId}`, `/adminTransferOffers/{offerId}` (holds both Admin→member offers and member→Admin "request to be Admin" objects, told apart by a `direction` field)
 - **Firestore Security Rules** (`firestore.rules`) govern all client-side read/write access — equivalent to PostgreSQL Row Level Security
@@ -95,9 +96,9 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 
 #### Realtime
 
-- Powers **all in-app notifications** — delivered in real-time via Firestore real-time listeners (`onSnapshot`) on the `/users/{userId}/notifications/` subcollection
+- Powers **all in-app notifications** — delivered in real-time via Firestore real-time listeners (`onSnapshot`) on the `/users/{userId}/notifications/` subcollection. In-app is the baseline channel for **every** notification event.
 - Notification events: invite sent/received, member kicked, Admin transfer offer sent/accepted/declined, Step Down initiated/expired, Org deletion, join request approved/rejected
-- No email or push notifications at launch — all notification delivery is in-app only
+- **High-priority events are additionally emailed** (via Resend) — gated by the user's `notificationPrefs.email` toggle (default on). **No push notifications.** See [Org Papers & Permissions › Notifications](./org/org-papers-permissions.md#notifications) for the exact email-eligible event set
 
 #### Firestore Vector Search
 
@@ -106,13 +107,15 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 - Cosine similarity search powers the **Idea/Proposal Verification** feature — users input a plain-text idea; it is embedded and searched against stored paper embeddings using `findNearest({ vectorField: 'embedding', queryVector, limit, distanceMeasure: 'COSINE' })`
 - Visibility scoping: the server Route Handler collects the user's accessible paper IDs (from `/users/{userId}/library/` + org `/sharedPapers/` subcollections), then passes them as a pre-filter to `findNearest` — results are restricted to the user's accessible pool
 - Embeddings are generated once per unique global paper and reused by all library entries that reference it — no re-embedding on deduplication hits
+- `findNearest` also backs **Layer 2 deduplication** at upload — cosine similarity **≥ 0.92** is an automatic duplicate, **0.85–0.92** triggers a user "is this the same paper?" confirm, **< 0.85** is treated as new. Full rules in [Paper › Deduplication Strategy](./paper/paper.md#2-deduplication-strategy)
 
 ### Resend
 
-- Role: **transactional email delivery** — password reset is the only email Scolar sends to users at launch
+- Role: **transactional + notification email delivery** — (1) password reset and email verification, and (2) high-priority Org notification emails (see [Org Papers & Permissions › Notifications](./org/org-papers-permissions.md#notifications))
 - Package: `resend`
 - Env var: `RESEND_API_KEY`
-- Why chosen: Firebase's built-in password reset email cannot be customised (template, sender domain, branding); Resend gives full control over the email while Firebase still owns the cryptographic `oobCode` validation
+- Notification emails are gated by the recipient's `notificationPrefs.email` toggle (default on) and only fire for the email-eligible event subset; the in-app channel always fires regardless
+- Why chosen: Firebase's built-in password reset email cannot be customised (template, sender domain, branding); Resend gives full control over the email while Firebase still owns the cryptographic `oobCode` validation — and the same provider covers notification emails
 
 ---
 
@@ -178,7 +181,7 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 | `clsx` | ^2.1 | Conditional class name utility |
 | `tailwind-merge` | ^3.6 | Merge Tailwind classes without conflicts |
 | `tw-animate-css` | ^1.4 | Animation utility classes |
-| `resend` | — | Transactional email — password reset only at launch |
+| `resend` | — | Transactional email (password reset, verification) + high-priority Org notification emails |
 | `firebase` | — | Firebase client SDK — Firestore, Auth, Cloud Storage (browser) |
 | `firebase-admin` | — | Firebase Admin SDK — privileged server-side ops in Route Handlers |
 | Firebase Authentication | — | Email + password auth; session cookies via `firebase-admin` |
