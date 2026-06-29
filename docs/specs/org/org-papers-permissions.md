@@ -36,6 +36,8 @@ There is no global/public visibility state for papers.
 
 > **Public-pool upkeep:** sharing to / unsharing from a **public** Org (including these auto-unshares) maintains the paper's denormalized `publicOrgIds` set — added on share, removed on unshare when no other entry still shares it to that Org. This is what keeps a public Org's papers in (or out of) the Discover + search list pool. See [Paper › Identifying the public-Org pool](../paper/paper.md#identifying-the-public-org-pool-denormalized-flag).
 
+> **`paperCount` upkeep:** every Org doc carries an atomic `paperCount` counter — the number of distinct papers shared to it (i.e. the size of its `sharedPapers` subcollection) — so Discover and Org-profile surfaces can show paper count from a single field read instead of counting the subcollection per request. It is bumped in the **same write** that creates or removes a `sharedPapers/{paperId}` doc: **+1** when a paper's snapshot is newly created in the Org, **−1** when it is removed because no other member still shares that paper to the Org. Because `sharedPapers` is keyed by `paperId`, a second member sharing the same paper does **not** create a new doc and does **not** increment the counter; the decrement fires only when the **last** sharer unshares (same condition as `publicOrgIds` removal). Applies to **all** Orgs, public and private; the auto-unshare paths (leave/kick, entry delete) maintain it too. See [Org Discovery › Org List Item Display](./org-discovery.md#org-list-item-display).
+
 ---
 
 ## Notifications
@@ -57,6 +59,8 @@ In-app notifications are sent for all Org-related events, delivered **real-time*
 | Join request approved | The requesting user |
 | Join request rejected | The requesting user |
 | Org is deleted (enters Ghost Mode) | All members of the Org |
+
+> Invite **acceptance** and join-request **submission** deliberately do **not** fire notifications — they surface to the Admin via the live members / join-requests list (`onSnapshot`), not the notifications feed. Only declines and final results (approve/reject) are notified.
 
 ---
 

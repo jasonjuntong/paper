@@ -52,7 +52,7 @@
 
 - Version: **^4.4**
 - Used for **all input and I/O validation** across the application — form inputs, API route request bodies, and AI model output schemas
-- The Gemini Flash metadata extraction output is validated against a Zod schema (`title`, `authors`, `year`, `keywords`, `synopsis`) before being treated as a usable draft
+- The Groq (`llama-3.3-70b-versatile`) metadata extraction output is validated against a Zod schema (`title`, `authors`, `year`, `keywords`, `synopsis`) before being treated as a usable draft
 - API route handlers validate all incoming request bodies with Zod before any database or AI calls proceed
 - Why: A single validation library used consistently at every boundary — client form → server route → AI output — eliminates entire categories of type confusion and malformed-data bugs
 
@@ -82,7 +82,7 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 - **Collection structure:**
   - `/users/{userId}` — user profile documents; subcollections: `/library/{entryId}`, `/notifications/{notifId}`
   - `/papers/{paperId}` — global paper records (metadata, `VectorValue(768)` embedding, cached AI outputs)
-  - `/orgs/{orgId}` — org documents with atomic counters (`memberCount`, `inviteCount`, `requestCount`); subcollections: `/members/{userId}`, `/invites/{inviteId}`, `/joinRequests/{requestId}`, `/sharedPapers/{paperId}`, `/adminTransferOffers/{offerId}`
+  - `/orgs/{orgId}` — org documents with atomic counters (`memberCount`, `inviteCount`, `requestCount`, `paperCount`); subcollections: `/members/{userId}`, `/invites/{inviteId}`, `/joinRequests/{requestId}`, `/sharedPapers/{paperId}`, `/adminTransferOffers/{offerId}` (holds both Admin→member offers and member→Admin "request to be Admin" objects, told apart by a `direction` field)
 - **Firestore Security Rules** (`firestore.rules`) govern all client-side read/write access — equivalent to PostgreSQL Row Level Security
 - Business logic constraints (cap enforcement, expiry checks, referential integrity) are enforced in server-side Route Handlers using `firebase-admin` within Firestore transactions — not in client code or security rules
 
@@ -124,8 +124,8 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 - Package: `groq-sdk`; env var: `GROQ_API_KEY`
 - Input: first 5 pages of text extracted from the PDF (client-side, via `pdfjs-dist`)
 - Output: structured JSON with fields `title`, `authors`, `year`, `keywords`, `synopsis` — validated via Zod before use; `response_format: { type: 'json_object' }` enforces JSON mode
-- Retried up to **3 times** on any failure, including 429 rate-limit errors (no separate rate-limit handling — 429 counts as a normal failure attempt)
-- If all 3 attempts fail, the user is shown a manual input form pre-filled with whatever partial draft was returned (may be empty)
+- **Single attempt only — no retries.** A 429 or any other failure is not retried; this is deliberate to avoid cascading into the free tier's rate limits
+- If the attempt fails, the user is shown a manual input form pre-filled with whatever partial draft was returned (may be empty)
 - The extracted output is always a **draft** — metadata is only final once the user reviews and saves it
 - Why chosen: Fast inference, generous free tier; runs once per unique paper (deduplication prevents re-processing); `llama-3.3-70b-versatile` provides reliable structured extraction from academic text
 
@@ -143,7 +143,7 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 - Role: **paper embeddings** (generated once at upload) and **query embeddings** (per similarity search)
 - Package: `@google/genai`; env var: `GEMINI_API_KEY`; `apiVersion: 'v1'`
 - Output dimension: **768** — native output truncated via `outputDimensionality: 768`; stored as `VectorValue(768)` in Firestore via native vector search
-- Embedding input per paper: concatenation of `title + synopsis + keywords`
+- Embedding input per paper: concatenation of `extractedMetadata.title + extractedMetadata.synopsis + extractedMetadata.keywords` — always Groq's raw output, never the user's modified version (see [Paper › Embedding input](./paper/paper.md#5-similarity-search-ideaproposal-verification))
 - Embeddings are generated once on the global paper record and reused forever — all library entries pointing to the same global paper share its embedding; deduplication prevents redundant embedding generation
 - Query embeddings are generated per similarity search request (negligible cost — no generation, purely a vector lookup after embedding the query)
 - Why chosen: Negligible cost per call; 768-dim output fits within Firestore Vector Search's dimension limit; generated once and reused indefinitely per paper
@@ -156,7 +156,7 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 
 - Runs **entirely client-side** in the browser — no server-side PDF processing
 - Responsibilities at upload time:
-  - Extracts full text from the uploaded PDF (the first 1–2 pages are used for metadata extraction; full text is available for future use)
+  - Extracts full text from the uploaded PDF (the first 5 pages are used for metadata extraction; full text is available for future use)
   - Computes the **SHA-256 hash** of the raw PDF file — used for Layer 1 deduplication (instant, pre-processing)
 - Only the **extracted text + hash** are sent to the server in the first upload phase — the PDF binary stays in the browser until metadata is confirmed and committed
 - Why: Keeps the large PDF binary out of the network request until it is actually needed; enables the Layer 1 hash dedup check before any AI processing or storage occurs; offloads text extraction work to the client, reducing server compute
@@ -186,7 +186,7 @@ Why chosen: Eliminates the need for separate auth, file storage, WebSocket, and 
 | Firebase Cloud Storage | — | PDF file storage (committed after metadata confirmed) |
 | Firestore Vector Search | — | Cosine similarity search (`findNearest`, `VectorValue(768)`) |
 | `pdfjs-dist` | — | Client-side PDF text extraction and SHA-256 hashing |
-| `groq-sdk` | — | Metadata extraction — `llama-3.3-70b-versatile`, structured JSON, retried up to 3× |
+| `groq-sdk` | — | Metadata extraction — `llama-3.3-70b-versatile`, structured JSON, single attempt (no retries) |
 | Gemini Pro | — | AI-generated insights — streamed, cached per global paper |
 | `@google/genai` + `gemini-embedding-2` | — | Paper + query embeddings (768-dim via `outputDimensionality`, generated once per paper) |
 
