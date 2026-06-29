@@ -25,9 +25,9 @@ Features and additions that are planned but not required for launch. These are n
 
 **Why it matters:**
 - A single display name field is simpler and flexible
-- Split fields are needed for formal communications, future email notifications, and billing or invoicing if premium plans involve personal details
+- Split fields are needed for formal communications and future email notifications
 
-**What it affects:** Registration form, user profile schema, any future billing or notification system.
+**What it affects:** Registration form, user profile schema, any future notification system.
 
 ---
 
@@ -59,7 +59,7 @@ Features and additions that are planned but not required for launch. These are n
 
 **Why it matters:** 1000 is sufficient at launch but may be limiting for large communities later.
 
-**What it affects:** Org membership schema, premium tier design.
+**What it affects:** Org membership schema.
 
 ---
 
@@ -80,13 +80,3 @@ Features and additions that are planned but not required for launch. These are n
 **Why it matters:** Users who are not actively in the app would miss important events (kicks, Org deletions, invite arrivals).
 
 **What it affects:** Notification system, infrastructure, user notification preferences.
-
----
-
-## 8. User Tier System & Subscription Schema
-
-**What it is:** The data model and mechanics behind premium status — tier definitions, subscription table schema, billing integration, and how premium status is granted, tracked, and revoked.
-
-**Why it matters:** Premium status gates the Gemini Pro AI features. The features themselves are specified, but the tier/subscription system that determines who is premium is not yet designed.
-
-**What it affects:** User schema, premium AI feature gating, billing, the Premium Account / Plans & Billing chunk.

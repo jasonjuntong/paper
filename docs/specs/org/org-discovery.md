@@ -44,6 +44,8 @@ Recommendations are based on **keyword/tag overlap** (not embeddings — kept si
 3. Rank public Orgs by the degree of keyword/tag overlap with the user's profile (matching keywords scored by their profile weight)
 4. Show the top-ranked Orgs as "Suggested"
 
+> Org-side keywords (step 2) are collected **live per request** — there is no materialized org keyword set, unlike the per-user [`keywordProfile`](../paper/paper.md#7-keyword-preference-profile). This is intentionally simple for launch; it is a known scaling cost if the number of public Orgs (and their shared papers) grows large, at which point an org-level materialized keyword map would be the optimization.
+
 ---
 
 ## Zero-Paper Users

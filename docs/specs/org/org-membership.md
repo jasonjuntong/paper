@@ -10,8 +10,7 @@
 
 - A user can be a member of **multiple Orgs**
 - An Org can have multiple members
-- **Member cap:** a flat **1000 members** per Org, regardless of the Admin's account tier
-- Premium benefits apply solely to the paper tools — they do **not** affect Org member limits
+- **Member cap:** a flat **1000 members** per Org
 
 **Cap calculation (all pending paths count as possible members):**
 - The effective count is always **current members + pending invites + pending join requests**, and it can never exceed **1000**. This projection is calculated before any invite or join request is created.
@@ -61,6 +60,8 @@ There is never more than one Admin per Org at any point in this process.
 - A **Step Down** (below) is the Admin **intending to leave** the Org. If its window **expires with no successful handoff, the Org is deleted** (Ghost Mode).
 
 A plain transfer is never automatically treated as a Step Down — the Admin chooses which action they are taking.
+
+**Storage (both directions in one collection):** every pending Admin-handoff object — whether an Admin→member **transfer offer** or a member→Admin **"request to be Admin"** (below) — lives in `/orgs/{orgId}/adminTransferOffers/{offerId}`, distinguished by a **`direction`** field (`offer` | `request`). Keeping both in one subcollection is what lets the auto-grant check (a member's `request` meeting a matching `offer` from the Admin → instant handoff) read a single place. Both kinds carry the same 7-day expiry and are invalidated together the moment any handoff succeeds.
 
 ---
 
@@ -124,6 +125,11 @@ Deletion is an **intentional, permanent process**. Only the Admin can delete the
 - It is removed from all listings, search, and members' Org lists
 
 > **No restore:** once the Admin confirms deletion, it is final. There is no undo, even during Ghost Mode. Ghost Mode exists only to soften the experience for members, not to provide a recovery window.
+
+**Org-doc state fields (data model):** an Org's lifecycle is tracked on the org document via `status: 'active' | 'stepdown' | 'ghost'`:
+- **`active`** — normal operation.
+- **`stepdown`** — set when the Admin initiates **Step Down**, alongside `stepDownExpiresAt` (7 days out). A successful handoff returns `status` to `active`; expiry flips it to `ghost`. This flag is also what gates the "request to be Admin" feature (available only while `status == 'stepdown'`).
+- **`ghost`** — set on entering **Ghost Mode** (Admin deletion, Step-Down expiry, or Admin account deletion), alongside `deletedAt`. The "deleted X ago" message reads `deletedAt`, and the 7-day ghost period ends 7 days after it.
 
 ---
 
