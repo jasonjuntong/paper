@@ -21,10 +21,19 @@ All design tokens live in `src/app/globals.css`. Use Tailwind utilities (`bg-car
 ### Color (intentional exceptions)
 
 - **Nav Plus-icon circle** uses inline `oklch(0.918 0.004 106.937)` — one shade darker than `--pill`. This keeps the circle readable when its row is hovered (because hover bg is `--sidebar-accent` = `--pill`). Do not refactor this to `bg-pill`.
-- **Danger actions** (e.g. Delete paper button) use two inline reds that are warmer and darker than the shadcn `--destructive` token:
+- **Destructive actions** — negative action *controls the user clicks*: delete paper, delete account, kick / leave org, and the like. Two inline reds, warmer and darker than the shadcn `--destructive` token:
   - Default text: `oklch(0.434 0.140 25deg)` (≈ rgb 142 38 38) — dark crimson, legible on white.
   - Hover bg + border: `oklch(0.576 0.186 25deg)` (≈ rgb 208 59 60) — brighter red fill; pair with `text-white`.
   - Pattern: `text-[oklch(0.434_0.140_25deg)] hover:bg-[oklch(0.576_0.186_25deg)] hover:border-[oklch(0.576_0.186_25deg)] hover:text-white`.
+- **Danger notification theme** — negative *notifications the app reports* (lost connection, failed sync, and similar alerts the user didn't trigger as an action). Rendered as an inline alert banner: warning-triangle icon + message + dismiss ✕, e.g. "We couldn't connect…". Uses a warm amber pair; icon, text, border, and ring all share the one dark amber-brown.
+  - Background: `oklch(0.907 0.079 85.1deg)` (≈ `#f9dda4`) — soft amber fill.
+  - Foreground (icon + text + border/ring): `oklch(0.44 0.097 67.3deg)` (≈ `#754600`) — deep amber-brown; legible on the amber fill.
+  - Pattern: `bg-[oklch(0.907_0.079_85.1deg)] text-[oklch(0.44_0.097_67.3deg)] border-[oklch(0.44_0.097_67.3deg)] ring-[oklch(0.44_0.097_67.3deg)]`.
+  - **Not interchangeable with the red set.** The rule of thumb is **action vs. notification**: red = a negative thing the user *does* (a button/control — delete, kick, leave); amber = a negative thing the app *reports* (a banner/toast — lost connection). Never put red on a notification banner or this amber on a destructive button.
+  - **Boundary cases (settled):**
+    - *A destructive action that **fails*** ("Couldn't delete paper", "Failed to leave org") → **amber**. The outcome is a reported alert, so it follows the notification rule even though it stems from a destructive action.
+    - *Warning copy + icon inside a destructive **confirmation dialog*** ("This permanently deletes your account…") → **amber**. The red is reserved for the confirm button only; amber caution copy keeps "warning" visually distinct from "this is the button that destroys".
+    - *Inline form / validation errors* ("handle already taken", "incorrect password") → **shadcn `--destructive` red text** — the conventional inline-field-error look. This is neither custom palette: not the warm destructive-action reds, not the amber notification theme.
 
 ### Radius
 
