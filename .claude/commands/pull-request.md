@@ -4,6 +4,8 @@ Create a pull request targeting `develop` using the current branch.
 - The PR base is **always `develop`**, never `main`. Never open a PR targeting `main`.
 - This command may `git push` the **current feature branch** only. It **never merges** (`gh pr merge`, `git merge`) and **never pushes `develop` or `main`** (`git push origin develop`, `git push origin main`). Merging happens only through GitHub review, by a human.
 - The PR describes **only the current branch's own changes**. Build the title/body from this branch's commits diffed against the `develop` base — never look up, read, or compare against `main` or any other feature branch.
+- **Never put a ticket slug/ID in the PR title or name** (e.g. `USER-001`, `ORG-023`, `feature/...`). The title describes *what changed*, not which ticket it tracks. Ticket references, if any, belong only in the body's "Notes for reviewer".
+- The title and body must reflect **what is actually implemented/changed in the diff** against the base (latest `develop`, or the branch's initial no-change state if `develop` is unavailable) — not the ticket's intent, scope, or anything not present in the diff.
 
 **Step 0 — Guard against base branches**
 
@@ -55,6 +57,7 @@ Draft the PR using this structure:
 **Title**: `<Type> — <3-5 word concise name of the changes>`
 Types: `Feature` | `Fix` | `Refactor` | `Style` | `Docs` | `Chore` | `Test`
 Example: `Refactor — Typography Audits`
+The name must describe the **changes themselves**, derived from the diff against `develop`. **Do not include any ticket slug/ID** (`USER-001`, `ORG-023`, etc.) or branch name in the title.
 
 **Body**: Check the `- [x]` box that matches the chosen type (leave the rest as `- [ ]`).
 ```

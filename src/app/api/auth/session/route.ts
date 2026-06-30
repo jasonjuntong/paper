@@ -11,6 +11,14 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Enforce email verification server-side: the client login form checks this
+    // too, but a valid idToken can be obtained without a verified email, so the
+    // session cookie (which gates the whole (app) area) must reject it here.
+    const decoded = await adminAuth.verifyIdToken(idToken)
+    if (!decoded.email_verified) {
+      return Response.json({ error: 'Email not verified' }, { status: 403 })
+    }
+
     const sessionCookie = await adminAuth.createSessionCookie(idToken, {
       expiresIn: SESSION_MAX_AGE * 1000,
     })

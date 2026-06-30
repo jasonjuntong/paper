@@ -18,6 +18,9 @@ export const RESERVED_HANDLES: ReadonlySet<string> = new Set([
 /** Printable ASCII only — excludes whitespace, control chars, and non-ASCII
  *  (Unicode-homoglyph guard) in one shot. */
 const HANDLE_ALLOWED = /^[\x21-\x7E]+$/
+/** The first character must be an ASCII letter — no leading digit or special
+ *  character (keeps handles readable and avoids odd leading punctuation). */
+const HANDLE_LEADING = /^[A-Za-z]/
 /** The `/` doc-id delimiter plus the HTML/JS-injection chars `< > & " '` and
  *  the backtick. Defense-in-depth; output is always HTML-escaped too. */
 const HANDLE_FORBIDDEN = /[/<>&"'`]/
@@ -33,6 +36,9 @@ export const handleSchema = z
   .min(HANDLE_MIN_LENGTH, `Handle must be at least ${HANDLE_MIN_LENGTH} characters`)
   .max(HANDLE_MAX_LENGTH, `Handle must be at most ${HANDLE_MAX_LENGTH} characters`)
   .regex(HANDLE_ALLOWED, 'Handle cannot contain spaces or non-ASCII characters')
+  .refine((h) => HANDLE_LEADING.test(h), {
+    message: 'Handle must start with a letter',
+  })
   .refine((h) => !HANDLE_FORBIDDEN.test(h), {
     message: 'Handle cannot contain / < > & " \' or `',
   })

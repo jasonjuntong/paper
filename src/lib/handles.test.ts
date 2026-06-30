@@ -54,6 +54,29 @@ describe('handleSchema — allowed characters', () => {
   })
 })
 
+describe('handleSchema — leading character', () => {
+  it('accepts a handle starting with a letter', () => {
+    expect(isValid('abc')).toBe(true)
+    expect(isValid('Zoe9')).toBe(true)
+  })
+
+  it('rejects a leading digit', () => {
+    expect(isValid('1abc')).toBe(false)
+    expect(isValid('123')).toBe(false)
+  })
+
+  it('rejects a leading special character', () => {
+    expect(isValid('_abc')).toBe(false)
+    expect(isValid('.abc')).toBe(false)
+    expect(isValid('-abc')).toBe(false)
+  })
+
+  it('allows digits and special characters after the first letter', () => {
+    expect(isValid('a1_')).toBe(true)
+    expect(isValid('z.9-x')).toBe(true)
+  })
+})
+
 describe('handleSchema — rejected characters', () => {
   it('rejects whitespace', () => {
     expect(isValid('a b')).toBe(false)
