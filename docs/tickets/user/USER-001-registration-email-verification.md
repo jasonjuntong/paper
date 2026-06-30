@@ -1,7 +1,7 @@
 # USER-001 — Registration + email verification
 
 **Domain:** user
-**Status:** Partial — handle collection + reservation ordering pending
+**Status:** Done
 **Spec:** docs/specs/user/user.md#authentication
 **Depends on:** USER-007
 
@@ -18,12 +18,12 @@ The verification email **must be sent server-side** (via the **Resend** library)
 - Block app access until the email is verified; verify-email landing page.
 
 ## Acceptance criteria
-- [ ] Registration collects name, handle, email, password and creates a Firebase Auth user with the display name set.
-- [ ] A taken handle is reported to the user; a duplicate email still shows the silent success state (no enumeration).
-- [ ] A failed registration leaves no orphaned Auth user and no orphaned handle reservation.
-- [ ] A verification email is sent on registration, server-side via Resend.
-- [ ] Unverified users cannot access the app and are routed to the verify-email state.
-- [ ] No OAuth or magic-link paths exist.
+- [x] Registration collects name, handle, email, password and creates a Firebase Auth user with the display name set.
+- [x] A taken handle is reported to the user; a duplicate email still shows the silent success state (no enumeration).
+- [x] A failed registration leaves no orphaned Auth user and no orphaned handle reservation.
+- [x] A verification email is sent on registration, server-side via Resend.
+- [x] Unverified users cannot access the app and are routed to the verify-email state.
+- [x] No OAuth or magic-link paths exist.
 
 ## Affected files
 - `src/components/auth/register-form.tsx` (add handle field + validation)
@@ -31,4 +31,4 @@ The verification email **must be sent server-side** (via the **Resend** library)
 - `src/app/(auth)/verify-email/page.tsx`
 - `src/app/api/auth/` (registration route handler — ordering + handle reservation, USER-007; calls Resend to send the verification email)
 - `src/lib/email.ts` (new — shared **Resend** wiring; also used by USER-003 / ORG-023)
-- `package.json` (add `resend` dependency), `.env.example` (add `RESEND_API_KEY`)
+- `package.json` (add `resend` dependency), `.env.local.example` (add `RESEND_API_KEY`)

@@ -12,8 +12,9 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 
 | ID | Title | Status | Depends on | Spec |
 |----|-------|--------|-----------|------|
+| [INFRA-001](infra/INFRA-001-test-emulator-playwright.md) | Test infrastructure: Firebase emulator + Playwright | Todo | — | — (testing infra) |
 | [USER-007](user/USER-007-handle-reservation-uniqueness.md) | Handle reservation & uniqueness (`/handles/{handle}`) | Done | — | user.md#handle |
-| [USER-001](user/USER-001-registration-email-verification.md) | Registration + email verification (incl. `@handle`) | Partial | USER-007 | user.md#authentication |
+| [USER-001](user/USER-001-registration-email-verification.md) | Registration + email verification (incl. `@handle`) | Done | USER-007 | user.md#authentication |
 | [USER-002](user/USER-002-login.md) | Login (email + password) | Done | — | user.md#authentication |
 | [USER-004](user/USER-004-email-enumeration-protection.md) | Email-enumeration protection | Done | USER-001 | user.md#authentication |
 | [PAPER-001](paper/PAPER-001-upload-extract-hash.md) | Upload: client text extraction + SHA-256 hash | Done | — | paper.md#1-paper-upload--paper-details |
@@ -100,4 +101,4 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 
 ---
 
-**Totals:** 7 USER · 18 PAPER · 25 ORG = **50 tickets**.
+**Totals:** 7 USER · 18 PAPER · 25 ORG · 1 INFRA = **51 tickets**.
