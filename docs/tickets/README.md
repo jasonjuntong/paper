@@ -12,7 +12,7 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 
 | ID | Title | Status | Depends on | Spec |
 |----|-------|--------|-----------|------|
-| [INFRA-001](infra/INFRA-001-test-emulator-playwright.md) | Test infrastructure: Firebase emulator + Playwright | Todo | — | — (testing infra) |
+| [INFRA-001](infra/INFRA-001-test-emulator-playwright.md) | Test infrastructure: Firebase emulator + Playwright | Partial | — | — (testing infra) |
 | [USER-007](user/USER-007-handle-reservation-uniqueness.md) | Handle reservation & uniqueness (`/handles/{handle}`) | Done | — | user.md#handle |
 | [USER-001](user/USER-001-registration-email-verification.md) | Registration + email verification (incl. `@handle`) | Done | USER-007 | user.md#authentication |
 | [USER-002](user/USER-002-login.md) | Login (email + password) | Done | — | user.md#authentication |
