@@ -1,11 +1,9 @@
 'use client'
 
 import { useState, type FormEvent } from 'react'
-import { sendPasswordResetEmail } from 'firebase/auth'
 import Link from 'next/link'
 import { Loader2 } from 'lucide-react'
 import { z } from 'zod'
-import { auth } from '@/lib/firebase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
@@ -31,9 +29,15 @@ export function ForgotPasswordForm() {
 
     setStatus('loading')
     try {
-      await sendPasswordResetEmail(auth, email)
+      // The route always responds `{ ok: true }` (enumeration protection), so we
+      // don't branch on the result — reaching here at all means "sent".
+      await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
     } catch {
-      // Swallow all errors — never reveal whether an email is registered
+      // Swallow network errors too — never reveal whether an email is registered.
     }
     setStatus('sent')
   }

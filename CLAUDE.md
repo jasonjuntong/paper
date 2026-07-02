@@ -2,8 +2,13 @@
 
 ## Rules
 
+- **Load the `next-best-practices` skill at the start of every session**, before writing or reviewing any Next.js code. This is Next.js 16 — APIs and file conventions differ from training data (e.g. `middleware.ts` → `proxy.ts`). Consult the skill's references rather than relying on memory.
 - **Never modify files under `src/components/ui/`.** These are shadcn/ui source files. Customize via `className` props, wrapper components, or `cva` variants in *your own* files only.
 - **Extend, don't edit.** If a component needs specific customization beyond `className`, create a new component in `src/components/` that wraps the shadcn primitive — e.g. `WideDialog` wraps `DialogContent` with `sm:max-w-none`, or `IconButton` wraps `Button` with a fixed icon slot. Never touch the originals in `src/components/ui/`.
+
+## Nuances
+
+- Intentional-but-debatable choices and deferred decisions are logged in `docs/nuances.md` — read it before "fixing" something that looks off in auth/routing; it may be a known, deliberate tradeoff to revisit later.
 
 ## Specs
 

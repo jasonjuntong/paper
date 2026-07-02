@@ -10,8 +10,8 @@ Buckets map to the README legend: **Completed** = `Done`, **In progress** = `Par
 
 | Bucket | Count |
 |--------|-------|
-| ✅ Completed | 15 |
-| 🟡 In progress | 12 |
+| ✅ Completed | 16 |
+| 🟡 In progress | 11 |
 | ⬜ Backlog | 24 |
 | **Total** | **51** |
 

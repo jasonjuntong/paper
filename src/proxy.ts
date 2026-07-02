@@ -3,7 +3,13 @@ import type { NextRequest } from 'next/server'
 
 const SESSION_COOKIE = '__session'
 
-const AUTH_PATHS = new Set(['/login', '/register', '/forgot-password', '/verify-email'])
+const AUTH_PATHS = new Set([
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/verify-email',
+])
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
