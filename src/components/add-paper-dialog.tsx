@@ -17,6 +17,7 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
+import { computeSHA256, isPdfFile } from '@/lib/pdf-upload'
 import type {
   CommitResponse,
   ExistingPaperInfo,
@@ -58,14 +59,6 @@ const MetadataSchema = z.object({
 })
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-async function computeSHA256(file: File): Promise<string> {
-  const buffer = await file.arrayBuffer()
-  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer)
-  return Array.from(new Uint8Array(hashBuffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
-}
 
 async function extractPdfPages(file: File): Promise<string[]> {
   const pdfjs = await import('pdfjs-dist')
@@ -237,7 +230,7 @@ export function AddPaperDialog({
   }
 
   function handleFileChosen(file: File) {
-    if (!file.name.toLowerCase().endsWith('.pdf')) return
+    if (!isPdfFile(file)) return
     setSelectedFile(file)
   }
 

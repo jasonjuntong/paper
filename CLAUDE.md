@@ -1,8 +1,19 @@
 @AGENTS.md
 
+## Load skills
+
+Load these skills at the start of every session, before writing or reviewing related code:
+
+- **`next-best-practices`** — before any Next.js code. This is Next.js 16; APIs and file conventions differ from training data (e.g. `middleware.ts` → `proxy.ts`). Consult the skill's references rather than relying on memory.
+- **`firebase-basics`** — Firebase CLI, project setup, and environment management.
+- **`firebase-firestore`** — Firestore data models, security rules, queries, and indexes.
+- **`firebase-auth-basics`** — Firebase Authentication setup and usage.
+- **`shadcn`** — adding, composing, and styling shadcn/ui components.
+- **`frontend-design`** — building distinctive, production-grade UI; avoiding generic AI aesthetics.
+
 ## Rules
 
-- **Load the `next-best-practices` skill at the start of every session**, before writing or reviewing any Next.js code. This is Next.js 16 — APIs and file conventions differ from training data (e.g. `middleware.ts` → `proxy.ts`). Consult the skill's references rather than relying on memory.
+- **At the start of every session, check the ticket status** in `docs/tickets/LEDGER.md` (status snapshot + what needs attention) and `docs/tickets/README.md` (full backlog + build order) to see what the current or next ticket to work on is.
 - **Never modify files under `src/components/ui/`.** These are shadcn/ui source files. Customize via `className` props, wrapper components, or `cva` variants in *your own* files only.
 - **Extend, don't edit.** If a component needs specific customization beyond `className`, create a new component in `src/components/` that wraps the shadcn primitive — e.g. `WideDialog` wraps `DialogContent` with `sm:max-w-none`, or `IconButton` wraps `Button` with a fixed icon slot. Never touch the originals in `src/components/ui/`.
 
