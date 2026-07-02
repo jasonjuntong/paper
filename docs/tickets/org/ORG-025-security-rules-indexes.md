@@ -16,7 +16,7 @@ The permissions table and data model require Firestore security rules and compos
 
 ## Acceptance criteria
 - [ ] Rules enforce the full permissions table; unauthorized writes are denied.
-- [ ] `/handles/{handle}` is readable but not client-writable; reservations/tombstones only succeed via the server transaction.
+- [x] `/handles/{handle}` is readable but not client-writable; reservations/tombstones only succeed via the server transaction.
 - [ ] Collection-group `library` (paperId) and the vector/publicOrgIds indexes exist.
 - [ ] Discovery/search queries have their required composite indexes.
 

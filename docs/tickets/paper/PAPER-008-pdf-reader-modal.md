@@ -14,8 +14,8 @@ A large modal reader renders PDFs directly with `pdfjs-dist` — one page at a t
 - Load via the access-gated `/api/papers/{paperId}/file` proxy (PAPER-009) using Range requests.
 
 ## Acceptance criteria
-- [ ] Reader opens from the detail page and renders one page at a time, fit-to-modal.
-- [ ] No text selection/highlighting and no download UI.
+- [x] Reader opens from the detail page and renders one page at a time, fit-to-modal.
+- [x] No text selection/highlighting and no download UI.
 - [ ] Pages load via the gated proxy; org-shared papers are readable by members once sharing exists.
 
 ## Affected files

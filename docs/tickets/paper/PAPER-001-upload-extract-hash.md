@@ -13,9 +13,9 @@ PDF-only upload. Text is extracted client-side with `pdfjs-dist` and a SHA-256 h
 - Send extracted text + hash to `init`; defer the PDF bytes until commit.
 
 ## Acceptance criteria
-- [ ] Only PDFs are accepted.
-- [ ] Text extraction + SHA-256 happen client-side before any upload.
-- [ ] PDF bytes are not sent to storage until commit (USER confirms details).
+- [x] Only PDFs are accepted.
+- [x] Text extraction + SHA-256 happen client-side before any upload.
+- [x] PDF bytes are not sent to storage until commit (USER confirms details).
 
 ## Affected files
 - `src/components/add-paper-dialog.tsx`

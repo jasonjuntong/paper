@@ -15,9 +15,9 @@ A global paper is shared infrastructure (many entries may reference it via dedup
 
 ## Acceptance criteria
 - [ ] Deleting an entry unshares it from all its orgs and updates publicOrgIds/paperCount/keywordProfile in the same batch.
-- [ ] Global paper + PDF are deleted only when no library entry anywhere references the paperId.
-- [ ] A paper still referenced by another user is never destroyed.
-- [ ] Collection-group index exists.
+- [x] Global paper + PDF are deleted only when no library entry anywhere references the paperId.
+- [x] A paper still referenced by another user is never destroyed.
+- [x] Collection-group index exists.
 
 ## Affected files
 - `src/app/api/papers/delete/route.ts`

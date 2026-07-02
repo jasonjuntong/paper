@@ -12,9 +12,9 @@ The Admin sets the join policy within the bounds of visibility: public orgs choo
 - Admin-only join-policy change, validated against current visibility.
 
 ## Acceptance criteria
-- [ ] Public org policy can be set to open or request only.
-- [ ] Private org policy is forced to invite-only.
-- [ ] Invalid combinations are rejected server-side.
+- [x] Public org policy can be set to open or request only.
+- [x] Private org policy is forced to invite-only.
+- [x] Invalid combinations are rejected server-side.
 
 ## Affected files
 - `src/app/api/orgs/[orgId]/route.ts` (PATCH)

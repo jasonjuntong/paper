@@ -14,8 +14,8 @@ Flat cap of 1000 per org. The effective count is **members + pending invites + p
 - Invites: block creation past available slots; if pending join requests occupy wanted slots, show the **reconciliation prompt** — (1) address requests first, or (2) Admin chooses specific N requests to decline to free slots (declined requesters notified; no cooldown on requests).
 
 ## Acceptance criteria
-- [ ] Effective count = members + pending invites + pending join requests, capped at 1000.
-- [ ] At cap, join-request action is disabled; pending requests are not auto-declined.
+- [x] Effective count = members + pending invites + pending join requests, capped at 1000.
+- [x] At cap, join-request action is disabled; pending requests are not auto-declined.
 - [ ] Invite creation blocked by requests triggers the two-option reconciliation prompt; chosen declines free slots and notify the requesters.
 
 ## Affected files

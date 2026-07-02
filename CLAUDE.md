@@ -6,6 +6,10 @@
 - **Never modify files under `src/components/ui/`.** These are shadcn/ui source files. Customize via `className` props, wrapper components, or `cva` variants in *your own* files only.
 - **Extend, don't edit.** If a component needs specific customization beyond `className`, create a new component in `src/components/` that wraps the shadcn primitive — e.g. `WideDialog` wraps `DialogContent` with `sm:max-w-none`, or `IconButton` wraps `Button` with a fixed icon slot. Never touch the originals in `src/components/ui/`.
 
+## Testing
+
+- **Don't test the framework — test your logic.** Rule of thumb for UI component tests: if a test could only fail because React or a library broke, don't write it. If it could fail because *our* logic is wrong, write it. Assert behavior we own (validation gating, error mapping, conditional rendering, submit branching), not that a library renders its own props.
+
 ## Nuances
 
 - Intentional-but-debatable choices and deferred decisions are logged in `docs/nuances.md` — read it before "fixing" something that looks off in auth/routing; it may be a known, deliberate tradeoff to revisit later.

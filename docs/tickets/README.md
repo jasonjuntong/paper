@@ -4,7 +4,7 @@ A full backlog derived from the hardened specs in [`docs/specs/`](../specs/). On
 
 **Status:** `Done` (implemented, matches spec, **and covered by every test lane that applies to it**) · `Partial` (implemented but missing required test coverage, or a stub/incomplete) · `Todo` (not started).
 
-> **Definition of Done:** tests are a hard requirement. The default bar is **both a unit and an e2e test**. A ticket may drop a lane *only* when it genuinely doesn't apply — e.g. no isolatable pure logic (no unit), no user-facing flow or an external non-emulated dependency (no browser e2e) — and it must **say so in its own `## Test coverage` section**, using integration/rules lanes where they fit. A ticket is `Done` when every applicable lane is green; implemented-but-untested work stays `Partial`. INFRA-001 is exempt (it *is* the harness).
+> **Definition of Done:** tests are a hard requirement. The default bar is **both a unit and an e2e test**. The **unit lane** is satisfied by either a pure-logic test **or a React component test** (`@testing-library/react` + jsdom, `*.test.tsx` — see `vitest.config.ts` / `vitest.setup.ts`); UI-bearing tickets almost always have a component-test surface, so "no pure logic" is *not* on its own grounds to drop the unit lane. A ticket may drop a lane *only* when it genuinely doesn't apply — e.g. purely-backend logic with no component (no component test), or an external non-emulated dependency / HTTP-level semantics better tested at integration (no browser e2e) — and it must **say so in its own `## Test coverage` section**, using integration/rules lanes where they fit. A ticket is `Done` when every applicable lane is green; implemented-but-untested work stays `Partial`. INFRA-001 is exempt (it *is* the harness).
 
 Tickets are grouped into **phases** below — a dependency-aware build sequence. Nothing in a phase depends on a later phase. Build top-to-bottom; within a phase, follow the listed order. See each ticket's `Depends on` field for exact blockers.
 
@@ -29,7 +29,7 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 | [PAPER-010](paper/PAPER-010-visibility-checkvisibility.md) | Paper visibility derivation + checkVisibility | Partial | PAPER-006 | paper.md#3-paper-visibility |
 | [PAPER-009](paper/PAPER-009-pdf-serving-proxy.md) | PDF serving proxy (access-gated, Range, ETag) | Partial | PAPER-010 | paper.md#4-pdf-reader |
 | [ORG-001](org/ORG-001-org-creation.md) | Org creation + invariant | Partial | — | org-overview.md#creation |
-| [ORG-002](org/ORG-002-edit-name-description.md) | Edit org name/description | Partial | ORG-001 | org-overview.md#org-profile |
+| [ORG-002](org/ORG-002-edit-name-description.md) | Edit org name/description | Todo | ORG-001 | org-overview.md#org-profile |
 | [ORG-004](org/ORG-004-set-join-policy.md) | Set/change join policy | Partial | ORG-001 | org-joining-invites.md#joining-an-org |
 | [ORG-006](org/ORG-006-member-listing-roles.md) | Member listing + role badges | Partial | ORG-001 | org-membership.md#roles-within-an-org |
 | [ORG-014](org/ORG-014-join-open-public-org.md) | Join open public org | Partial | ORG-001 | org-joining-invites.md#joining-an-org |

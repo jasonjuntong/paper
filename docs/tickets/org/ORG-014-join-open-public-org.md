@@ -12,8 +12,8 @@ For public orgs with the **open** policy, any user can join freely (no approval)
 - Self-service join for open public orgs, with transaction-based capacity check against the 1000 cap.
 
 ## Acceptance criteria
-- [ ] Any user can join an open public org without approval.
-- [ ] Join is rejected when the org is at capacity.
+- [x] Any user can join an open public org without approval.
+- [x] Join is rejected when the org is at capacity.
 
 ## Affected files
 - `src/app/api/orgs/[orgId]/join/route.ts`

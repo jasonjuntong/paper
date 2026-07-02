@@ -86,3 +86,7 @@ gh pr create --base develop --title "..." --body-file <path>
 ```
 
 Return the PR URL when done.
+
+**Note — branch cleanup after merge**
+
+Merging is out of scope here (a human merges via GitHub review), so this command does not delete anything. Remote cleanup is handled by the repo setting `delete_branch_on_merge = true` (GitHub → Settings → General → "Automatically delete head branches"): once a PR merges, GitHub deletes the **remote** head branch automatically — no step needed here. It does **not** touch the **local** branch; after a merge, prune and delete it locally with `git fetch --prune` then `git branch -d <branch>` (`-d` refuses unless the branch is merged).

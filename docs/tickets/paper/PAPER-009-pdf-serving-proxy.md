@@ -14,9 +14,9 @@
 - `Cache-Control: private, no-cache`; `ETag` from the object `md5Hash`; `304` when allowed + unchanged.
 
 ## Acceptance criteria
-- [ ] Every request (including revalidation) re-runs the access check; lost access → `403`, cached copy not served.
-- [ ] Range requests return `206`; allowed unchanged revalidation returns `304` with no body.
-- [ ] Responses are `private, no-cache` with a stable ETag.
+- [x] Every request (including revalidation) re-runs the access check; lost access → `403`, cached copy not served.
+- [x] Range requests return `206`; allowed unchanged revalidation returns `304` with no body.
+- [x] Responses are `private, no-cache` with a stable ETag.
 
 ## Affected files
 - `src/app/api/papers/[paperId]/file/route.ts`

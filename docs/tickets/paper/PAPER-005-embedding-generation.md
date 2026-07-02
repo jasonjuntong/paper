@@ -13,9 +13,9 @@ A 768-dim embedding is generated from the paper's `extractedMetadata.title + syn
 - Generate at commit only (after user confirms); store as `VectorValue(768)` in `embedding` on `/papers/{paperId}`.
 
 ## Acceptance criteria
-- [ ] Embedding input is always `extractedMetadata` (raw), not the user's edited copy.
-- [ ] Stored once per global paper as a 768-dim VectorValue; reused across referencing entries.
-- [ ] No embedding call if the user cancels before commit.
+- [x] Embedding input is always `extractedMetadata` (raw), not the user's edited copy.
+- [x] Stored once per global paper as a 768-dim VectorValue; reused across referencing entries.
+- [x] No embedding call if the user cancels before commit.
 
 ## Affected files
 - `src/lib/gemini.ts`

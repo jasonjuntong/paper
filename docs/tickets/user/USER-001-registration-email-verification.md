@@ -36,4 +36,4 @@ The verification email **must be sent server-side** (via the **Resend** library)
 ## Test coverage
 - **e2e** ✓ — `e2e/auth.spec.ts` covers register → verify → login → reach app, and the unverified-account block.
 - **Integration** ✓ — `tests/integration/registration.test.ts` covers the strict ordering, orphan cleanup on race, and duplicate-email masking.
-- **Unit — not required.** Registration is Auth+Firestore orchestration with no isolated pure logic of its own; handle validation lives in (and is unit-tested by) USER-007. A standalone unit test would have nothing meaningful to isolate.
+- **Component (unit)** ✓ — `src/components/auth/register-form.test.tsx` covers the client logic in isolation (Firebase read + `fetch` mocked): field validation gating the register call, live handle-availability feedback (available indicator + reserved-handle handled without a query), and the `409 handle_taken` submit branch. _The server orchestration is covered by the integration lane; handle validators by USER-007._

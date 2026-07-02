@@ -16,10 +16,10 @@ At commit, an embedding of the extracted `title + synopsis + keywords` is compar
 - **< 0.85:** proceed as a new paper.
 
 ## Acceptance criteria
-- [ ] Near-duplicate uploads (re-exports/scans) at ≥ 0.92 are caught automatically at commit.
+- [x] Near-duplicate uploads (re-exports/scans) at ≥ 0.92 are caught automatically at commit.
 - [ ] Borderline matches (0.85–0.92) prompt a confirm step only when the candidate is visible; otherwise the upload proceeds as new with no title leak.
-- [ ] On an automatic or confirmed hit, no new global paper or PDF is created; the library entry points to the existing paper.
-- [ ] Visibility-based response for automatic hits mirrors Layer 1.
+- [x] On an automatic or confirmed hit, no new global paper or PDF is created; the library entry points to the existing paper.
+- [x] Visibility-based response for automatic hits mirrors Layer 1.
 
 ## Affected files
 - `src/app/api/papers/commit/route.ts`
