@@ -14,10 +14,10 @@ A paper's visibility is derived live from its share state, never stored. Two acc
 - Used by serving (PAPER-009), search (PAPER-011), insights (PAPER-012), detail page.
 
 ## Acceptance criteria
-- [ ] Private library (no shares) → owner full, others none.
-- [ ] Shared to private org → owner + members full; others none.
+- [x] Private library (no shares) → owner full, others none.
+- [x] Shared to private org → owner + members full; others none.
 - [ ] Shared to public org → owner + members full; non-members list-only.
-- [ ] Access is recomputed per request (stale results / open pages do not retain access).
+- [x] Access is recomputed per request (stale results / open pages do not retain access).
 
 ## Affected files
 - `src/lib/paper-dedup.ts` (`checkVisibility`)

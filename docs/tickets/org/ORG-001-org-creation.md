@@ -13,10 +13,10 @@ Any authenticated user can create an org; the creator becomes Admin. Required: `
 - Server: assign creator as Admin; enforce invariant (reject invalid visibility/policy combos).
 
 ## Acceptance criteria
-- [ ] Any authenticated user can create an org and becomes its Admin.
-- [ ] `name` required, `description` optional.
-- [ ] Invariant enforced server-side: public → open|request, private → invite-only.
-- [ ] Defaults pre-selected (public + request) but changeable.
+- [x] Any authenticated user can create an org and becomes its Admin.
+- [x] `name` required, `description` optional.
+- [x] Invariant enforced server-side: public → open|request, private → invite-only.
+- [x] Defaults pre-selected (public + request) but changeable.
 
 ## Affected files
 - `src/app/api/orgs/route.ts`

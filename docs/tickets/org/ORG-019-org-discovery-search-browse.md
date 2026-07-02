@@ -15,7 +15,7 @@ The Discover surface lets users find **public** orgs via Search (by name/keyword
 - Exclude ghost orgs.
 
 ## Acceptance criteria
-- [ ] Only public, non-ghost orgs appear in browse/search.
+- [x] Only public, non-ghost orgs appear in browse/search.
 - [ ] Search matches name/keyword and returns a flat list.
 - [ ] Each item shows name, description, member count, and paper count (single-field read).
 

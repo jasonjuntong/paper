@@ -1,7 +1,7 @@
 # PAPER-006 — Library entry CRUD
 
 **Domain:** paper
-**Status:** Partial — needs e2e (unit N/A)
+**Status:** Partial — needs component + e2e
 **Spec:** docs/specs/paper/paper.md#data-ownership-model
 **Depends on:** PAPER-003, PAPER-004
 
@@ -14,9 +14,9 @@ The library entry (`/users/{uid}/library/{entryId}`) holds the user's confirmed 
 - Library browse (grid/list, shared/private filter) and paper detail page.
 
 ## Acceptance criteria
-- [ ] Entry created with the user's confirmed fields and an empty `shares`.
-- [ ] Owner can edit and delete their entry.
-- [ ] Detail/list views read from the library entry.
+- [x] Entry created with the user's confirmed fields and an empty `shares`.
+- [x] Owner can edit and delete their entry.
+- [x] Detail/list views read from the library entry.
 
 ## Affected files
 - `src/app/api/papers/commit/route.ts`
@@ -25,5 +25,5 @@ The library entry (`/users/{uid}/library/{entryId}`) holds the user's confirmed 
 - `src/app/(app)/library/` and `src/app/(app)/library/[paperId]/page.tsx`
 
 ## Test coverage
+- **Component (unit) — needed.** The library list/grid, shared/private filter, and edit form carry real client logic (view toggle + `localStorage`, filter state, edit-form validation/submit) that should be component-tested. Route request-schemas may add a small pure-unit test too.
 - **e2e — needed.** Commit → browse (grid/list, shared/private filter) → edit → delete, with detail/list views reading from the library entry.
-- **Unit — not required (optional).** CRUD is Firestore I/O; the only pure surface is the thin route request-schemas, not worth an isolated unit lane. Covered adequately by the e2e/route path.

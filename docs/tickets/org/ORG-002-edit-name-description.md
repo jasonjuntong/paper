@@ -1,7 +1,7 @@
 # ORG-002 — Edit org name/description
 
 **Domain:** org
-**Status:** Partial — verify
+**Status:** Todo — not started. The `[orgId]` PATCH route and `org-manage.tsx` only handle visibility/join policy; no name/description edit path (route or UI) exists yet.
 **Spec:** docs/specs/org/org-overview.md#org-profile
 **Depends on:** ORG-001
 

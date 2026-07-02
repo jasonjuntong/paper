@@ -16,10 +16,10 @@ Groq (`llama-3.3-70b-versatile`, JSON mode) extracts 5 required fields (title, a
 - All 5 fields required before save. Store Groq raw output as immutable `extractedMetadata`; the user's confirmed copy goes on the library entry.
 
 ## Acceptance criteria
-- [ ] Extraction is a single Groq attempt; partial/empty results are handled gracefully.
-- [ ] Fields are read-only by default and unlock individually via pencil; empty fields are immediately editable with the exact helper text.
-- [ ] Modifying an extracted field triggers the blocking confirmation dialog before save.
-- [ ] Save blocked unless all 5 fields are present; "AI"/"metadata" never shown in UI.
+- [x] Extraction is a single Groq attempt; partial/empty results are handled gracefully.
+- [x] Fields are read-only by default and unlock individually via pencil; empty fields are immediately editable with the exact helper text.
+- [x] Modifying an extracted field triggers the blocking confirmation dialog before save.
+- [x] Save blocked unless all 5 fields are present; "AI"/"metadata" never shown in UI.
 
 ## Affected files
 - `src/components/add-paper-dialog.tsx`

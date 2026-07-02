@@ -14,9 +14,9 @@ Email + password login only. Establishes an httpOnly session cookie verified ser
 - "Forgot password?" link to `/forgot-password`.
 
 ## Acceptance criteria
-- [ ] Valid credentials sign the user in and establish a session.
-- [ ] Session is verified server-side on protected routes.
-- [ ] Only email + password is supported (no OAuth / magic links).
+- [x] Valid credentials sign the user in and establish a session.
+- [x] Session is verified server-side on protected routes.
+- [x] Only email + password is supported (no OAuth / magic links).
 
 ## Affected files
 - `src/components/auth/login-form.tsx`
@@ -25,5 +25,5 @@ Email + password login only. Establishes an httpOnly session cookie verified ser
 - `src/app/api/auth/session/route.ts`
 
 ## Test coverage
+- **Component (unit)** ✓ — `src/components/auth/login-form.test.tsx` covers client validation (invalid email / missing password → no Firebase call), the wrong-credential error mapping, and the show/hide-password toggle (Firebase mocked).
 - **e2e** ✓ — `e2e/auth.spec.ts` covers valid sign-in reaching the app, the unverified-account block, and session-gated access.
-- **Unit — not required.** No pure logic to isolate; `getSession` is a thin Admin-SDK wrapper and the sign-in path is exercised end-to-end.

@@ -16,7 +16,7 @@ For public orgs with the **request** policy, users submit join requests and the 
 
 ## Acceptance criteria
 - [ ] Admin sees pending requests and can approve (→ member) or reject; requester is notified either way.
-- [ ] Join-request action disabled at the cap; existing requests freeze (no auto-decline).
+- [x] Join-request action disabled at the cap; existing requests freeze (no auto-decline).
 - [ ] A user with a pending invite is prompted to accept it instead; no dual pending state ever exists.
 - [ ] Pending requests carry over when the org switches to private.
 

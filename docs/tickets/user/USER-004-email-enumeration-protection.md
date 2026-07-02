@@ -13,9 +13,9 @@ Neither registration nor forgot-password may reveal whether an email is already 
 - Forgot-password route silently catches `auth/user-not-found` and returns the same success state (see USER-003).
 
 ## Acceptance criteria
-- [ ] Registering with an existing email shows the identical success state as a new registration; no error is surfaced.
-- [ ] No duplicate Firebase Auth account is ever created.
-- [ ] Forgot-password never reveals whether an email is registered.
+- [x] Registering with an existing email shows the identical success state as a new registration; no error is surfaced.
+- [x] No duplicate Firebase Auth account is ever created.
+- [x] Forgot-password never reveals whether an email is registered.
 
 ## Affected files
 - `src/app/api/auth/` (registration route)

@@ -14,9 +14,9 @@ At `init`, the file hash is checked against `/papers`. On a hit, the server resp
 - In-library card ("View paper", no re-add). In-org card ("View paper" / "Proceed anyway").
 
 ## Acceptance criteria
-- [ ] Byte-identical re-uploads are detected pre-processing.
-- [ ] Response matches visibility: in-library / in-org cards, or silent continuation.
-- [ ] No duplicate library entry is ever created for a paper the user already owns.
+- [x] Byte-identical re-uploads are detected pre-processing.
+- [x] Response matches visibility: in-library / in-org cards, or silent continuation.
+- [x] No duplicate library entry is ever created for a paper the user already owns.
 
 ## Affected files
 - `src/app/api/papers/init/route.ts`

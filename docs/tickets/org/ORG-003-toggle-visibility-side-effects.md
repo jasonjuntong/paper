@@ -14,7 +14,7 @@ The Admin can toggle visibility anytime. Because join policy depends on visibili
 - Both side-effects fan out across the org's `sharedPapers`.
 
 ## Acceptance criteria
-- [ ] Visibility toggle adjusts join policy per the transition rules; pending invites/requests are preserved as specified.
+- [x] Visibility toggle adjusts join policy per the transition rules; pending invites/requests are preserved as specified.
 - [ ] private→public adds the org ID to every shared paper's `publicOrgIds`; public→private removes it.
 - [ ] Fan-out is consistent with the org's current `sharedPapers`.
 
