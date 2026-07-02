@@ -54,6 +54,14 @@ export default defineConfig({
       // reaching the real Resend API. The send fails and is caught; the
       // verification oobCode still comes from the Auth emulator.
       RESEND_API_KEY: 'demo-resend-key',
+      // Same idea for the AI providers — dummy keys keep the e2e offline. The
+      // Groq extraction and Gemini embedding calls fail and are caught, so
+      // /api/papers/init returns an empty draft (the deterministic
+      // "extraction defeated by the PDF" path PAPER-002's e2e relies on).
+      // These override the real keys in .env.local: @next/env does not clobber
+      // vars already present in the dev server's process.env.
+      GROQ_API_KEY: 'demo-groq-key',
+      GEMINI_API_KEY: 'demo-gemini-key',
     },
   },
 })
