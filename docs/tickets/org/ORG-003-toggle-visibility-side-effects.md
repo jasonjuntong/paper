@@ -1,8 +1,8 @@
 # ORG-003 — Toggle visibility + side effects
 
-**Domain:** org
-**Status:** Partial
-**Spec:** docs/specs/org/org-overview.md#visibility
+**Domain:** org  
+**Status:** Partial  
+**Spec:** docs/specs/org/org-overview.md#visibility  
 **Depends on:** PAPER-015, ORG-024
 
 ## Context

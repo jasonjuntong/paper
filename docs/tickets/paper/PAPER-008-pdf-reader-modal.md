@@ -1,8 +1,8 @@
 # PAPER-008 — PDF reader modal
 
-**Domain:** paper
-**Status:** Partial — verify
-**Spec:** docs/specs/paper/paper.md#4-pdf-reader
+**Domain:** paper  
+**Status:** Partial — verify  
+**Spec:** docs/specs/paper/paper.md#4-pdf-reader  
 **Depends on:** ORG-021, PAPER-009
 
 ## Context

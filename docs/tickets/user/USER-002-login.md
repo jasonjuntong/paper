@@ -1,8 +1,8 @@
 # USER-002 — Login (email + password)
 
-**Domain:** user
-**Status:** Done
-**Spec:** docs/specs/user/user.md#authentication
+**Domain:** user  
+**Status:** Done  
+**Spec:** docs/specs/user/user.md#authentication  
 **Depends on:** —
 
 ## Context

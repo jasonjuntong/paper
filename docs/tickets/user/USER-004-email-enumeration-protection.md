@@ -1,8 +1,8 @@
 # USER-004 — Email-enumeration protection
 
-**Domain:** user
-**Status:** Partial — needs e2e for the registration duplicate-email path (unit N/A)
-**Spec:** docs/specs/user/user.md#authentication
+**Domain:** user  
+**Status:** Partial — needs e2e for the registration duplicate-email path (unit N/A)  
+**Spec:** docs/specs/user/user.md#authentication  
 **Depends on:** USER-001
 
 ## Context

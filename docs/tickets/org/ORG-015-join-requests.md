@@ -1,8 +1,8 @@
 # ORG-015 — Join requests (submit + admin approve/reject)
 
-**Domain:** org
-**Status:** Partial — submit only
-**Spec:** docs/specs/org/org-joining-invites.md#join-requests-public-orgs-with-request-policy
+**Domain:** org  
+**Status:** Partial — submit only  
+**Spec:** docs/specs/org/org-joining-invites.md#join-requests-public-orgs-with-request-policy  
 **Depends on:** ORG-023, ORG-007
 
 ## Context

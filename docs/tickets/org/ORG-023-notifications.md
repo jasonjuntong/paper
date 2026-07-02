@@ -1,8 +1,8 @@
 # ORG-023 — Notifications (in-app onSnapshot + email for high-priority events)
 
-**Domain:** org
-**Status:** Todo
-**Spec:** docs/specs/org/org-papers-permissions.md#notifications
+**Domain:** org  
+**Status:** Todo  
+**Spec:** docs/specs/org/org-papers-permissions.md#notifications  
 **Depends on:** —
 
 ## Context

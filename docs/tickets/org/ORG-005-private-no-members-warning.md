@@ -1,8 +1,8 @@
 # ORG-005 — Private-with-no-members warning
 
-**Domain:** org
-**Status:** Todo
-**Spec:** docs/specs/org/org-overview.md#visibility
+**Domain:** org  
+**Status:** Todo  
+**Spec:** docs/specs/org/org-overview.md#visibility  
 **Depends on:** ORG-003
 
 ## Context

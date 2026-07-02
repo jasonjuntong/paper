@@ -1,8 +1,8 @@
 # PAPER-005 — Embedding generation (gemini-embedding-2, 768d)
 
-**Domain:** paper
-**Status:** Partial — needs unit (e2e N/A — external provider)
-**Spec:** docs/specs/paper/paper.md#5-similarity-search-ideaproposal-verification
+**Domain:** paper  
+**Status:** Partial — needs unit (e2e N/A — external provider)  
+**Spec:** docs/specs/paper/paper.md#5-similarity-search-ideaproposal-verification  
 **Depends on:** PAPER-001
 
 ## Context

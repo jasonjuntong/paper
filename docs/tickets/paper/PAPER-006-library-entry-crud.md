@@ -1,8 +1,8 @@
 # PAPER-006 — Library entry CRUD
 
-**Domain:** paper
-**Status:** Partial — needs component + e2e
-**Spec:** docs/specs/paper/paper.md#data-ownership-model
+**Domain:** paper  
+**Status:** Partial — needs component + e2e  
+**Spec:** docs/specs/paper/paper.md#data-ownership-model  
 **Depends on:** PAPER-003, PAPER-004
 
 ## Context

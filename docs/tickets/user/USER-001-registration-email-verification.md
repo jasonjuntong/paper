@@ -1,8 +1,8 @@
 # USER-001 — Registration + email verification
 
-**Domain:** user
-**Status:** Done
-**Spec:** docs/specs/user/user.md#authentication
+**Domain:** user  
+**Status:** Done  
+**Spec:** docs/specs/user/user.md#authentication  
 **Depends on:** USER-007
 
 ## Context

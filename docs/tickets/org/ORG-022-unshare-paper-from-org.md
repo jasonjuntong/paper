@@ -1,8 +1,8 @@
 # ORG-022 — Unshare paper from org
 
-**Domain:** org
-**Status:** Todo
-**Spec:** docs/specs/org/org-papers-permissions.md#auto-unshare-on-membership-change
+**Domain:** org  
+**Status:** Todo  
+**Spec:** docs/specs/org/org-papers-permissions.md#auto-unshare-on-membership-change  
 **Depends on:** ORG-021
 
 ## Context

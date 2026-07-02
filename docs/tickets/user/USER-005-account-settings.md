@@ -1,8 +1,8 @@
 # USER-005 — Account settings page
 
-**Domain:** user
-**Status:** Done
-**Spec:** docs/specs/user/user.md#users-app-wide
+**Domain:** user  
+**Status:** Done  
+**Spec:** docs/specs/user/user.md#users-app-wide  
 **Depends on:** USER-002
 
 ## Context

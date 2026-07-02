@@ -1,8 +1,8 @@
 # ORG-010 — Admin transfer offers
 
-**Domain:** org
-**Status:** Todo
-**Spec:** docs/specs/org/org-membership.md#admin-transfer
+**Domain:** org  
+**Status:** Todo  
+**Spec:** docs/specs/org/org-membership.md#admin-transfer  
 **Depends on:** ORG-023
 
 ## Context

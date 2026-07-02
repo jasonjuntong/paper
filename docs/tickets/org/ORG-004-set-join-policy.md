@@ -1,8 +1,8 @@
 # ORG-004 — Set/change join policy
 
-**Domain:** org
-**Status:** Partial — needs unit + integration/e2e
-**Spec:** docs/specs/org/org-joining-invites.md#joining-an-org
+**Domain:** org  
+**Status:** Partial — needs unit + integration/e2e  
+**Spec:** docs/specs/org/org-joining-invites.md#joining-an-org  
 **Depends on:** ORG-001
 
 ## Context

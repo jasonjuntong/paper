@@ -1,8 +1,8 @@
 # PAPER-018 — Read tracking (lastOpenedAt)
 
-**Domain:** paper
-**Status:** Partial — needs e2e (component test optional)
-**Spec:** docs/specs/paper/paper.md#4-pdf-reader
+**Domain:** paper  
+**Status:** Partial — needs e2e (component test optional)  
+**Spec:** docs/specs/paper/paper.md#4-pdf-reader  
 **Depends on:** PAPER-006
 
 ## Context

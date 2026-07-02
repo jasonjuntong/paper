@@ -1,8 +1,8 @@
 # ORG-019 — Org discovery: search + browse
 
-**Domain:** org
-**Status:** Partial — listing only
-**Spec:** docs/specs/org/org-discovery.md#discovery-surfaces
+**Domain:** org  
+**Status:** Partial — listing only  
+**Spec:** docs/specs/org/org-discovery.md#discovery-surfaces  
 **Depends on:** ORG-021, ORG-024
 
 ## Context

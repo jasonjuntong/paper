@@ -1,8 +1,8 @@
 # PAPER-016 — Paper deletion + global-paper lazy GC
 
-**Domain:** paper
-**Status:** Partial — verify orphan check + collection-group index
-**Spec:** docs/specs/paper/paper.md#paper-deletion--global-paper-lifecycle
+**Domain:** paper  
+**Status:** Partial — verify orphan check + collection-group index  
+**Spec:** docs/specs/paper/paper.md#paper-deletion--global-paper-lifecycle  
 **Depends on:** ORG-022, PAPER-015, ORG-024, ORG-025
 
 ## Context

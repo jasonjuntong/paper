@@ -1,8 +1,8 @@
 # ORG-009 — Leave org (+ auto-unshare; sole-admin delete)
 
-**Domain:** org
-**Status:** Todo
-**Spec:** docs/specs/org/org-membership.md#leaving-an-org
+**Domain:** org  
+**Status:** Todo  
+**Spec:** docs/specs/org/org-membership.md#leaving-an-org  
 **Depends on:** ORG-022, ORG-013, ORG-023
 
 ## Context

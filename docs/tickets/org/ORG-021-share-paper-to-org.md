@@ -1,8 +1,8 @@
 # ORG-021 — Share paper to org(s)
 
-**Domain:** org
-**Status:** Todo
-**Spec:** docs/specs/org/org-papers-permissions.md#sharing
+**Domain:** org  
+**Status:** Todo  
+**Spec:** docs/specs/org/org-papers-permissions.md#sharing  
 **Depends on:** PAPER-010, PAPER-015, ORG-024
 
 ## Context

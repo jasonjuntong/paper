@@ -1,8 +1,8 @@
 # ORG-020 — Org suggested/recommended (keyword overlap)
 
-**Domain:** org
-**Status:** Todo
-**Spec:** docs/specs/org/org-discovery.md#suggested--recommended-logic
+**Domain:** org  
+**Status:** Todo  
+**Spec:** docs/specs/org/org-discovery.md#suggested--recommended-logic  
 **Depends on:** PAPER-013, ORG-021
 
 ## Context

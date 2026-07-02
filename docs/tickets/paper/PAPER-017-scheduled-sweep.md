@@ -1,8 +1,8 @@
 # PAPER-017 — Scheduled sweep (orphan backstop)
 
-**Domain:** paper
-**Status:** Todo
-**Spec:** docs/specs/paper/paper.md#scheduled-sweep-safety-net
+**Domain:** paper  
+**Status:** Todo  
+**Spec:** docs/specs/paper/paper.md#scheduled-sweep-safety-net  
 **Depends on:** PAPER-016
 
 ## Context

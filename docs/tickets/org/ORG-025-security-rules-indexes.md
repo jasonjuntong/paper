@@ -1,8 +1,8 @@
 # ORG-025 — Firestore security rules + indexes
 
-**Domain:** org (cross-cutting)
-**Status:** Partial
-**Spec:** docs/specs/org/org-papers-permissions.md#permissions-summary
+**Domain:** org (cross-cutting)  
+**Status:** Partial  
+**Spec:** docs/specs/org/org-papers-permissions.md#permissions-summary  
 **Depends on:** —
 
 ## Context

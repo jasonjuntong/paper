@@ -1,8 +1,8 @@
 # USER-006 — Account deletion + full cascade
 
-**Domain:** user
-**Status:** Todo
-**Spec:** docs/specs/user/user.md#account-deletion
+**Domain:** user  
+**Status:** Todo  
+**Spec:** docs/specs/user/user.md#account-deletion  
 **Depends on:** ORG-022, ORG-012, ORG-013, ORG-010, PAPER-016, ORG-023, USER-007
 
 ## Context
