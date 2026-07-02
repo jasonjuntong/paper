@@ -27,19 +27,29 @@ export async function resetEmulators(): Promise<void> {
 type OobCode = { email: string; requestType: string; oobCode: string }
 
 /**
- * Fetch the most recent email-verification oobCode the emulator generated for
- * `email` — the stand-in for clicking the link in a real inbox. The register
- * route mints this via `generateEmailVerificationLink`; the (dummy) Resend send
- * fails harmlessly, but the code still lands here.
+ * Fetch the most recent oobCode of `requestType` the emulator generated for
+ * `email` — the stand-in for clicking the link in a real inbox. Our routes mint
+ * these via the Admin SDK; the (dummy) Resend send fails harmlessly, but the
+ * code still lands in the emulator's oobCodes list.
  */
-export async function getVerificationCode(email: string): Promise<string> {
+async function getOobCode(email: string, requestType: string): Promise<string> {
   const res = await fetch(`${AUTH_HOST}/emulator/v1/projects/${PROJECT_ID}/oobCodes`, {
     headers: OWNER,
   })
   const { oobCodes } = (await res.json()) as { oobCodes: OobCode[] }
   const match = oobCodes
-    .filter((c) => c.email === email && c.requestType === 'VERIFY_EMAIL')
+    .filter((c) => c.email === email && c.requestType === requestType)
     .at(-1)
-  if (!match) throw new Error(`No verification code found for ${email}`)
+  if (!match) throw new Error(`No ${requestType} code found for ${email}`)
   return match.oobCode
+}
+
+/** Verification code from the registration flow (`generateEmailVerificationLink`). */
+export function getVerificationCode(email: string): Promise<string> {
+  return getOobCode(email, 'VERIFY_EMAIL')
+}
+
+/** Password-reset code from the forgot-password flow (`generatePasswordResetLink`). */
+export function getPasswordResetCode(email: string): Promise<string> {
+  return getOobCode(email, 'PASSWORD_RESET')
 }

@@ -4,8 +4,8 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth'
 import { CircleX, Eye, EyeOff, Loader2 } from 'lucide-react'
-import { z } from 'zod'
 import { auth } from '@/lib/firebase/client'
+import { passwordResetSchema } from '@/lib/password'
 import {
   Card,
   CardContent,
@@ -22,16 +22,6 @@ import {
   InputGroupInput,
 } from '@/components/ui/input-group'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
-
-const schema = z
-  .object({
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirm: z.string(),
-  })
-  .refine((v) => v.password === v.confirm, {
-    message: 'Passwords do not match',
-    path: ['confirm'],
-  })
 
 type FieldErrors = Partial<Record<'password' | 'confirm', string[]>>
 // verifying → the mount check; ready → show the form; submitting → in flight;
@@ -61,7 +51,7 @@ export function ResetPasswordForm({ code }: { code: string }) {
     e.preventDefault()
     setFieldErrors({})
 
-    const result = schema.safeParse({ password, confirm })
+    const result = passwordResetSchema.safeParse({ password, confirm })
     if (!result.success) {
       setFieldErrors(result.error.flatten().fieldErrors)
       return
