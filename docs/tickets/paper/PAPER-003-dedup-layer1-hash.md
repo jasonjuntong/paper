@@ -19,8 +19,12 @@ At `init`, the file hash is checked against `/papers`. On a hit, the server resp
 - [x] No duplicate library entry is ever created for a paper the user already owns.
 
 ## Affected files
-- `src/app/api/papers/init/route.ts`
-- `src/lib/paper-dedup.ts`
+- `src/app/api/papers/init/route.ts` — consumer; unchanged this pass (already wired the hash lookup + response shaping)
+- `src/lib/paper-dedup.ts` — refactored (see Implementation notes)
+
+## Implementation notes
+- **Behavior-preserving refactor (no response change).** The in-library / in-org / none choice, previously inline inside `checkVisibility`, was extracted into a pure `decideVisibility(libraryEntryId, matchingOrgs)` so the precedence rule (in-library > in-org > none) is unit-testable without Firestore. `checkVisibility` still performs the reads (library query → `members` collection-group → per-org `sharedPapers`) and now delegates the verdict. The three return shapes were also named as an exported `Visibility` union.
+- **Minor efficiency win.** A library hit now returns immediately and skips the `members` + `sharedPapers` lookups entirely; previously it fell through the same path. Same result — library already won by precedence.
 
 ## Test coverage
 - **Unit — done.** The visibility decision was extracted into a pure `decideVisibility(libraryEntryId, matchingOrgs)` in `src/lib/paper-dedup.ts`; `src/lib/paper-dedup.test.ts` covers in-library / in-org / none and the in-library-beats-in-org precedence.
