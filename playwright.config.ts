@@ -8,7 +8,11 @@ import { PROJECT_ID } from './e2e/helpers/emulator'
 
 const AUTH_EMULATOR_HOST = '127.0.0.1:9099'
 const FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'
-const BASE_URL = 'http://localhost:3000'
+// Dedicated port so the e2e never hijacks (via reuseExistingServer) a plain
+// `next dev` running on the default 3000 — that server isn't emulator-wired, so
+// reusing it silently breaks every flow that reads emulator state.
+const PORT = 3100
+const BASE_URL = `http://localhost:${PORT}`
 
 export default defineConfig({
   testDir: './e2e',
@@ -23,9 +27,13 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: 'npm run dev',
+    command: `npm run dev -- --port ${PORT}`,
     url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
+    // Never reuse a stray dev server — it may not be emulator-wired, which
+    // silently breaks every flow that reads emulator state. Always boot our own.
+    // (Next.js 16 allows only one `next dev` per project dir, so any other dev
+    // server must be stopped before running the e2e.)
+    reuseExistingServer: false,
     timeout: 120_000,
     env: {
       // Point both SDKs at the emulators. The admin SDK auto-detects these two;
