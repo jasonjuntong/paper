@@ -38,7 +38,7 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 | ID | Title | Status | Depends on | Spec |
 |----|-------|--------|-----------|------|
 | [USER-003](user/USER-003-forgot-reset-password.md) | Forgot/reset password (custom + Resend) | Done | USER-002 | user.md#authentication |
-| [USER-005](user/USER-005-account-settings.md) | Account settings page | Todo | USER-002 | user.md#users-app-wide |
+| [USER-005](user/USER-005-account-settings.md) | Account settings page | Done | USER-002 | user.md#users-app-wide |
 
 ## Phase 2 — Platform primitives (keystones)
 

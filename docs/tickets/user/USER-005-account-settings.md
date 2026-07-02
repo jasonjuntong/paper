@@ -1,7 +1,7 @@
 # USER-005 — Account settings page
 
 **Domain:** user
-**Status:** Todo — settings entry currently disabled
+**Status:** Done
 **Spec:** docs/specs/user/user.md#users-app-wide
 **Depends on:** USER-002
 
@@ -16,13 +16,20 @@ Users need a settings surface to view their profile and manage their account. Pr
 - Entry point to account deletion (USER-006).
 
 ## Acceptance criteria
-- [ ] Authenticated users can open a settings page from the nav.
-- [ ] Display name can be edited and persists to the Firebase user + user doc; handle is shown read-only and cannot be changed.
-- [ ] Notification email toggle reads/writes `notificationPrefs.email`; turning it off stops email but not in-app notifications.
-- [ ] Email is shown (read-only for now); password can be changed.
-- [ ] No avatar field is presented.
+- [x] Authenticated users can open a settings page from the nav.
+- [x] Display name can be edited and persists to the Firebase user + user doc; handle is shown read-only and cannot be changed.
+- [x] Notification email toggle reads/writes `notificationPrefs.email`; turning it off stops email but not in-app notifications.
+- [x] Email is shown (read-only for now); password can be changed.
+- [x] No avatar field is presented.
 
 ## Affected files
-- `src/components/nav-user.tsx` (enable disabled item)
-- `src/app/(app)/settings/page.tsx` (new)
-- `src/app/api/account/` (new route(s) for profile/password updates)
+- `src/components/nav-user.tsx` (enable disabled item → links to `/settings`)
+- `src/app/(app)/settings/page.tsx` (new — server page, reads user doc)
+- `src/components/settings/settings-client.tsx` (new — profile / notifications / change-password / danger-zone sections)
+- `src/app/api/account/route.ts` (new — profile + notification-pref updates; password change is client-side re-auth)
+- `src/components/ui/switch.tsx` (new — shadcn primitive)
+
+## Notes
+- Password change is done **client-side** (Firebase `reauthenticateWithCredential` + `updatePassword`), not via the API route — re-auth must run in the browser where the user's credential lives.
+- "Delete account" is a **disabled stub** here; the flow is built in USER-006.
+- Nav display name stays stale after a rename until next login — logged as N-002 in `docs/nuances.md`.

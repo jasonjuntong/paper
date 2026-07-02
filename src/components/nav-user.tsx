@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { ChevronsUpDown, LogOut, Moon, Settings, Sun } from 'lucide-react'
 import { useTheme } from '@/components/theme-provider'
 import { signOut } from 'firebase/auth'
@@ -91,9 +92,11 @@ export function NavUser({ user }: NavUserProps) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem disabled>
-              <Settings />
-              Account settings
+            <DropdownMenuItem asChild>
+              <Link href="/settings">
+                <Settings />
+                Account settings
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}>
               {resolvedTheme === 'dark' ? <Sun /> : <Moon />}
