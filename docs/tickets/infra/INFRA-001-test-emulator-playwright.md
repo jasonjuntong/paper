@@ -1,7 +1,7 @@
 # INFRA-001 — Test infrastructure: Firebase emulator + Playwright
 
 **Domain:** infra (cross-cutting)
-**Status:** Partial
+**Status:** Done
 **Spec:** — (testing infrastructure; see LEDGER "Project notes")
 **Depends on:** —
 
@@ -25,11 +25,11 @@ There is no `firebase.json` yet; one must be added with an `emulators` block (Au
 
 ## Acceptance criteria
 - [x] `firebase.json` defines Auth + Firestore emulators and they boot locally with one command.
-- [ ] Security-rules suite runs against the emulator and asserts the permissions table + `/handles` rules (allowed reads, denied client writes).
-- [ ] Integration lane proves the registration transaction: handle reserved, user doc written, and no orphaned Auth user/handle on a simulated race.
+- [x] Security-rules suite runs against the emulator and asserts the permissions table + `/handles` rules (allowed reads, denied client writes).
+- [x] Integration lane proves the registration transaction: handle reserved, user doc written, and no orphaned Auth user/handle on a simulated race.
 - [x] Playwright e2e covers registration → verification → login → app access, and asserts an unverified user is blocked from the `(app)` area.
 - [x] Missing JDK produces a clear, actionable error rather than an opaque emulator crash. *(native firebase-tools behavior — the CLI prints "the Emulator requires Java version 11 or higher"; JDK requirement now documented in README.)*
-- [ ] `test:rules`, `test:integration`, and `test:e2e` scripts exist and are documented. *(`test:e2e` done + documented; `test:rules` / `test:integration` pending.)*
+- [x] `test:rules`, `test:integration`, and `test:e2e` scripts exist and are documented.
 
 ## Progress (2026-07-01)
 **Done — emulator + e2e lane:**
@@ -43,6 +43,12 @@ There is no `firebase.json` yet; one must be added with an `emulators` block (Au
 - `.gitignore` covers emulator + Playwright artifacts.
 
 **Remaining:** security-rules suite (`@firebase/rules-unit-testing`, `test:rules`) and the emulator integration lane (`test:integration`).
+
+## Progress (2026-07-02) — ticket complete
+**Done — security-rules + integration lanes:**
+- Added **`@firebase/rules-unit-testing`** + `vitest.rules.config.ts` + `tests/rules/firestore-rules.test.ts` (13 specs): `/handles` read-open / client-write-denied; `/orgs` public-readable, private members-only, all writes denied; org subcollections members-only; default-deny on `/users` even for the owner. Script `test:rules` (Firestore emulator only). **13/13 pass.**
+- Added `vitest.integration.config.ts` + `tests/integration/registration.test.ts` (4 specs) driving the real register `POST` against the Auth + Firestore emulators: handle + user doc written atomically; taken handle → 409 with the loser's Auth user cleaned up; **simulated race** (concurrent same-handle registers) → exactly one survivor, no orphaned Auth user/handle; tombstoned handle stays out of the pool. Hermetic — `RESEND_API_KEY` left unset so the route's send throws-and-is-caught with no network call. Script `test:integration` (Auth + Firestore). **4/4 pass.**
+- Both lanes gated to their own vitest configs, so `npm test` (unit, src/**) stays fast/offline — still **23/23**. README Testing section updated with all three lanes.
 
 ## Affected files
 - `firebase.json` (new — `emulators` block)
