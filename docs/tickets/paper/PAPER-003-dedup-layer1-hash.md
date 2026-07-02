@@ -1,7 +1,7 @@
 # PAPER-003 — Layer 1 dedup (hash) + visibility responses
 
 **Domain:** paper
-**Status:** Done
+**Status:** Partial — needs unit + e2e
 **Spec:** docs/specs/paper/paper.md#2-deduplication-strategy
 **Depends on:** PAPER-001
 
@@ -21,3 +21,7 @@ At `init`, the file hash is checked against `/papers`. On a hit, the server resp
 ## Affected files
 - `src/app/api/papers/init/route.ts`
 - `src/lib/paper-dedup.ts`
+
+## Test coverage
+- **Unit — needed.** The visibility-decision logic in `src/lib/paper-dedup.ts` (in-library / in-org / silent) is pure given the user's library + org state and should be unit-tested.
+- **e2e/integration — needed.** Byte-identical re-upload at `init` returns the correct card (in-library / in-org) or continues silently; no duplicate library entry is created.

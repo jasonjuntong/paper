@@ -1,7 +1,7 @@
 # ORG-001 — Org creation + invariant
 
 **Domain:** org
-**Status:** Done
+**Status:** Partial — needs unit + e2e
 **Spec:** docs/specs/org/org-overview.md#creation
 **Depends on:** —
 
@@ -21,3 +21,7 @@ Any authenticated user can create an org; the creator becomes Admin. Required: `
 ## Affected files
 - `src/app/api/orgs/route.ts`
 - creation form component
+
+## Test coverage
+- **Unit — needed.** The visibility↔join-policy invariant (public → open|request, private → invite-only) is pure and should be unit-tested across valid/invalid combos.
+- **e2e — needed.** Create an org → creator becomes Admin; `name` required / `description` optional; defaults pre-selected (public + request) but changeable.

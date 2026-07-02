@@ -1,7 +1,7 @@
 # ORG-014 — Join open public org
 
 **Domain:** org
-**Status:** Done
+**Status:** Partial — needs e2e/integration (unit N/A)
 **Spec:** docs/specs/org/org-joining-invites.md#joining-an-org
 **Depends on:** ORG-001
 
@@ -17,3 +17,7 @@ For public orgs with the **open** policy, any user can join freely (no approval)
 
 ## Affected files
 - `src/app/api/orgs/[orgId]/join/route.ts`
+
+## Test coverage
+- **e2e/integration — needed.** A user self-joins an open public org (no approval); a join is rejected when the org is at the 1000-member cap (transactional capacity check).
+- **Unit — not required.** The capacity check is transactional Firestore I/O, not isolatable pure logic.

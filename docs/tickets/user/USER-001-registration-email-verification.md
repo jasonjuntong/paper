@@ -32,3 +32,8 @@ The verification email **must be sent server-side** (via the **Resend** library)
 - `src/app/api/auth/` (registration route handler — ordering + handle reservation, USER-007; calls Resend to send the verification email)
 - `src/lib/email.ts` (new — shared **Resend** wiring; also used by USER-003 / ORG-023)
 - `package.json` (add `resend` dependency), `.env.local.example` (add `RESEND_API_KEY`)
+
+## Test coverage
+- **e2e** ✓ — `e2e/auth.spec.ts` covers register → verify → login → reach app, and the unverified-account block.
+- **Integration** ✓ — `tests/integration/registration.test.ts` covers the strict ordering, orphan cleanup on race, and duplicate-email masking.
+- **Unit — not required.** Registration is Auth+Firestore orchestration with no isolated pure logic of its own; handle validation lives in (and is unit-tested by) USER-007. A standalone unit test would have nothing meaningful to isolate.

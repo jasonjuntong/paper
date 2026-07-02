@@ -1,7 +1,7 @@
 # ORG-006 — Member listing + role badges
 
 **Domain:** org
-**Status:** Done
+**Status:** Partial — needs e2e (unit N/A)
 **Spec:** docs/specs/org/org-membership.md#roles-within-an-org
 **Depends on:** ORG-001
 
@@ -18,3 +18,7 @@ Each org has exactly one Admin and any number of Members. The org detail page li
 ## Affected files
 - `src/app/(app)/orgs/[orgId]/_components/member-table.tsx`
 - `src/app/(app)/orgs/[orgId]/page.tsx`
+
+## Test coverage
+- **e2e — needed.** Member roster renders members with role badges and join times, showing exactly one Admin (member-only view).
+- **Unit — not required.** Display/formatting only; no isolatable pure logic.
