@@ -1,14 +1,33 @@
 import { adminFirestore } from '@/lib/firebase/admin'
 import type { OrgRef } from '@/types/paper'
 
-export async function checkVisibility(
-  uid: string,
-  existingPaperId: string
-): Promise<
+export type Visibility =
   | { visibility: 'in-library'; entryId: string }
   | { visibility: 'in-org'; orgs: OrgRef[] }
   | { visibility: 'none' }
-> {
+
+/**
+ * Pure visibility decision, factored out of {@link checkVisibility} so it can be
+ * unit-tested without Firestore. Precedence is in-library → in-org → none: a
+ * paper the user already owns is never surfaced as merely org-visible.
+ *
+ * @param libraryEntryId  id of the user's existing library entry for this paper,
+ *                        or null if it isn't in their library.
+ * @param matchingOrgs    member orgs that have this paper shared (empty = none).
+ */
+export function decideVisibility(
+  libraryEntryId: string | null,
+  matchingOrgs: OrgRef[]
+): Visibility {
+  if (libraryEntryId) return { visibility: 'in-library', entryId: libraryEntryId }
+  if (matchingOrgs.length > 0) return { visibility: 'in-org', orgs: matchingOrgs }
+  return { visibility: 'none' }
+}
+
+export async function checkVisibility(
+  uid: string,
+  existingPaperId: string
+): Promise<Visibility> {
   const librarySnap = await adminFirestore
     .collection('users')
     .doc(uid)
@@ -17,16 +36,17 @@ export async function checkVisibility(
     .limit(1)
     .get()
 
-  if (!librarySnap.empty) {
-    return { visibility: 'in-library', entryId: librarySnap.docs[0].id }
-  }
+  const libraryEntryId = librarySnap.empty ? null : librarySnap.docs[0].id
+
+  // Library ownership wins outright — skip the org lookups entirely.
+  if (libraryEntryId) return decideVisibility(libraryEntryId, [])
 
   const memberSnaps = await adminFirestore
     .collectionGroup('members')
     .where('userId', '==', uid)
     .get()
 
-  if (memberSnaps.empty) return { visibility: 'none' }
+  if (memberSnaps.empty) return decideVisibility(null, [])
 
   const orgIds = memberSnaps.docs.map((d) => d.ref.path.split('/')[1])
 
@@ -45,9 +65,7 @@ export async function checkVisibility(
   )
 
   const matchingOrgs = orgChecks.filter((o): o is OrgRef => o !== null)
-  if (matchingOrgs.length > 0) return { visibility: 'in-org', orgs: matchingOrgs }
-
-  return { visibility: 'none' }
+  return decideVisibility(null, matchingOrgs)
 }
 
 export async function ensureLibraryEntry(
