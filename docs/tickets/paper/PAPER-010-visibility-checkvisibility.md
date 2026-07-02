@@ -1,8 +1,8 @@
 # PAPER-010 — Paper visibility derivation + checkVisibility
 
-**Domain:** paper
-**Status:** Partial
-**Spec:** docs/specs/paper/paper.md#3-paper-visibility
+**Domain:** paper  
+**Status:** Partial  
+**Spec:** docs/specs/paper/paper.md#3-paper-visibility  
 **Depends on:** PAPER-006
 
 ## Context

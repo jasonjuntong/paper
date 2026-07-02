@@ -1,8 +1,8 @@
 # PAPER-011 — Similarity search (idea/proposal verification)
 
-**Domain:** paper
-**Status:** Todo
-**Spec:** docs/specs/paper/paper.md#5-similarity-search-ideaproposal-verification
+**Domain:** paper  
+**Status:** Todo  
+**Spec:** docs/specs/paper/paper.md#5-similarity-search-ideaproposal-verification  
 **Depends on:** PAPER-015, PAPER-010
 
 ## Context

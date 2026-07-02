@@ -1,8 +1,8 @@
 # ORG-001 — Org creation + invariant
 
-**Domain:** org
-**Status:** Partial — needs unit + e2e
-**Spec:** docs/specs/org/org-overview.md#creation
+**Domain:** org  
+**Status:** Partial — needs unit + e2e  
+**Spec:** docs/specs/org/org-overview.md#creation  
 **Depends on:** —
 
 ## Context

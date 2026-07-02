@@ -18,7 +18,7 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 | [USER-007](user/USER-007-handle-reservation-uniqueness.md) | Handle reservation & uniqueness (`/handles/{handle}`) | Done | — | user.md#handle |
 | [USER-001](user/USER-001-registration-email-verification.md) | Registration + email verification (incl. `@handle`) | Done | USER-007 | user.md#authentication |
 | [USER-002](user/USER-002-login.md) | Login (email + password) | Done | — | user.md#authentication |
-| [USER-004](user/USER-004-email-enumeration-protection.md) | Email-enumeration protection | Partial | USER-001 | user.md#authentication |
+| [USER-004](user/USER-004-email-enumeration-protection.md) | Email-enumeration protection | Done | USER-001 | user.md#authentication |
 | [PAPER-001](paper/PAPER-001-upload-extract-hash.md) | Upload: client text extraction + SHA-256 hash | Partial | — | paper.md#1-paper-upload--paper-details |
 | [PAPER-002](paper/PAPER-002-paper-details-extraction-form.md) | Paper-details extraction (Groq) + review form | Partial | PAPER-001 | paper.md#1-paper-upload--paper-details |
 | [PAPER-003](paper/PAPER-003-dedup-layer1-hash.md) | Layer 1 dedup (hash) + visibility responses | Partial | PAPER-001 | paper.md#2-deduplication-strategy |

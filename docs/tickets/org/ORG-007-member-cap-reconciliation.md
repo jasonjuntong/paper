@@ -1,8 +1,8 @@
 # ORG-007 — Member cap + reconciliation prompt
 
-**Domain:** org
-**Status:** Partial
-**Spec:** docs/specs/org/org-membership.md#membership
+**Domain:** org  
+**Status:** Partial  
+**Spec:** docs/specs/org/org-membership.md#membership  
 **Depends on:** ORG-001
 
 ## Context

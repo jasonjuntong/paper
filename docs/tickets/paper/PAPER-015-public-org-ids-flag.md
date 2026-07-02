@@ -1,8 +1,8 @@
 # PAPER-015 — publicOrgIds denormalized flag
 
-**Domain:** paper
-**Status:** Todo
-**Spec:** docs/specs/paper/paper.md#identifying-the-public-org-pool-denormalized-flag
+**Domain:** paper  
+**Status:** Todo  
+**Spec:** docs/specs/paper/paper.md#identifying-the-public-org-pool-denormalized-flag  
 **Depends on:** PAPER-006
 
 ## Context

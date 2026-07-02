@@ -1,8 +1,8 @@
 # INFRA-001 — Test infrastructure: Firebase emulator + Playwright
 
-**Domain:** infra (cross-cutting)
-**Status:** Done
-**Spec:** — (testing infrastructure; see LEDGER "Project notes")
+**Domain:** infra (cross-cutting)  
+**Status:** Done  
+**Spec:** — (testing infrastructure; see LEDGER "Project notes")  
 **Depends on:** —
 
 ## Context

@@ -1,8 +1,8 @@
 # USER-003 — Forgot/reset password (custom flow + Resend)
 
-**Domain:** user
-**Status:** Done
-**Spec:** docs/specs/user/user.md#authentication
+**Domain:** user  
+**Status:** Done  
+**Spec:** docs/specs/user/user.md#authentication  
 **Depends on:** USER-002
 
 ## Context

@@ -1,8 +1,8 @@
 # PAPER-001 — Upload: client text extraction + SHA-256 hash
 
-**Domain:** paper
-**Status:** Partial — needs unit + e2e
-**Spec:** docs/specs/paper/paper.md#1-paper-upload--paper-details
+**Domain:** paper  
+**Status:** Partial — needs unit + e2e  
+**Spec:** docs/specs/paper/paper.md#1-paper-upload--paper-details  
 **Depends on:** —
 
 ## Context

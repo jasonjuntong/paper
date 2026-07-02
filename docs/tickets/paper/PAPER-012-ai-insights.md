@@ -1,8 +1,8 @@
 # PAPER-012 — AI-generated insights (Gemini Pro, streaming)
 
-**Domain:** paper
-**Status:** Todo — UI stub only
-**Spec:** docs/specs/paper/paper.md#6-ai-generated-insights-on-demand
+**Domain:** paper  
+**Status:** Todo — UI stub only  
+**Spec:** docs/specs/paper/paper.md#6-ai-generated-insights-on-demand  
 **Depends on:** PAPER-010
 
 ## Context

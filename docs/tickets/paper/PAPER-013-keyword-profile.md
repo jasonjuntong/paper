@@ -1,8 +1,8 @@
 # PAPER-013 — keywordProfile maintenance
 
-**Domain:** paper
-**Status:** Todo
-**Spec:** docs/specs/paper/paper.md#7-keyword-preference-profile
+**Domain:** paper  
+**Status:** Todo  
+**Spec:** docs/specs/paper/paper.md#7-keyword-preference-profile  
 **Depends on:** PAPER-006
 
 ## Context

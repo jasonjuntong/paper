@@ -1,8 +1,8 @@
 # PAPER-009 — PDF serving proxy (access-gated, Range, ETag)
 
-**Domain:** paper
-**Status:** Partial — needs unit + integration (browser e2e N/A)
-**Spec:** docs/specs/paper/paper.md#4-pdf-reader
+**Domain:** paper  
+**Status:** Partial — needs unit + integration (browser e2e N/A)  
+**Spec:** docs/specs/paper/paper.md#4-pdf-reader  
 **Depends on:** PAPER-010
 
 ## Context

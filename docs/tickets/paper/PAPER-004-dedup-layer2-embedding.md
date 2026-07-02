@@ -1,8 +1,8 @@
 # PAPER-004 — Layer 2 dedup (embedding similarity + borderline confirm)
 
-**Domain:** paper
-**Status:** Partial — borderline (0.85–0.92) confirm tier pending
-**Spec:** docs/specs/paper/paper.md#2-deduplication-strategy
+**Domain:** paper  
+**Status:** Partial — borderline (0.85–0.92) confirm tier pending  
+**Spec:** docs/specs/paper/paper.md#2-deduplication-strategy  
 **Depends on:** PAPER-005
 
 ## Context

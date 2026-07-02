@@ -1,8 +1,8 @@
 # ORG-024 — paperCount counter maintenance
 
-**Domain:** org
-**Status:** Todo
-**Spec:** docs/specs/org/org-papers-permissions.md#papers--orgs
+**Domain:** org  
+**Status:** Todo  
+**Spec:** docs/specs/org/org-papers-permissions.md#papers--orgs  
 **Depends on:** ORG-001
 
 ## Context

@@ -4,6 +4,8 @@ import { getPasswordResetCode, getVerificationCode, resetEmulators } from './hel
 // USER-001 end-to-end: registration → email verification → login → (app) gate,
 // plus the guarantee that an unverified account cannot reach the app.
 // USER-003 end-to-end: the custom forgot-password → reset-password flow.
+// USER-004 end-to-end: enumeration protection on both registration and
+// forgot-password (a known address is indistinguishable from an unknown one).
 
 // A fresh, unique identity per test keeps runs independent of leftover state.
 function newUser() {
@@ -127,4 +129,20 @@ test('forgot password shows the same state for an unknown email', async ({ page 
   await page.locator('#email').fill(`nobody-${Date.now()}@example.com`)
   await page.getByRole('button', { name: 'Send reset link' }).click()
   await expect(page.getByText('reset link is on its way')).toBeVisible()
+})
+
+test('registering an already-registered email shows the same success state', async ({ page }) => {
+  // Enumeration protection (USER-004): a duplicate email must be
+  // indistinguishable from a genuine new registration — same success redirect,
+  // no error surfaced, and no second Auth account created.
+  const first = newUser()
+  await register(page, first) // genuine registration → /verify-email
+
+  // Re-register the same email with a fresh handle/name. The route short-circuits
+  // to the same ok response before touching the handle, so this must land on the
+  // identical success state rather than a "already in use" error.
+  const dup = { ...newUser(), email: first.email }
+  await register(page, dup)
+
+  await expect(page).toHaveURL(/\/verify-email/)
 })

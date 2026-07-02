@@ -1,8 +1,8 @@
 # PAPER-003 — Layer 1 dedup (hash) + visibility responses
 
-**Domain:** paper
-**Status:** Partial — needs unit + e2e
-**Spec:** docs/specs/paper/paper.md#2-deduplication-strategy
+**Domain:** paper  
+**Status:** Partial — needs unit + e2e  
+**Spec:** docs/specs/paper/paper.md#2-deduplication-strategy  
 **Depends on:** PAPER-001
 
 ## Context

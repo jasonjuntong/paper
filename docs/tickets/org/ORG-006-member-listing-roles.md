@@ -1,8 +1,8 @@
 # ORG-006 — Member listing + role badges
 
-**Domain:** org
-**Status:** Partial — needs a component test for the member table (e2e optional)
-**Spec:** docs/specs/org/org-membership.md#roles-within-an-org
+**Domain:** org  
+**Status:** Partial — needs a component test for the member table (e2e optional)  
+**Spec:** docs/specs/org/org-membership.md#roles-within-an-org  
 **Depends on:** ORG-001
 
 ## Context

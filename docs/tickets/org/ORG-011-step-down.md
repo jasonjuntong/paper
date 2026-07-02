@@ -1,8 +1,8 @@
 # ORG-011 — Step Down (request-to-be-admin, expiry→ghost)
 
-**Domain:** org
-**Status:** Todo
-**Spec:** docs/specs/org/org-membership.md#step-down-admin-initiated-departure
+**Domain:** org  
+**Status:** Todo  
+**Spec:** docs/specs/org/org-membership.md#step-down-admin-initiated-departure  
 **Depends on:** ORG-010, ORG-013, ORG-023
 
 ## Context

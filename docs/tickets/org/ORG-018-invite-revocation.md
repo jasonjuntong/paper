@@ -1,8 +1,8 @@
 # ORG-018 — Invite revocation
 
-**Domain:** org
-**Status:** Todo
-**Spec:** docs/specs/org/org-joining-invites.md#invites
+**Domain:** org  
+**Status:** Todo  
+**Spec:** docs/specs/org/org-joining-invites.md#invites  
 **Depends on:** ORG-016
 
 ## Context

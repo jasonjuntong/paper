@@ -1,8 +1,8 @@
 # PAPER-007 — Write fan-out: library edit → org snapshots
 
-**Domain:** paper
-**Status:** Todo — verify (likely missing)
-**Spec:** docs/specs/paper/paper.md#data-ownership-model
+**Domain:** paper  
+**Status:** Todo — verify (likely missing)  
+**Spec:** docs/specs/paper/paper.md#data-ownership-model  
 **Depends on:** ORG-021
 
 ## Context

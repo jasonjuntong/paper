@@ -1,8 +1,8 @@
 # USER-007 — Handle reservation & uniqueness (`/handles/{handle}`)
 
-**Domain:** user
-**Status:** Done
-**Spec:** docs/specs/user/user.md#handle
+**Domain:** user  
+**Status:** Done  
+**Spec:** docs/specs/user/user.md#handle  
 **Depends on:** —
 
 ## Context

@@ -1,8 +1,8 @@
 # PAPER-014 — Paper discovery (public-org pool, ranking)
 
-**Domain:** paper
-**Status:** Todo — placeholder recommendations
-**Spec:** docs/specs/paper/paper.md#8-paper-discovery
+**Domain:** paper  
+**Status:** Todo — placeholder recommendations  
+**Spec:** docs/specs/paper/paper.md#8-paper-discovery  
 **Depends on:** PAPER-013, PAPER-015, ORG-021
 
 ## Context

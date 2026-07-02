@@ -1,8 +1,8 @@
 # ORG-012 — Delete org (warnings, seal pending, ghost)
 
-**Domain:** org
-**Status:** Todo — UI stub only
-**Spec:** docs/specs/org/org-membership.md#deleting-an-org
+**Domain:** org  
+**Status:** Todo — UI stub only  
+**Spec:** docs/specs/org/org-membership.md#deleting-an-org  
 **Depends on:** ORG-022, ORG-013, ORG-023
 
 ## Context

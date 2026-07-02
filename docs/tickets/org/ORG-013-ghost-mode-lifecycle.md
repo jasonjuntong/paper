@@ -1,8 +1,8 @@
 # ORG-013 — Ghost Mode lifecycle (status field)
 
-**Domain:** org
-**Status:** Todo
-**Spec:** docs/specs/org/org-membership.md#deleting-an-org
+**Domain:** org  
+**Status:** Todo  
+**Spec:** docs/specs/org/org-membership.md#deleting-an-org  
 **Depends on:** ORG-001
 
 ## Context

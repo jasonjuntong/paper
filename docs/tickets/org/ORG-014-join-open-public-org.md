@@ -1,8 +1,8 @@
 # ORG-014 — Join open public org
 
-**Domain:** org
-**Status:** Partial — needs e2e/integration (unit N/A)
-**Spec:** docs/specs/org/org-joining-invites.md#joining-an-org
+**Domain:** org  
+**Status:** Partial — needs e2e/integration (unit N/A)  
+**Spec:** docs/specs/org/org-joining-invites.md#joining-an-org  
 **Depends on:** ORG-001
 
 ## Context

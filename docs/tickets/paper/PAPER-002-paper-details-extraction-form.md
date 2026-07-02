@@ -1,8 +1,8 @@
 # PAPER-002 — Paper-details extraction (Groq) + review form
 
-**Domain:** paper
-**Status:** Partial — verify pencil-edit, discrepancy dialog, helper text
-**Spec:** docs/specs/paper/paper.md#1-paper-upload--paper-details
+**Domain:** paper  
+**Status:** Partial — verify pencil-edit, discrepancy dialog, helper text  
+**Spec:** docs/specs/paper/paper.md#1-paper-upload--paper-details  
 **Depends on:** PAPER-001
 
 ## Context

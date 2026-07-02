@@ -1,8 +1,8 @@
 # ORG-016 — Create invites (pool, limits, cap, collision)
 
-**Domain:** org
-**Status:** Todo
-**Spec:** docs/specs/org/org-joining-invites.md#invites
+**Domain:** org  
+**Status:** Todo  
+**Spec:** docs/specs/org/org-joining-invites.md#invites  
 **Depends on:** ORG-007, ORG-023
 
 ## Context

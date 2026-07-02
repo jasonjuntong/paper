@@ -1,8 +1,8 @@
 # ORG-017 — Invite recipient flow (accept/decline)
 
-**Domain:** org
-**Status:** Todo
-**Spec:** docs/specs/org/org-joining-invites.md#invites
+**Domain:** org  
+**Status:** Todo  
+**Spec:** docs/specs/org/org-joining-invites.md#invites  
 **Depends on:** ORG-016, ORG-023
 
 ## Context
