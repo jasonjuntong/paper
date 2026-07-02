@@ -1,7 +1,7 @@
 # USER-004 — Email-enumeration protection
 
 **Domain:** user
-**Status:** Done
+**Status:** Partial — needs e2e for the registration duplicate-email path (unit N/A)
 **Spec:** docs/specs/user/user.md#authentication
 **Depends on:** USER-001
 
@@ -20,3 +20,7 @@ Neither registration nor forgot-password may reveal whether an email is already 
 ## Affected files
 - `src/app/api/auth/` (registration route)
 - `src/app/api/auth/forgot-password/route.ts`
+
+## Test coverage
+- **e2e** ~ partial — `e2e/auth.spec.ts` asserts the forgot-password unknown-email case returns the identical success state. **Still needed:** an assertion that registering an already-registered email returns the same "check your email" success (no error, no enumeration).
+- **Unit — not required.** Enumeration protection is cross-route behavior (same response either way), not isolatable pure logic.

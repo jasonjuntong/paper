@@ -23,3 +23,7 @@ Email + password login only. Establishes an httpOnly session cookie verified ser
 - `src/app/(auth)/login/page.tsx`
 - `src/lib/session.ts`
 - `src/app/api/auth/session/route.ts`
+
+## Test coverage
+- **e2e** ✓ — `e2e/auth.spec.ts` covers valid sign-in reaching the app, the unverified-account block, and session-gated access.
+- **Unit — not required.** No pure logic to isolate; `getSession` is a thin Admin-SDK wrapper and the sign-in path is exercised end-to-end.

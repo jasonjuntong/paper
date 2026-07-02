@@ -2,7 +2,9 @@
 
 A full backlog derived from the hardened specs in [`docs/specs/`](../specs/). One ticket per spec'd feature, organized by domain (`user/`, `paper/`, `org/`).
 
-**Status:** `Done` (implemented, matches spec) · `Partial` (stub/incomplete) · `Todo` (not started).
+**Status:** `Done` (implemented, matches spec, **and covered by every test lane that applies to it**) · `Partial` (implemented but missing required test coverage, or a stub/incomplete) · `Todo` (not started).
+
+> **Definition of Done:** tests are a hard requirement. The default bar is **both a unit and an e2e test**. A ticket may drop a lane *only* when it genuinely doesn't apply — e.g. no isolatable pure logic (no unit), no user-facing flow or an external non-emulated dependency (no browser e2e) — and it must **say so in its own `## Test coverage` section**, using integration/rules lanes where they fit. A ticket is `Done` when every applicable lane is green; implemented-but-untested work stays `Partial`. INFRA-001 is exempt (it *is* the harness).
 
 Tickets are grouped into **phases** below — a dependency-aware build sequence. Nothing in a phase depends on a later phase. Build top-to-bottom; within a phase, follow the listed order. See each ticket's `Depends on` field for exact blockers.
 
@@ -16,21 +18,21 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 | [USER-007](user/USER-007-handle-reservation-uniqueness.md) | Handle reservation & uniqueness (`/handles/{handle}`) | Done | — | user.md#handle |
 | [USER-001](user/USER-001-registration-email-verification.md) | Registration + email verification (incl. `@handle`) | Done | USER-007 | user.md#authentication |
 | [USER-002](user/USER-002-login.md) | Login (email + password) | Done | — | user.md#authentication |
-| [USER-004](user/USER-004-email-enumeration-protection.md) | Email-enumeration protection | Done | USER-001 | user.md#authentication |
-| [PAPER-001](paper/PAPER-001-upload-extract-hash.md) | Upload: client text extraction + SHA-256 hash | Done | — | paper.md#1-paper-upload--paper-details |
+| [USER-004](user/USER-004-email-enumeration-protection.md) | Email-enumeration protection | Partial | USER-001 | user.md#authentication |
+| [PAPER-001](paper/PAPER-001-upload-extract-hash.md) | Upload: client text extraction + SHA-256 hash | Partial | — | paper.md#1-paper-upload--paper-details |
 | [PAPER-002](paper/PAPER-002-paper-details-extraction-form.md) | Paper-details extraction (Groq) + review form | Partial | PAPER-001 | paper.md#1-paper-upload--paper-details |
-| [PAPER-003](paper/PAPER-003-dedup-layer1-hash.md) | Layer 1 dedup (hash) + visibility responses | Done | PAPER-001 | paper.md#2-deduplication-strategy |
-| [PAPER-005](paper/PAPER-005-embedding-generation.md) | Embedding generation (gemini-embedding-2, 768d) | Done | PAPER-001 | paper.md#5-similarity-search-ideaproposal-verification |
+| [PAPER-003](paper/PAPER-003-dedup-layer1-hash.md) | Layer 1 dedup (hash) + visibility responses | Partial | PAPER-001 | paper.md#2-deduplication-strategy |
+| [PAPER-005](paper/PAPER-005-embedding-generation.md) | Embedding generation (gemini-embedding-2, 768d) | Partial | PAPER-001 | paper.md#5-similarity-search-ideaproposal-verification |
 | [PAPER-004](paper/PAPER-004-dedup-layer2-embedding.md) | Layer 2 dedup (embedding similarity + borderline confirm) | Partial | PAPER-005 | paper.md#2-deduplication-strategy |
-| [PAPER-006](paper/PAPER-006-library-entry-crud.md) | Library entry CRUD | Done | PAPER-003, PAPER-004 | paper.md#data-ownership-model |
-| [PAPER-018](paper/PAPER-018-read-tracking.md) | Read tracking (lastOpenedAt) | Done | PAPER-006 | paper.md#4-pdf-reader |
+| [PAPER-006](paper/PAPER-006-library-entry-crud.md) | Library entry CRUD | Partial | PAPER-003, PAPER-004 | paper.md#data-ownership-model |
+| [PAPER-018](paper/PAPER-018-read-tracking.md) | Read tracking (lastOpenedAt) | Partial | PAPER-006 | paper.md#4-pdf-reader |
 | [PAPER-010](paper/PAPER-010-visibility-checkvisibility.md) | Paper visibility derivation + checkVisibility | Partial | PAPER-006 | paper.md#3-paper-visibility |
-| [PAPER-009](paper/PAPER-009-pdf-serving-proxy.md) | PDF serving proxy (access-gated, Range, ETag) | Done | PAPER-010 | paper.md#4-pdf-reader |
-| [ORG-001](org/ORG-001-org-creation.md) | Org creation + invariant | Done | — | org-overview.md#creation |
+| [PAPER-009](paper/PAPER-009-pdf-serving-proxy.md) | PDF serving proxy (access-gated, Range, ETag) | Partial | PAPER-010 | paper.md#4-pdf-reader |
+| [ORG-001](org/ORG-001-org-creation.md) | Org creation + invariant | Partial | — | org-overview.md#creation |
 | [ORG-002](org/ORG-002-edit-name-description.md) | Edit org name/description | Partial | ORG-001 | org-overview.md#org-profile |
-| [ORG-004](org/ORG-004-set-join-policy.md) | Set/change join policy | Done | ORG-001 | org-joining-invites.md#joining-an-org |
-| [ORG-006](org/ORG-006-member-listing-roles.md) | Member listing + role badges | Done | ORG-001 | org-membership.md#roles-within-an-org |
-| [ORG-014](org/ORG-014-join-open-public-org.md) | Join open public org | Done | ORG-001 | org-joining-invites.md#joining-an-org |
+| [ORG-004](org/ORG-004-set-join-policy.md) | Set/change join policy | Partial | ORG-001 | org-joining-invites.md#joining-an-org |
+| [ORG-006](org/ORG-006-member-listing-roles.md) | Member listing + role badges | Partial | ORG-001 | org-membership.md#roles-within-an-org |
+| [ORG-014](org/ORG-014-join-open-public-org.md) | Join open public org | Partial | ORG-001 | org-joining-invites.md#joining-an-org |
 | [ORG-025](org/ORG-025-security-rules-indexes.md) | Firestore security rules + indexes | Partial | — | org-papers-permissions.md#permissions-summary |
 
 ## Phase 1 — User account basics
@@ -38,7 +40,7 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 | ID | Title | Status | Depends on | Spec |
 |----|-------|--------|-----------|------|
 | [USER-003](user/USER-003-forgot-reset-password.md) | Forgot/reset password (custom + Resend) | Done | USER-002 | user.md#authentication |
-| [USER-005](user/USER-005-account-settings.md) | Account settings page | Todo | USER-002 | user.md#users-app-wide |
+| [USER-005](user/USER-005-account-settings.md) | Account settings page | Done | USER-002 | user.md#users-app-wide |
 
 ## Phase 2 — Platform primitives (keystones)
 

@@ -1,7 +1,7 @@
 # PAPER-018 — Read tracking (lastOpenedAt)
 
 **Domain:** paper
-**Status:** Done
+**Status:** Partial — needs e2e (unit N/A)
 **Spec:** docs/specs/paper/paper.md#4-pdf-reader
 **Depends on:** PAPER-006
 
@@ -18,3 +18,7 @@ Track when a user last opened a paper to power a "Continue reading" surface.
 
 ## Affected files
 - `src/app/api/papers/touch/route.ts`
+
+## Test coverage
+- **e2e — needed.** Opening a paper records `lastOpenedAt` and the paper then surfaces in "Continue reading" ordered by recency.
+- **Unit — not required.** A single timestamp write; no isolatable pure logic.

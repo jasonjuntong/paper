@@ -1,7 +1,7 @@
 # PAPER-005 — Embedding generation (gemini-embedding-2, 768d)
 
 **Domain:** paper
-**Status:** Done
+**Status:** Partial — needs unit (e2e N/A — external provider)
 **Spec:** docs/specs/paper/paper.md#5-similarity-search-ideaproposal-verification
 **Depends on:** PAPER-001
 
@@ -20,3 +20,7 @@ A 768-dim embedding is generated from the paper's `extractedMetadata.title + syn
 ## Affected files
 - `src/lib/gemini.ts`
 - `src/app/api/papers/commit/route.ts`
+
+## Test coverage
+- **Unit — needed.** Embedding-input assembly (always raw `extractedMetadata` title+synopsis+keywords, 768 dims, stored once and reused) is pure and should be unit-tested with the provider call stubbed.
+- **e2e — not required.** `gemini-embedding-2` is an external, non-emulated service, so a browser e2e can't exercise it hermetically; its user-visible effect is gated behind commit (covered by PAPER-006). The provider call belongs in a stubbed unit/integration test, not e2e.

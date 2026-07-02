@@ -42,3 +42,26 @@ genuinely need to be endpoints.
 **Revisit when.** Reworking the auth surface as a whole, or if a future flow
 needs progressive-enhancement / no-JS form posts (Server Actions' strength).
 Don't convert a single route in isolation — it would split the convention.
+
+---
+
+## N-002 — Sidebar display name goes stale after a name change
+
+**Status:** Intentional · revisit when profile edits need to reflect nav-wide
+
+**Nuance.** After a user renames themselves on `/settings`, the settings page
+reflects the new name immediately (it reads the user doc + local state), but the
+**sidebar/nav** still shows the *old* name until the next sign-in.
+
+**Why it's this way.** The nav name comes from `getSession()` → the decoded
+**session-cookie Auth claims** (`(app)/layout.tsx` passes `session` to
+`AppSidebar` → `nav-user`). `POST /api/account` updates the Auth `displayName`
+and the Firestore user doc, but it does **not** re-mint the session cookie — the
+cookie is only issued at login (`/api/auth/session`), so the stale `name` claim
+persists in it. The write itself is correct; only the cached claim is old.
+
+**Revisit when.** The nav name needs to update without a re-login. Options:
+(a) read the nav name from the user doc in `(app)/layout.tsx` instead of the
+session claims, or (b) re-mint the session cookie after a profile update. Deferred
+because it's a cosmetic staleness that self-heals on next login, and USER-005's
+scope is the settings surface, not the session-refresh mechanism.

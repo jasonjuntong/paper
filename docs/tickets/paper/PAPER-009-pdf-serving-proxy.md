@@ -1,7 +1,7 @@
 # PAPER-009 — PDF serving proxy (access-gated, Range, ETag)
 
 **Domain:** paper
-**Status:** Done
+**Status:** Partial — needs unit + integration (browser e2e N/A)
 **Spec:** docs/specs/paper/paper.md#4-pdf-reader
 **Depends on:** PAPER-010
 
@@ -21,3 +21,8 @@
 ## Affected files
 - `src/app/api/papers/[paperId]/file/route.ts`
 - `src/lib/paper-dedup.ts` (`checkVisibility`)
+
+## Test coverage
+- **Unit — needed.** `checkVisibility` (allow/deny given ownership + org membership + shares) is pure and should be unit-tested.
+- **Integration — needed.** HTTP semantics of the file route: `403` on revoked access (incl. `If-None-Match` revalidation), `206` for Range, `304` for allowed-unchanged, `private, no-cache` + stable ETag.
+- **Browser e2e — not the right tool.** Range/ETag/304 are HTTP-level assertions best made at the integration layer; PDF loading in the UI is exercised via the reader (PAPER-008).

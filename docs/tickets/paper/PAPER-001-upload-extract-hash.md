@@ -1,7 +1,7 @@
 # PAPER-001 — Upload: client text extraction + SHA-256 hash
 
 **Domain:** paper
-**Status:** Done
+**Status:** Partial — needs unit + e2e
 **Spec:** docs/specs/paper/paper.md#1-paper-upload--paper-details
 **Depends on:** —
 
@@ -20,3 +20,7 @@ PDF-only upload. Text is extracted client-side with `pdfjs-dist` and a SHA-256 h
 ## Affected files
 - `src/components/add-paper-dialog.tsx`
 - `src/app/api/papers/init/route.ts`
+
+## Test coverage
+- **Unit — needed.** SHA-256 hashing (known buffer → known digest) and the PDF-only guard are pure and should be unit-tested.
+- **e2e — needed.** Upload dialog: accept a PDF, extract text, and confirm bytes are deferred until commit (no orphaned storage object).
