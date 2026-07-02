@@ -30,6 +30,17 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# firebase emulators
+*-debug.log
+.firebase/
+firebase-export-*/
+
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 # env files (can opt-in for committing if needed)
 .env*
 

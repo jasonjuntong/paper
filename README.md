@@ -20,6 +20,52 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Testing
+
+### Prerequisites
+
+- **Unit tests** need nothing extra.
+- **Security-rules, integration, and end-to-end tests** run against the **Firebase Emulator Suite**, which requires a **JDK (Java 11+)**. Install one via Homebrew:
+
+  ```bash
+  brew install --cask temurin
+  java -version   # confirm it's on your PATH
+  ```
+
+  First-time Playwright setup also needs the browser binary:
+
+  ```bash
+  npx playwright install chromium
+  ```
+
+### Running
+
+```bash
+npm test               # Vitest unit tests, src/** (run once — no emulator)
+npm run test:watch     # Vitest in watch mode
+npm run test:rules     # Firestore security-rules specs (tests/rules/)
+npm run test:integration # Registration transaction specs (tests/integration/)
+npm run test:e2e       # Playwright e2e — boots the emulators, runs, tears down
+npm run test:e2e:ui    # same, with the Playwright UI runner
+```
+
+`npm test` is pure and offline — it only runs the `src/**` unit specs. The other
+three lanes each wrap their runner in `firebase emulators:exec --project demo-paper`
+(offline `demo-` project — never touches real Firebase), booting the emulators,
+running the specs, then shutting down:
+
+- **`test:rules`** — `@firebase/rules-unit-testing` asserts `firestore.rules`
+  against the Firestore emulator (`tests/rules/`).
+- **`test:integration`** — drives the real register route through the Auth +
+  Firestore emulators to prove the handle-reservation transaction and
+  no-orphan-on-race cleanup (`tests/integration/`).
+- **`test:e2e`** — starts `next dev` wired to the emulators and runs the browser
+  flow in `e2e/`.
+
+Emulator ports live in `firebase.json` (Auth 9099, Firestore 8080, UI 4000). To
+poke at the emulators by hand, run `firebase emulators:start` and open the UI at
+http://127.0.0.1:4000.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
