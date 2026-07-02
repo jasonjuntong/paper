@@ -27,9 +27,16 @@ Users need a settings surface to view their profile and manage their account. Pr
 - `src/app/(app)/settings/page.tsx` (new — server page, reads user doc)
 - `src/components/settings/settings-client.tsx` (new — profile / notifications / change-password / danger-zone sections)
 - `src/app/api/account/route.ts` (new — profile + notification-pref updates; password change is client-side re-auth)
+- `src/lib/account.ts` (new — extracted `accountUpdateSchema`, unit-testable)
 - `src/components/ui/switch.tsx` (new — shadcn primitive)
+- `src/lib/account.test.ts` (new — schema unit tests)
+- `e2e/settings.spec.ts` (new — nav → settings, name edit, notification toggle, password change)
 
 ## Notes
 - Password change is done **client-side** (Firebase `reauthenticateWithCredential` + `updatePassword`), not via the API route — re-auth must run in the browser where the user's credential lives.
 - "Delete account" is a **disabled stub** here; the flow is built in USER-006.
 - Nav display name stays stale after a rename until next login — logged as N-002 in `docs/nuances.md`.
+
+## Tests
+- **Unit** (`npm test`): `src/lib/account.test.ts` covers the update schema — name trim/min-2/max-100 bounds, boolean `notificationEmail`, and the empty-body "nothing to update" guard.
+- **E2E** (`npm run test:e2e`, or `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test e2e/settings.spec.ts'`): nav dropdown → `/settings`, read-only handle/email + disabled delete, name edit persists across reload, notification toggle persists, and password change (wrong current rejected → correct one works for the next sign-in).
