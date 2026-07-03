@@ -22,3 +22,7 @@ A paper owner can share a library entry to one or more orgs they're a current me
 ## Affected files
 - `src/app/api/orgs/[orgId]/papers/route.ts` or `src/app/api/papers/share/route.ts` (new)
 - ORG-024, PAPER-015
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

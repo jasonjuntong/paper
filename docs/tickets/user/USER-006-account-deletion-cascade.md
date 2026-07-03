@@ -29,3 +29,7 @@ Deleting a Scolar account must leave no dangling state anywhere — with one del
 ## Affected files
 - `src/app/api/account/delete/route.ts` (new)
 - Reuses unshare (ORG-022), org-delete/ghost (ORG-012/013), paper GC (PAPER-016) logic
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

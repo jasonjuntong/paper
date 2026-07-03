@@ -40,3 +40,7 @@ Users need a settings surface to view their profile and manage their account. Pr
 ## Tests
 - **Unit** (`npm test`): `src/lib/account.test.ts` covers the update schema — name trim/min-2/max-100 bounds, boolean `notificationEmail`, and the empty-body "nothing to update" guard.
 - **E2E** (`npm run test:e2e`, or `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test e2e/settings.spec.ts'`): nav dropdown → `/settings`, read-only handle/email + disabled delete, name edit persists across reload, notification toggle persists, and password change (wrong current rejected → correct one works for the next sign-in).
+
+## Test commands
+- **Unit:** `npx vitest run src/lib/account.test.ts`
+- **E2E:** `firebase emulators:exec --project demo-paper --only auth,firestore 'playwright test e2e/settings.spec.ts'`

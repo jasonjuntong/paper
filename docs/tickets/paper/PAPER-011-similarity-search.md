@@ -25,3 +25,7 @@ Free for all users. The user enters an idea/proposal as text; it is embedded and
 - `src/app/api/papers/search/route.ts` (new)
 - search UI surface
 - `src/lib/gemini.ts`, `src/lib/paper-dedup.ts`
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

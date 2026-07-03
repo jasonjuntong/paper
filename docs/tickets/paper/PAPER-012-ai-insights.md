@@ -23,3 +23,7 @@ On-demand insights (Summary, Conclusions, Key Findings, Methodology) via Gemini 
 - `src/app/api/papers/[paperId]/insights/route.ts` (new, streaming)
 - `src/app/(app)/library/[paperId]/_components/paper-tabs.tsx` (replace stub)
 - `src/lib/gemini.ts`
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

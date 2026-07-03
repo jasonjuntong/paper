@@ -21,3 +21,7 @@ Only the Admin can delete an org. It's intentional and permanent (no restore). O
 ## Affected files
 - `src/app/api/orgs/[orgId]/route.ts` (DELETE) or dedicated route
 - `org-manage.tsx` (wire the stubbed button), ORG-013, ORG-022, ORG-023
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

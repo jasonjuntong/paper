@@ -4,7 +4,12 @@ import { FieldValue } from 'firebase-admin/firestore'
 import { getSession } from '@/lib/session'
 import { adminFirestore, adminStorage } from '@/lib/firebase/admin'
 import { buildPaperEmbeddingInput, generatePaperEmbedding } from '@/lib/gemini'
-import { checkVisibility, ensureLibraryEntry } from '@/lib/paper-dedup'
+import {
+  BORDERLINE_MAX_DISTANCE,
+  checkVisibility,
+  classifyDedupDistance,
+  ensureLibraryEntry,
+} from '@/lib/paper-dedup'
 import type { CommitResponse, ExistingPaperInfo } from '@/types/paper'
 
 const CommitSchema = z.object({
@@ -19,6 +24,9 @@ const CommitSchema = z.object({
   emKeywords: z.string().optional(),
   emSynopsis: z.string().optional(),
   existingPaperId: z.string().optional(),
+  // Set when the user rejected a borderline (0.85–0.92) match ("No, different
+  // paper"). Skips Layer-2 entirely so the prompt can't re-fire in a loop.
+  confirmedNew: z.enum(['true', 'false']).optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -40,6 +48,7 @@ export async function POST(req: NextRequest) {
     emKeywords: formData.get('emKeywords') ?? undefined,
     emSynopsis: formData.get('emSynopsis') ?? undefined,
     existingPaperId: formData.get('existingPaperId') ?? undefined,
+    confirmedNew: formData.get('confirmedNew') ?? undefined,
   }
 
   const parsed = CommitSchema.safeParse(fields)
@@ -51,6 +60,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { title, authors, year, keywords, synopsis, existingPaperId } = parsed.data
+  const confirmedNew = parsed.data.confirmedNew === 'true'
   const yearNum = parseInt(year, 10)
   const hash = formData.get('hash') as string | null
 
@@ -83,21 +93,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Embedding generation failed' }, { status: 500 })
   }
 
-  // Layer 2 dedup — embedding similarity (cosine distance ≤ 0.08 = similarity ≥ 0.92)
-  const nearestSnap = await adminFirestore
-    .collection('papers')
-    .findNearest({
-      vectorField: 'embedding',
-      queryVector: FieldValue.vector(embeddingValues),
-      limit: 1,
-      distanceMeasure: 'COSINE',
-      distanceThreshold: 0.08,
-    })
-    .get()
+  // Layer 2 dedup — embedding similarity. Query the full borderline band (cosine
+  // distance ≤ 0.15 = similarity ≥ 0.85), then classify the top hit by its exact
+  // distance. `confirmedNew` (user rejected a borderline match) bypasses this.
+  const nearestSnap = confirmedNew
+    ? null
+    : await adminFirestore
+        .collection('papers')
+        .findNearest({
+          vectorField: 'embedding',
+          queryVector: FieldValue.vector(embeddingValues),
+          limit: 1,
+          distanceMeasure: 'COSINE',
+          distanceThreshold: BORDERLINE_MAX_DISTANCE,
+          distanceResultField: 'vector_distance',
+        })
+        .get()
 
-  if (!nearestSnap.empty) {
+  if (nearestSnap && !nearestSnap.empty) {
     const matchedPaperId = nearestSnap.docs[0].id
     const matchedData = nearestSnap.docs[0].data()
+    const tier = classifyDedupDistance(matchedData.vector_distance as number)
     const em = (matchedData.extractedMetadata ?? {}) as Record<string, unknown>
 
     const paper: ExistingPaperInfo = {
@@ -111,32 +127,45 @@ export async function POST(req: NextRequest) {
 
     const vis = await checkVisibility(session.uid, matchedPaperId)
 
-    if (vis.visibility === 'in-library') {
-      return NextResponse.json<CommitResponse>({
-        status: 'in-library',
-        paper,
-        entryId: vis.entryId,
+    if (tier === 'auto') {
+      if (vis.visibility === 'in-library') {
+        return NextResponse.json<CommitResponse>({
+          status: 'in-library',
+          paper,
+          entryId: vis.entryId,
+        })
+      }
+
+      if (vis.visibility === 'in-org') {
+        return NextResponse.json<CommitResponse>({
+          status: 'in-org',
+          paper,
+          orgs: vis.orgs,
+          existingPaperId: matchedPaperId,
+        })
+      }
+
+      // Silent dedup — create library entry for the matched paper
+      const entryId = await ensureLibraryEntry(session.uid, matchedPaperId, {
+        title,
+        authors,
+        year: yearNum,
+        keywords,
+        synopsis,
       })
+      return NextResponse.json<CommitResponse>({ status: 'ok', entryId, paperId: matchedPaperId })
     }
 
-    if (vis.visibility === 'in-org') {
+    // Borderline (0.85–0.92): ask the user only when they can already see the
+    // candidate — otherwise surfacing its title would leak a private/other-org
+    // paper, so fall through and treat this upload as new.
+    if (tier === 'borderline' && vis.visibility !== 'none') {
       return NextResponse.json<CommitResponse>({
-        status: 'in-org',
+        status: 'borderline',
         paper,
-        orgs: vis.orgs,
         existingPaperId: matchedPaperId,
       })
     }
-
-    // Silent dedup — create library entry for the matched paper
-    const entryId = await ensureLibraryEntry(session.uid, matchedPaperId, {
-      title,
-      authors,
-      year: yearNum,
-      keywords,
-      synopsis,
-    })
-    return NextResponse.json<CommitResponse>({ status: 'ok', entryId, paperId: matchedPaperId })
   }
 
   // Genuinely new paper — upload PDF, create global paper + library entry

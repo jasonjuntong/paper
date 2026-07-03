@@ -23,3 +23,7 @@ Invites are entirely in-app (no email/URL), targeted at a specific Scolar user w
 ## Affected files
 - `src/app/api/orgs/[orgId]/invites/route.ts` (new)
 - invite UI, ORG-007, ORG-023
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

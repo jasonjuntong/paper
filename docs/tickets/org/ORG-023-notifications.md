@@ -24,3 +24,7 @@ Two channels. **In-app is the baseline for every event**, delivered real-time vi
 - `src/lib/notifications.ts` (new — in-app write helper + email dispatch)
 - `src/lib/email.ts` / Resend integration (notification email templates)
 - client notifications feed component + `onSnapshot` hook
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

@@ -25,3 +25,7 @@ PDF-only upload. Text is extracted client-side with `pdfjs-dist` and a SHA-256 h
 ## Test coverage
 - **Unit — done.** `src/lib/pdf-upload.test.ts`: SHA-256 against known vectors (empty, `"abc"`) + hex/format/content-vs-name properties, and the PDF-only guard (case-insensitivity, near-miss names). Runs under `// @vitest-environment node` — jsdom's `File.arrayBuffer()` returns a cross-realm buffer that Node's WebCrypto rejects; `node` uses one realm (same as the real browser).
 - **e2e — done.** `e2e/add-paper.spec.ts` (fixture `e2e/fixtures/sample.pdf`): choosing a PDF extracts text + hashes bytes client-side and sends **only** `{ hash, pages }` to `/api/papers/init` as JSON (asserts the hash equals a server-side recompute and pages contain the real extracted text); confirms the flow reaches review and that **no** `/api/papers/commit` (byte upload) fires during the pre-flight — bytes are deferred. Second case: a non-PDF is dropped by the guard, leaving Continue disabled.
+
+## Test commands
+- **Unit:** `npx vitest run src/lib/pdf-upload.test.ts`
+- **E2E:** `firebase emulators:exec --project demo-paper --only auth,firestore 'playwright test e2e/add-paper.spec.ts'`

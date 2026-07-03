@@ -24,3 +24,7 @@ Neither registration nor forgot-password may reveal whether an email is already 
 ## Test coverage
 - **e2e** — `e2e/auth.spec.ts` covers both enumeration surfaces: the forgot-password unknown-email case, and registering an already-registered email — each lands on the identical success state as a genuine request (no error surfaced, no enumeration).
 - **Unit — not required.** Enumeration protection is cross-route behavior (same response either way), not isolatable pure logic.
+
+## Test commands
+- **Unit:** N/A — enumeration protection has no isolated pure/component surface; it's asserted end-to-end.
+- **E2E:** `firebase emulators:exec --project demo-paper --only auth,firestore 'playwright test e2e/auth.spec.ts'` (both enumeration surfaces)

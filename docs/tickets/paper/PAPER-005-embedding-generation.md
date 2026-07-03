@@ -24,3 +24,7 @@ A 768-dim embedding is generated from the paper's `extractedMetadata.title + syn
 ## Test coverage
 - **Unit — done (`src/lib/gemini.test.ts`).** The input assembly was extracted to a pure `buildPaperEmbeddingInput` (behavior-preserving; the commit route now calls it) so the raw-metadata title+synopsis+keywords ordering is unit-pinned. `generatePaperEmbedding` is tested with `@google/genai` stubbed: it sends the spec contract (`gemini-embedding-2`, `outputDimensionality: 768`), returns the values array, and swallows a missing embedding or a thrown SDK error into `[]` (which the route turns into a 500). The "stored once, reused" property is structural — the embedding lives on `/papers/{paperId}` and library entries hold only `paperId` — not a pure-unit assertion.
 - **e2e — not required.** `gemini-embedding-2` is an external, non-emulated service, so a browser e2e can't exercise it hermetically; its user-visible effect is gated behind commit (covered by PAPER-006). The provider call belongs in a stubbed unit/integration test, not e2e.
+
+## Test commands
+- **Unit:** `npx vitest run src/lib/gemini.test.ts`
+- **E2E:** N/A — embedding generation calls an external provider (not emulated).

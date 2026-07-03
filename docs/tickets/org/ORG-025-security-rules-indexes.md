@@ -23,3 +23,8 @@ The permissions table and data model require Firestore security rules and compos
 ## Affected files
 - `firestore.rules`
 - `firestore.indexes.json`
+
+## Test commands
+- **Unit:** N/A — security rules are validated by the rules lane, not a pure unit test.
+- **E2E:** N/A — rule enforcement is asserted directly against the emulator.
+- **Rules:** `npm run test:rules` (`tests/rules/firestore-rules.test.ts`)

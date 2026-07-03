@@ -23,7 +23,7 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 | [PAPER-002](paper/PAPER-002-paper-details-extraction-form.md) | Paper-details extraction (Groq) + review form | Done | PAPER-001 | paper.md#1-paper-upload--paper-details |
 | [PAPER-003](paper/PAPER-003-dedup-layer1-hash.md) | Layer 1 dedup (hash) + visibility responses | Done | PAPER-001 | paper.md#2-deduplication-strategy |
 | [PAPER-005](paper/PAPER-005-embedding-generation.md) | Embedding generation (gemini-embedding-2, 768d) | Done | PAPER-001 | paper.md#5-similarity-search-ideaproposal-verification |
-| [PAPER-004](paper/PAPER-004-dedup-layer2-embedding.md) | Layer 2 dedup (embedding similarity + borderline confirm) | Partial | PAPER-005 | paper.md#2-deduplication-strategy |
+| [PAPER-004](paper/PAPER-004-dedup-layer2-embedding.md) | Layer 2 dedup (embedding similarity + borderline confirm) | Done | PAPER-005 | paper.md#2-deduplication-strategy |
 | [PAPER-006](paper/PAPER-006-library-entry-crud.md) | Library entry CRUD | Partial | PAPER-003, PAPER-004 | paper.md#data-ownership-model |
 | [PAPER-018](paper/PAPER-018-read-tracking.md) | Read tracking (lastOpenedAt) | Partial | PAPER-006 | paper.md#4-pdf-reader |
 | [PAPER-010](paper/PAPER-010-visibility-checkvisibility.md) | Paper visibility derivation + checkVisibility | Partial | PAPER-006 | paper.md#3-paper-visibility |

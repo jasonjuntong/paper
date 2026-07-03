@@ -26,3 +26,7 @@
 - **Unit — needed.** `checkVisibility` (allow/deny given ownership + org membership + shares) is pure and should be unit-tested.
 - **Integration — needed.** HTTP semantics of the file route: `403` on revoked access (incl. `If-None-Match` revalidation), `206` for Range, `304` for allowed-unchanged, `private, no-cache` + stable ETag.
 - **Browser e2e — not the right tool.** Range/ETag/304 are HTTP-level assertions best made at the integration layer; PDF loading in the UI is exercised via the reader (PAPER-008).
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

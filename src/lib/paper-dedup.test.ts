@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { decideVisibility } from '@/lib/paper-dedup'
+// Import the pure core directly — not `@/lib/paper-dedup`, which would boot the
+// Firebase Admin SDK (needs a service account) just to reach these functions.
+import { classifyDedupDistance, decideVisibility } from '@/lib/paper-dedup-core'
 import type { OrgRef } from '@/types/paper'
 
 // PAPER-003 Layer-1 dedup: the pure visibility decision that shapes the `init`
@@ -39,5 +41,30 @@ describe('decideVisibility', () => {
 
   it('returns none when the paper is neither owned nor shared to a member org', () => {
     expect(decideVisibility(null, [])).toEqual({ visibility: 'none' })
+  })
+})
+
+// PAPER-004 Layer-2 dedup: the pure tier decision on the cosine *distance* to the
+// nearest global paper. distance = 1 − similarity, so the spec's similarity bands
+// (≥0.92 auto, 0.85–0.92 borderline, <0.85 new) map to distance ≤0.08, ≤0.15, >0.15.
+describe('classifyDedupDistance', () => {
+  it('classifies an exact/near match as an automatic duplicate', () => {
+    expect(classifyDedupDistance(0)).toBe('auto')
+  })
+
+  it('treats the 0.08 boundary (similarity 0.92) as automatic', () => {
+    expect(classifyDedupDistance(0.08)).toBe('auto')
+  })
+
+  it('classifies just past the auto boundary as borderline', () => {
+    expect(classifyDedupDistance(0.081)).toBe('borderline')
+  })
+
+  it('treats the 0.15 boundary (similarity 0.85) as borderline', () => {
+    expect(classifyDedupDistance(0.15)).toBe('borderline')
+  })
+
+  it('classifies past the borderline boundary as a new paper', () => {
+    expect(classifyDedupDistance(0.151)).toBe('new')
   })
 })

@@ -27,3 +27,7 @@ The library entry (`/users/{uid}/library/{entryId}`) holds the user's confirmed 
 ## Test coverage
 - **Component (unit) — needed.** The library list/grid, shared/private filter, and edit form carry real client logic (view toggle + `localStorage`, filter state, edit-form validation/submit) that should be component-tested. Route request-schemas may add a small pure-unit test too.
 - **e2e — needed.** Commit → browse (grid/list, shared/private filter) → edit → delete, with detail/list views reading from the library entry.
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

@@ -21,3 +21,7 @@ A paper's visibility is derived live from its share state, never stored. Two acc
 
 ## Affected files
 - `src/lib/paper-dedup.ts` (`checkVisibility`)
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

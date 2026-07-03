@@ -21,3 +21,7 @@ A large modal reader renders PDFs directly with `pdfjs-dist` — one page at a t
 ## Affected files
 - `src/app/(app)/library/[paperId]/` reader component
 - `src/app/api/papers/[paperId]/file/route.ts` (consumer)
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.
