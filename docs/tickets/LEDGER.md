@@ -2,7 +2,7 @@
 
 A snapshot of overall ticket status — counts only, plus the few tickets that need explicit attention. Full per-ticket detail lives in [`README.md`](./README.md) and each ticket file.
 
-_Last updated: 2026-07-04. PAPER-018 completed (read tracking: e2e `read-tracking.spec.ts` — seed→empty state→open (touch)→surfaces, plus two-paper recency ordering + re-open reorder — and component `continue-reading.test.tsx` — empty state, paperId href, keyword normalization). PAPER-006 completed (library entry CRUD: three component specs — `library-client` filter + view-toggle/`localStorage`, `edit-paper-dialog` validation/submit, `delete-paper-dialog` state machine — plus `e2e/library-crud.spec.ts` seeding entries into the emulator then driving browse → detail → edit → delete)._
+_Last updated: 2026-07-04. Added INFRA-002 (code review, recurring rounds; Round 1 open). PAPER-018 completed (read tracking: e2e `read-tracking.spec.ts` — seed→empty state→open (touch)→surfaces, plus two-paper recency ordering + re-open reorder — and component `continue-reading.test.tsx` — empty state, paperId href, keyword normalization). PAPER-006 completed (library entry CRUD: three component specs — `library-client` filter + view-toggle/`localStorage`, `edit-paper-dialog` validation/submit, `delete-paper-dialog` state machine — plus `e2e/library-crud.spec.ts` seeding entries into the emulator then driving browse → detail → edit → delete)._
 
 ## Status
 
@@ -11,15 +11,16 @@ Buckets map to the README legend: **Completed** = `Done`, **In progress** = `Par
 | Bucket | Count |
 |--------|-------|
 | ✅ Completed | 14 |
-| 🟡 In progress | 13 |
+| 🟡 In progress | 14 |
 | ⬜ Backlog | 24 |
-| **Total** | **51** |
+| **Total** | **52** |
 
 ## Needs attention
 
 Only tickets with something non-obvious to track.
 
 - **ORG-025 — cross-cutting, intentionally iterative.** Stays in progress by design; it accretes security rules + indexes as each feature lands. Its `/handles` and `/orgs` rules are now covered by the INFRA-001 security-rules suite (`tests/rules/`).
+- **INFRA-002 — code review, recurring rounds.** Intentionally never `Done`; stays in progress and gains a new `## Round N` section each pass. **Round 1 is open** (opened 2026-07-03) — scope TBD, findings to be recorded and follow-up tickets filed from there.
 
 ## Project notes
 

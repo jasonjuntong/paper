@@ -15,6 +15,7 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 | ID | Title | Status | Depends on | Spec |
 |----|-------|--------|-----------|------|
 | [INFRA-001](infra/INFRA-001-test-emulator-playwright.md) | Test infrastructure: Firebase emulator + Playwright | Done | — | — (testing infra) |
+| [INFRA-002](infra/INFRA-002-code-review-rounds.md) | Code review (rounds) | Partial | — | — (quality process, recurring) |
 | [USER-007](user/USER-007-handle-reservation-uniqueness.md) | Handle reservation & uniqueness (`/handles/{handle}`) | Done | — | user.md#handle |
 | [USER-001](user/USER-001-registration-email-verification.md) | Registration + email verification (incl. `@handle`) | Done | USER-007 | user.md#authentication |
 | [USER-002](user/USER-002-login.md) | Login (email + password) | Done | — | user.md#authentication |
@@ -103,4 +104,4 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 
 ---
 
-**Totals:** 7 USER · 18 PAPER · 25 ORG · 1 INFRA = **51 tickets**.
+**Totals:** 7 USER · 18 PAPER · 25 ORG · 2 INFRA = **52 tickets**.
