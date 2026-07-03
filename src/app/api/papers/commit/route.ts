@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { FieldValue } from 'firebase-admin/firestore'
 import { getSession } from '@/lib/session'
 import { adminFirestore, adminStorage } from '@/lib/firebase/admin'
-import { generatePaperEmbedding } from '@/lib/gemini'
+import { buildPaperEmbeddingInput, generatePaperEmbedding } from '@/lib/gemini'
 import { checkVisibility, ensureLibraryEntry } from '@/lib/paper-dedup'
 import type { CommitResponse, ExistingPaperInfo } from '@/types/paper'
 
@@ -73,7 +73,11 @@ export async function POST(req: NextRequest) {
   }
 
   // Generate embedding from extracted metadata (not user's confirmed version)
-  const embeddingInput = `${emTitle} ${emSynopsis} ${emKeywords}`
+  const embeddingInput = buildPaperEmbeddingInput({
+    title: emTitle,
+    synopsis: emSynopsis,
+    keywords: emKeywords,
+  })
   const embeddingValues = await generatePaperEmbedding(embeddingInput)
   if (embeddingValues.length === 0) {
     return NextResponse.json({ error: 'Embedding generation failed' }, { status: 500 })
