@@ -1,28 +1,12 @@
 import { adminFirestore } from '@/lib/firebase/admin'
 import type { OrgRef } from '@/types/paper'
+import { decideVisibility, type Visibility } from '@/lib/paper-dedup-core'
 
-export type Visibility =
-  | { visibility: 'in-library'; entryId: string }
-  | { visibility: 'in-org'; orgs: OrgRef[] }
-  | { visibility: 'none' }
-
-/**
- * Pure visibility decision, factored out of {@link checkVisibility} so it can be
- * unit-tested without Firestore. Precedence is in-library → in-org → none: a
- * paper the user already owns is never surfaced as merely org-visible.
- *
- * @param libraryEntryId  id of the user's existing library entry for this paper,
- *                        or null if it isn't in their library.
- * @param matchingOrgs    member orgs that have this paper shared (empty = none).
- */
-export function decideVisibility(
-  libraryEntryId: string | null,
-  matchingOrgs: OrgRef[]
-): Visibility {
-  if (libraryEntryId) return { visibility: 'in-library', entryId: libraryEntryId }
-  if (matchingOrgs.length > 0) return { visibility: 'in-org', orgs: matchingOrgs }
-  return { visibility: 'none' }
-}
+// Pure decision logic (decideVisibility, classifyDedupDistance, thresholds,
+// Visibility) lives in `paper-dedup-core.ts` so it stays importable without the
+// Firebase Admin SDK. Re-export it here so `@/lib/paper-dedup` remains the single
+// entry point for server code.
+export * from '@/lib/paper-dedup-core'
 
 export async function checkVisibility(
   uid: string,

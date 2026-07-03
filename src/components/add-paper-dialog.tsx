@@ -28,7 +28,15 @@ import type {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Step = 'select' | 'processing' | 'in-library' | 'in-org' | 'review' | 'committing' | 'done'
+type Step =
+  | 'select'
+  | 'processing'
+  | 'in-library'
+  | 'in-org'
+  | 'borderline'
+  | 'review'
+  | 'committing'
+  | 'done'
 
 interface FormState {
   title: string
@@ -334,7 +342,11 @@ export function AddPaperDialog({
     )
   }
 
-  async function doCommit() {
+  // Overrides let the borderline-confirm buttons drive the re-commit explicitly,
+  // without racing async React state: "Yes" pins the matched paper's id (fast
+  // path → library link), "No" sets confirmedNew so the route skips Layer-2.
+  async function doCommit(opts?: { existingPaperId?: string; confirmedNew?: boolean }) {
+    const commitPaperId = opts?.existingPaperId ?? existingPaperId
     setShowWarning(false)
     setStep('committing')
 
@@ -348,8 +360,10 @@ export function AddPaperDialog({
       fd.append('hash', fileHash)
       fd.append('pdf', selectedFile!, selectedFile!.name)
 
-      if (existingPaperId) {
-        fd.append('existingPaperId', existingPaperId)
+      if (opts?.confirmedNew) fd.append('confirmedNew', 'true')
+
+      if (commitPaperId && !opts?.confirmedNew) {
+        fd.append('existingPaperId', commitPaperId)
       } else if (extractedMeta) {
         fd.append('emTitle', extractedMeta.title)
         fd.append('emAuthors', extractedMeta.authors)
@@ -373,6 +387,14 @@ export function AddPaperDialog({
         setExistingOrgs(data.orgs)
         setExistingPaperId(data.existingPaperId)
         setStep('in-org')
+        return
+      }
+
+      if (data.status === 'borderline') {
+        setExistingPaper(data.paper)
+        setExistingOrgs([])
+        setExistingPaperId(data.existingPaperId)
+        setStep('borderline')
         return
       }
 
@@ -567,6 +589,45 @@ export function AddPaperDialog({
           </>
         )}
 
+        {/* ── Borderline (0.85–0.92) confirm ── */}
+        {step === 'borderline' && existingPaper && (
+          <>
+            <DialogHeader>
+              <DialogTitle>Is this the same paper?</DialogTitle>
+              <DialogDescription>
+                This looks very similar to a paper you already have access to. If it&apos;s the
+                same one, we&apos;ll link to it instead of adding a duplicate.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="w-full rounded-lg border border-border bg-muted/30 p-4 flex flex-col gap-2 text-left">
+              <p className="text-sm font-medium leading-snug">{existingPaper.title}</p>
+              <p className="text-xs text-muted-foreground">
+                {existingPaper.authors}
+                {existingPaper.year && (
+                  <span className="ml-2 font-mono">· {existingPaper.year}</span>
+                )}
+              </p>
+            </div>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => doCommit({ confirmedNew: true })}
+              >
+                No, different paper
+              </Button>
+              <Button
+                onClick={() =>
+                  doCommit({ existingPaperId: existingPaper.paperId })
+                }
+              >
+                Yes, same paper
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+
         {/* ── Review ── */}
         {step === 'review' && !showWarning && (
           <form onSubmit={handleSubmitMetadata} className="min-w-0">
@@ -723,7 +784,7 @@ export function AddPaperDialog({
               <Button variant="outline" onClick={() => setShowWarning(false)}>
                 Go back
               </Button>
-              <Button onClick={doCommit}>Proceed</Button>
+              <Button onClick={() => doCommit()}>Proceed</Button>
             </DialogFooter>
           </>
         )}

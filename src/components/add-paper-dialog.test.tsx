@@ -201,3 +201,95 @@ describe('AddPaperDialog — review form (PAPER-002)', () => {
     expect(fd.get('emYear')).toBe('2020')
   })
 })
+
+// PAPER-004 Layer-2 borderline (0.85–0.92). When commit returns `borderline`, the
+// dialog must ask "is this the same paper?" and drive the re-commit off the
+// answer: "Yes" links to the matched paper (existingPaperId, no Layer-2 rerun);
+// "No" forces a fresh paper (confirmedNew) so the prompt can't loop. This is our
+// state-machine branching, not framework behaviour.
+describe('AddPaperDialog — borderline confirm (PAPER-004)', () => {
+  const MATCH = {
+    paperId: 'existing-1',
+    title: 'A Very Similar Paper',
+    authors: 'Grace Hopper',
+    year: '2019',
+    keywords: 'x, y',
+    synopsis: 'Nearly the same work.',
+  }
+
+  // init → draft; first commit → borderline; every later commit → success.
+  function wireBorderline() {
+    let commitCalls = 0
+    fetchMock.mockImplementation((url: string) => {
+      if (String(url).includes('/api/papers/init')) {
+        return jsonOk({ status: 'ok', draft: FULL, existingPaperId: null })
+      }
+      if (String(url).includes('/api/papers/commit')) {
+        commitCalls += 1
+        if (commitCalls === 1) {
+          return jsonOk({ status: 'borderline', paper: MATCH, existingPaperId: MATCH.paperId })
+        }
+        return jsonOk({ status: 'ok', entryId: 'e1', paperId: 'p1' })
+      }
+      throw new Error(`unexpected fetch: ${url}`)
+    })
+  }
+
+  function commitCalls() {
+    return fetchMock.mock.calls.filter((c) => String(c[0]).includes('/api/papers/commit'))
+  }
+
+  beforeEach(() => {
+    fetchMock.mockReset()
+    vi.stubGlobal('fetch', fetchMock)
+  })
+
+  // Reach review (via the shared helper's flow) then save to trigger the first
+  // commit, which returns borderline and lands us on the confirm step.
+  async function reachBorderline(user: ReturnType<typeof userEvent.setup>) {
+    wireBorderline()
+    render(<AddPaperDialog open onOpenChange={() => {}} />)
+    const input = document.querySelector('input[type=file]') as HTMLInputElement
+    await user.upload(input, new File(['%PDF-1.4'], 'paper.pdf', { type: 'application/pdf' }))
+    await user.click(screen.getByRole('button', { name: 'Continue' }))
+    await screen.findByText('Review paper details')
+    await user.click(screen.getByRole('button', { name: 'Save to library' }))
+    await screen.findByText('Is this the same paper?')
+  }
+
+  it('surfaces the confirm prompt with the matched paper when commit is borderline', async () => {
+    const user = userEvent.setup()
+    await reachBorderline(user)
+
+    expect(screen.getByText('A Very Similar Paper')).toBeInTheDocument()
+    expect(screen.getByText('Grace Hopper')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Yes, same paper' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'No, different paper' })).toBeInTheDocument()
+  })
+
+  it('"Yes, same paper" re-commits against the matched paper id (no Layer-2 rerun)', async () => {
+    const user = userEvent.setup()
+    await reachBorderline(user)
+
+    await user.click(screen.getByRole('button', { name: 'Yes, same paper' }))
+    await waitFor(() => expect(commitCalls()).toHaveLength(2))
+
+    const fd = commitCalls()[1][1].body as FormData
+    expect(fd.get('existingPaperId')).toBe('existing-1')
+    expect(fd.get('confirmedNew')).toBeNull()
+  })
+
+  it('"No, different paper" re-commits as a fresh paper via confirmedNew', async () => {
+    const user = userEvent.setup()
+    await reachBorderline(user)
+
+    await user.click(screen.getByRole('button', { name: 'No, different paper' }))
+    await waitFor(() => expect(commitCalls()).toHaveLength(2))
+
+    const fd = commitCalls()[1][1].body as FormData
+    expect(fd.get('confirmedNew')).toBe('true')
+    expect(fd.get('existingPaperId')).toBeNull()
+    // Still sends the extracted copy so the new global paper embeds correctly.
+    expect(fd.get('emTitle')).toBe('The Title')
+  })
+})

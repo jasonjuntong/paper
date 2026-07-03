@@ -31,3 +31,4 @@ export type CommitResponse =
   | { status: 'ok'; entryId: string; paperId: string }
   | { status: 'in-library'; paper: ExistingPaperInfo; entryId: string }
   | { status: 'in-org'; paper: ExistingPaperInfo; orgs: OrgRef[]; existingPaperId: string }
+  | { status: 'borderline'; paper: ExistingPaperInfo; existingPaperId: string }
