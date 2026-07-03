@@ -1,7 +1,7 @@
 # PAPER-006 — Library entry CRUD
 
 **Domain:** paper  
-**Status:** Partial — needs component + e2e  
+**Status:** Done  
 **Spec:** docs/specs/paper/paper.md#data-ownership-model  
 **Depends on:** PAPER-003, PAPER-004
 
@@ -25,9 +25,12 @@ The library entry (`/users/{uid}/library/{entryId}`) holds the user's confirmed 
 - `src/app/(app)/library/` and `src/app/(app)/library/[paperId]/page.tsx`
 
 ## Test coverage
-- **Component (unit) — needed.** The library list/grid, shared/private filter, and edit form carry real client logic (view toggle + `localStorage`, filter state, edit-form validation/submit) that should be component-tested. Route request-schemas may add a small pure-unit test too.
-- **e2e — needed.** Commit → browse (grid/list, shared/private filter) → edit → delete, with detail/list views reading from the library entry.
+- **Component (unit) — done.** Three specs cover the real client logic:
+  - `src/app/(app)/library/_components/library-client.test.tsx` — shared/private filter (rows + tab counts) and the list/grid view toggle persisted to `localStorage`.
+  - `src/app/(app)/library/[paperId]/_components/edit-paper-dialog.test.tsx` — Zod validation gating, the `POST /api/papers/update` request shape, error-clear-on-change, and the success transition.
+  - `src/app/(app)/library/[paperId]/_components/delete-paper-dialog.test.tsx` — the `confirm → deleting → done` machine, the `POST /api/papers/delete` request, and rewind-to-confirm on failure.
+- **e2e — done.** `e2e/library-crud.spec.ts` seeds entries directly into the emulator (commit can't run offline — it needs Gemini embeddings + Cloud Storage) via `seedLibraryEntry`/`getUidByEmail` helpers, then drives browse (filters + view toggle) → detail → edit → delete, with the detail/list views reading straight from the library entry.
 
 ## Test commands
-- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
-- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.
+- **Unit:** `npm test` (single file: `npx vitest run "src/app/(app)/library/_components/library-client.test.tsx"`).
+- **E2E:** `npm run test:e2e` (single spec: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test library-crud'`).
