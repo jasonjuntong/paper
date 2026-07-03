@@ -37,3 +37,8 @@ The verification email **must be sent server-side** (via the **Resend** library)
 - **e2e** ✓ — `e2e/auth.spec.ts` covers register → verify → login → reach app, and the unverified-account block.
 - **Integration** ✓ — `tests/integration/registration.test.ts` covers the strict ordering, orphan cleanup on race, and duplicate-email masking.
 - **Component (unit)** ✓ — `src/components/auth/register-form.test.tsx` covers the client logic in isolation (Firebase read + `fetch` mocked): field validation gating the register call, live handle-availability feedback (available indicator + reserved-handle handled without a query), and the `409 handle_taken` submit branch. _The server orchestration is covered by the integration lane; handle validators by USER-007._
+
+## Test commands
+- **Unit:** `npx vitest run src/components/auth/register-form.test.tsx`
+- **E2E:** `firebase emulators:exec --project demo-paper --only auth,firestore 'playwright test e2e/auth.spec.ts'`
+- **Integration:** `npm run test:integration` (registration transaction — `tests/integration/registration.test.ts`)

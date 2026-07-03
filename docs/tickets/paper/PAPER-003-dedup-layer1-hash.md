@@ -30,3 +30,8 @@ At `init`, the file hash is checked against `/papers`. On a hit, the server resp
 - **Unit — done.** The visibility decision was extracted into a pure `decideVisibility(libraryEntryId, matchingOrgs)` in `src/lib/paper-dedup.ts`; `src/lib/paper-dedup.test.ts` covers in-library / in-org / none and the in-library-beats-in-org precedence.
 - **Integration — done.** `tests/integration/paper-dedup.test.ts` drives `checkVisibility` and `ensureLibraryEntry` against the Firestore emulator: the library query, the `members` collection-group lookup, and per-org `sharedPapers` reads (incl. not surfacing a non-member org), plus that a hit never creates a duplicate library entry (`ensureLibraryEntry` idempotency). Run via `npm run test:integration`.
 - **e2e — N/A (documented).** The full add→re-upload loop can't be driven through the UI offline: the `commit` route needs a real Gemini embedding (the e2e uses a dummy `GEMINI_API_KEY`, so it 500s) and Cloud Storage (not booted in the `auth,firestore` emulator set). The hash→visibility→response wiring is covered by the pure unit + the emulator-backed integration lane instead.
+
+## Test commands
+- **Unit:** `npx vitest run src/lib/paper-dedup.test.ts` (`decideVisibility`)
+- **E2E:** N/A — offline commit can't embed/store; covered by the integration lane instead.
+- **Integration:** `npm run test:integration` (`tests/integration/paper-dedup.test.ts`)

@@ -37,3 +37,7 @@ At commit, an embedding of the extracted `title + synopsis + keywords` is compar
 - **Unit (pure):** `src/lib/paper-dedup.test.ts` — `classifyDedupDistance` boundary cases (0.0, 0.08, 0.081, 0.15, 0.151).
 - **Component:** `src/components/add-paper-dialog.test.tsx` — borderline confirm renders the matched paper; "Yes" re-commits with `existingPaperId`, "No" re-commits with `confirmedNew` (our state-machine branching).
 - **e2e / integration — N/A (documented):** the borderline branch needs live Gemini embeddings + Firestore Vector Search `findNearest`, neither of which the offline emulator/Playwright lanes support (same rationale as PAPER-003 / PAPER-005). The decision logic is fully covered by the unit + component lanes above.
+
+## Test commands
+- **Unit:** `npx vitest run src/lib/paper-dedup.test.ts src/components/add-paper-dialog.test.tsx`
+- **E2E:** N/A — borderline needs live Gemini embeddings + Firestore Vector Search, neither emulated.

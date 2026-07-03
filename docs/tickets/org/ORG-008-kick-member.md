@@ -21,3 +21,7 @@ The Admin can kick a Member. All of that member's papers shared to the org are a
 ## Affected files
 - `src/app/api/orgs/[orgId]/members/[uid]/route.ts` (new, DELETE)
 - reuses ORG-022 unshare, ORG-023 notifications
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

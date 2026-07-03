@@ -21,3 +21,7 @@ Lazy GC (PAPER-016) handles the common path, but cleanup can be skipped (bulk ac
 ## Affected files
 - scheduled function (e.g. Cloud Function / cron route) — new
 - reuses orphan-check logic from PAPER-016
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

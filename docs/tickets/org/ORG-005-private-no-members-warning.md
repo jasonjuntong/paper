@@ -18,3 +18,7 @@ Setting an org private with no other members is allowed (e.g. staging a library 
 
 ## Affected files
 - creation form + `org-manage.tsx`
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

@@ -24,3 +24,7 @@ For public orgs with the **request** policy, users submit join requests and the 
 - `src/app/api/orgs/[orgId]/join/route.ts`
 - `src/app/api/orgs/[orgId]/requests/` (new, admin approve/reject)
 - ORG-023 notifications
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

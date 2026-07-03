@@ -33,3 +33,7 @@ Swapped the client-SDK `sendPasswordResetEmail` (which used Firebase-hosted page
 - **Rewired** `forgot-password-form.tsx` to POST that route; unchanged enumeration-safe "Check your email" success state.
 - **New** `reset-password/page.tsx` (reads `?code=`; missing-code → invalid Card → `/forgot-password`) + `reset-password-form.tsx` (`'use client'`): verifies the code on mount behind a Strict-Mode ref guard, min-8 password + matching confirm, `confirmPasswordReset` → redirect to `/login`; expired/used/invalid code → clear error with a "Request a new link" path.
 - Verified: `tsc --noEmit` + `eslint` clean on all new/edited files. Manual emulator e2e pending as with other auth tickets; a Playwright reset-password spec is a noted follow-up (INFRA-001 lanes).
+
+## Test commands
+- **Unit:** `npx vitest run src/lib/password.test.ts`
+- **E2E:** `firebase emulators:exec --project demo-paper --only auth,firestore 'playwright test e2e/auth.spec.ts'`

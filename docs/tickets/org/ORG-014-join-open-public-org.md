@@ -21,3 +21,7 @@ For public orgs with the **open** policy, any user can join freely (no approval)
 ## Test coverage
 - **e2e/integration — needed.** A user self-joins an open public org (no approval); a join is rejected when the org is at the 1000-member cap (transactional capacity check).
 - **Unit — not required.** The capacity check is transactional Firestore I/O, not isolatable pure logic.
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

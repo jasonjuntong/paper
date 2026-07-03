@@ -21,3 +21,7 @@ A Member can leave anytime; their shared papers auto-unshare from that org. The 
 ## Affected files
 - `src/app/api/orgs/[orgId]/leave/route.ts` (new)
 - reuses ORG-022, ORG-013
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

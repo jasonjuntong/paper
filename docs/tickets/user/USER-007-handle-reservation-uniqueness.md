@@ -44,3 +44,8 @@ Every user has a unique, permanent, never-recycled `@handle`. Firestore has no n
 - **Integration** ✓ — `tests/integration/registration.test.ts` proves the transactional reserve, no-orphan-on-race, and tombstone-stays-taken paths against the emulator.
 - **Rules** ✓ — `tests/rules/firestore-rules.test.ts` asserts `/handles` public-read / server-only-write.
 - **e2e — not required.** The mechanism has no standalone UI; its only user-facing surface is registration (USER-001), which is already e2e-tested. A dedicated e2e would duplicate that flow.
+
+## Test commands
+- **Unit:** `npx vitest run src/lib/handles.test.ts`
+- **E2E:** N/A — no standalone UI; handle reservation is exercised through registration.
+- **Integration:** `npm run test:integration` (`tests/integration/registration.test.ts`)  ·  **Rules:** `npm run test:rules` (`tests/rules/firestore-rules.test.ts`)

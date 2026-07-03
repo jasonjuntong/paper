@@ -15,18 +15,26 @@ Run `git rev-parse --abbrev-ref HEAD` to get the current branch. If it is `devel
 
 Run `git status` and `git log @{u}..HEAD --oneline` to see what isn't on the remote yet.
 
-- If the remote tracking branch doesn't exist yet (`@{u}` errors), the branch has no upstream — note it; Step 3 will push with `-u`.
+- If the remote tracking branch doesn't exist yet (`@{u}` errors), the branch has no upstream — note it; Step 4 will push with `-u`.
 - Otherwise note any unpushed commits.
 
-Do not push yet — the pre-push check runs first. Proceed to Step 2.
+Do not push yet — the test lanes and pre-push check run first. Proceed to Step 2.
 
-**Step 2 — Pre-push check**
+**Step 2 — Run all test lanes**
+
+Before pushing, run the full unit and e2e suites and gate on them:
+- Unit lane: `npm test`
+- E2E lane: `npm run test:e2e`
+
+Both must pass. If either fails, **stop** — do not push or create the PR. Report the failing lane and its output, and wait for the failures to be fixed. Only when both are green, proceed to Step 3.
+
+**Step 3 — Pre-push check**
 Read and follow all steps in `.claude/commands/push-check.md`, passing `develop` as the base branch (so the scan covers the full PR delta, not just unpushed commits). Then:
 - If verdict is 🚫 **Do not push** — stop here, do not push or create the PR. List the blocking issues and wait for them to be fixed.
 - If verdict is ⚠️ **Push with caution** — list the issues, then ask the user to confirm before continuing.
-- If verdict is ✅ **Ready to push** — proceed to Step 3.
+- If verdict is ✅ **Ready to push** — proceed to Step 4.
 
-**Step 3 — Push the current branch**
+**Step 4 — Push the current branch**
 
 Re-confirm the current branch is not `develop` or `main` (Step 0 already guarded this), then push the **current feature branch only**:
 - No upstream yet → `git push -u origin <branch>`
@@ -34,11 +42,11 @@ Re-confirm the current branch is not `develop` or `main` (Step 0 already guarded
 
 Never push `develop` or `main`. If the push fails (e.g. non-fast-forward), stop and report it — do not force-push.
 
-**Step 4 — Check for an existing PR**
+**Step 5 — Check for an existing PR**
 
 Run `gh pr list --head <branch> --base develop --json url --jq '.[0].url'`. If it returns a URL, a PR already exists for this branch — the push above already updated it, so return that URL and stop. Do not try to create a duplicate.
 
-**Step 5 — Create the PR**
+**Step 6 — Create the PR**
 
 Make sure the diff is based on the latest `develop`, not a stale local copy:
 

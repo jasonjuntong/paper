@@ -58,3 +58,8 @@ There is no `firebase.json` yet; one must be added with an `emulators` block (Au
 - `tests/integration/` (new — emulator integration specs)
 - `e2e/` (new — Playwright specs)
 - `docs/tickets/README.md` / project docs (emulator + JDK setup notes)
+
+## Test commands
+- **Unit:** `npm test` — the whole pure/component lane (this ticket *is* the harness).
+- **E2E:** `npm run test:e2e` — Playwright over the offline `demo-paper` emulator.
+- **Rules:** `npm run test:rules`  ·  **Integration:** `npm run test:integration`

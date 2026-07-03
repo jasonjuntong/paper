@@ -21,3 +21,7 @@ The invited user receives an in-app notification and accepts (joins immediately,
 ## Affected files
 - `src/app/api/orgs/[orgId]/invites/[inviteId]/route.ts` (new)
 - ORG-023 notifications
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

@@ -20,3 +20,7 @@ The owner can unshare a paper from an org; the same logic runs automatically on 
 ## Affected files
 - `src/app/api/papers/unshare/route.ts` (new) / shared helper
 - ORG-024, PAPER-015; reused by ORG-008/009, PAPER-016
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

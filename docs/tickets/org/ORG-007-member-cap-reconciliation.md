@@ -21,3 +21,7 @@ Flat cap of 1000 per org. The effective count is **members + pending invites + p
 ## Affected files
 - `src/app/api/orgs/[orgId]/join/route.ts`
 - invite route (ORG-016), join-request route (ORG-015)
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

@@ -25,3 +25,7 @@ Any authenticated user can create an org; the creator becomes Admin. Required: `
 ## Test coverage
 - **Unit — needed.** The visibility↔join-policy invariant (public → open|request, private → invite-only) is pure and should be unit-tested across valid/invalid combos.
 - **e2e — needed.** Create an org → creator becomes Admin; `name` required / `description` optional; defaults pre-selected (public + request) but changeable.
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.

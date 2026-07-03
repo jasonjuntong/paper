@@ -21,3 +21,7 @@ The Discover surface recommends papers the user doesn't have, drawn from papers 
 ## Affected files
 - `src/app/(app)/discover/page.tsx` (replace placeholder)
 - discovery API/query helper
+
+## Test commands
+- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
+- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.
