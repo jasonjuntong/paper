@@ -36,8 +36,9 @@ async function seedOrgMembership(
   name: string,
   uid: string,
   sharedPaperId?: string,
+  visibility: 'public' | 'private' = 'private',
 ): Promise<void> {
-  await adminFirestore.collection('orgs').doc(orgId).set({ name })
+  await adminFirestore.collection('orgs').doc(orgId).set({ name, visibility })
   await adminFirestore.collection('orgs').doc(orgId).collection('members').doc(uid).set({ userId: uid })
   if (sharedPaperId) {
     await adminFirestore
@@ -47,6 +48,26 @@ async function seedOrgMembership(
       .doc(sharedPaperId)
       .set({ paperId: sharedPaperId })
   }
+}
+
+/**
+ * Seed a `visibility` org named `name` (no `uid` membership) that shares
+ * `paperId`, and record it on the global paper's `publicOrgIds` — the
+ * denormalized flag `checkVisibility` reads to derive the list-only tier.
+ */
+async function seedPublicOrgShare(
+  orgId: string,
+  name: string,
+  paperId: string,
+): Promise<void> {
+  await adminFirestore.collection('orgs').doc(orgId).set({ name, visibility: 'public' })
+  await adminFirestore
+    .collection('orgs')
+    .doc(orgId)
+    .collection('sharedPapers')
+    .doc(paperId)
+    .set({ paperId })
+  await adminFirestore.collection('papers').doc(paperId).set({ publicOrgIds: [orgId] })
 }
 
 beforeEach(reset)
@@ -100,6 +121,43 @@ describe('checkVisibility', () => {
     const vis = await checkVisibility(UID, PAPER_ID)
 
     expect(vis).toEqual({ visibility: 'none' })
+  })
+
+  // PAPER-010: the list-only tier — a public org the user hasn't joined.
+  it('returns list for a paper shared to a public org the user has not joined', async () => {
+    await seedPublicOrgShare('org-pub', 'Open Lab', PAPER_ID)
+
+    const vis = await checkVisibility(UID, PAPER_ID)
+
+    expect(vis).toEqual({ visibility: 'list', orgs: [{ id: 'org-pub', name: 'Open Lab' }] })
+  })
+
+  it('returns in-org (full), not list, when the user is a member of the public org', async () => {
+    // Member of the public org + publicOrgIds set → full access wins over list.
+    await seedOrgMembership('org-pub', 'Open Lab', UID, PAPER_ID, 'public')
+    await adminFirestore.collection('papers').doc(PAPER_ID).set({ publicOrgIds: ['org-pub'] })
+
+    const vis = await checkVisibility(UID, PAPER_ID)
+
+    expect(vis).toEqual({ visibility: 'in-org', orgs: [{ id: 'org-pub', name: 'Open Lab' }] })
+  })
+
+  it('returns none for a private org the user is not in (no list leak)', async () => {
+    // Private-org share, no publicOrgIds → invisible to a non-member.
+    await seedOrgMembership('org-priv', 'Secret Lab', 'someone-else', PAPER_ID, 'private')
+
+    const vis = await checkVisibility(UID, PAPER_ID)
+
+    expect(vis).toEqual({ visibility: 'none' })
+  })
+
+  it('prefers in-library over a public-org list match', async () => {
+    const entryId = await seedLibraryEntry(UID, PAPER_ID)
+    await seedPublicOrgShare('org-pub', 'Open Lab', PAPER_ID)
+
+    const vis = await checkVisibility(UID, PAPER_ID)
+
+    expect(vis).toEqual({ visibility: 'in-library', entryId })
   })
 })
 

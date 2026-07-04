@@ -30,12 +30,10 @@ export async function checkVisibility(
     .where('userId', '==', uid)
     .get()
 
-  if (memberSnaps.empty) return decideVisibility(null, [])
-
-  const orgIds = memberSnaps.docs.map((d) => d.ref.path.split('/')[1])
+  const memberOrgIds = memberSnaps.docs.map((d) => d.ref.path.split('/')[1])
 
   const orgChecks = await Promise.all(
-    orgIds.map(async (orgId) => {
+    memberOrgIds.map(async (orgId) => {
       const sharedDoc = await adminFirestore
         .collection('orgs')
         .doc(orgId)
@@ -48,8 +46,29 @@ export async function checkVisibility(
     })
   )
 
-  const matchingOrgs = orgChecks.filter((o): o is OrgRef => o !== null)
-  return decideVisibility(null, matchingOrgs)
+  const matchingMemberOrgs = orgChecks.filter((o): o is OrgRef => o !== null)
+
+  // Full access via a member org wins — no need to inspect the public-org pool.
+  if (matchingMemberOrgs.length > 0) return decideVisibility(null, matchingMemberOrgs)
+
+  // List-only tier: the paper is shared to a public org the user hasn't joined.
+  // Read the denormalized `publicOrgIds` off the global paper (maintained by
+  // PAPER-015; absent/empty until then, so this simply never fires yet). A stale
+  // set only ever widens *list* access, never content — full access was already
+  // decided above.
+  const paperDoc = await adminFirestore.collection('papers').doc(existingPaperId).get()
+  const publicOrgIds = ((paperDoc.data()?.publicOrgIds as string[]) ?? []).filter(
+    (orgId) => !memberOrgIds.includes(orgId)
+  )
+
+  const publicOrgs = await Promise.all(
+    publicOrgIds.map(async (orgId) => {
+      const orgDoc = await adminFirestore.collection('orgs').doc(orgId).get()
+      return { id: orgId, name: (orgDoc.data()?.name as string) ?? orgId } as OrgRef
+    })
+  )
+
+  return decideVisibility(null, matchingMemberOrgs, publicOrgs)
 }
 
 export async function ensureLibraryEntry(

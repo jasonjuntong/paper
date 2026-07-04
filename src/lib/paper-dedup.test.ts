@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest'
 // Import the pure core directly — not `@/lib/paper-dedup`, which would boot the
 // Firebase Admin SDK (needs a service account) just to reach these functions.
-import { classifyDedupDistance, decideVisibility } from '@/lib/paper-dedup-core'
+import {
+  accessTier,
+  classifyDedupDistance,
+  decideVisibility,
+  isDedupVisible,
+} from '@/lib/paper-dedup-core'
 import type { OrgRef } from '@/types/paper'
 
 // PAPER-003 Layer-1 dedup: the pure visibility decision that shapes the `init`
@@ -41,6 +46,62 @@ describe('decideVisibility', () => {
 
   it('returns none when the paper is neither owned nor shared to a member org', () => {
     expect(decideVisibility(null, [])).toEqual({ visibility: 'none' })
+  })
+
+  // PAPER-010 list-only tier: a public org the user hasn't joined grants
+  // metadata-only access, ranked below full access (library + member org).
+  it('returns list with the public orgs when only public-org shared', () => {
+    const orgs = [org('o3', 'Open Lab')]
+    expect(decideVisibility(null, [], orgs)).toEqual({ visibility: 'list', orgs })
+  })
+
+  it('prefers in-org (full) over list when both a member and a public org match', () => {
+    const member = [org('o1', 'Acme')]
+    expect(decideVisibility(null, member, [org('o3', 'Open Lab')])).toEqual({
+      visibility: 'in-org',
+      orgs: member,
+    })
+  })
+
+  it('prefers in-library over a public-org list match', () => {
+    expect(decideVisibility('entry-1', [], [org('o3', 'Open Lab')])).toEqual({
+      visibility: 'in-library',
+      entryId: 'entry-1',
+    })
+  })
+})
+
+// PAPER-010: the access tier a visibility grants. Own library + member orgs are
+// full content; a public org the user hasn't joined is list-only; else none.
+describe('accessTier', () => {
+  it('maps in-library to full', () => {
+    expect(accessTier({ visibility: 'in-library', entryId: 'e1' })).toBe('full')
+  })
+
+  it('maps in-org to full', () => {
+    expect(accessTier({ visibility: 'in-org', orgs: [org('o1', 'Acme')] })).toBe('full')
+  })
+
+  it('maps list to list', () => {
+    expect(accessTier({ visibility: 'list', orgs: [org('o3', 'Open Lab')] })).toBe('list')
+  })
+
+  it('maps none to none', () => {
+    expect(accessTier({ visibility: 'none' })).toBe('none')
+  })
+})
+
+// PAPER-010: dedup "visible" gates whether a duplicate prompt may surface a
+// candidate's title — only library + member-org papers, never list-only/none.
+describe('isDedupVisible', () => {
+  it('is true for in-library and in-org', () => {
+    expect(isDedupVisible({ visibility: 'in-library', entryId: 'e1' })).toBe(true)
+    expect(isDedupVisible({ visibility: 'in-org', orgs: [org('o1', 'Acme')] })).toBe(true)
+  })
+
+  it('is false for list and none (would leak a non-visible title)', () => {
+    expect(isDedupVisible({ visibility: 'list', orgs: [org('o3', 'Open Lab')] })).toBe(false)
+    expect(isDedupVisible({ visibility: 'none' })).toBe(false)
   })
 })
 

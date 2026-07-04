@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { Readable } from 'node:stream'
 import { getSession } from '@/lib/session'
 import { adminFirestore, adminStorage } from '@/lib/firebase/admin'
-import { checkVisibility } from '@/lib/paper-dedup'
+import { accessTier, checkVisibility } from '@/lib/paper-dedup'
 
 // firebase-admin + Node streams require the Node.js runtime.
 export const runtime = 'nodejs'
@@ -17,9 +17,10 @@ export async function GET(
   const { paperId } = await params
 
   try {
-  // Access gate — only serve papers the user can actually see.
+  // Access gate — the PDF is *full*-access content, so list-only (public org the
+  // user hasn't joined) is denied just like no access at all.
   const vis = await checkVisibility(session.uid, paperId)
-  if (vis.visibility === 'none') {
+  if (accessTier(vis) !== 'full') {
     return new Response('Forbidden', { status: 403 })
   }
 
