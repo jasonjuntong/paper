@@ -46,6 +46,13 @@ Every user has a unique, permanent, never-recycled `@handle`. Firestore has no n
 - **e2e — not required.** The mechanism has no standalone UI; its only user-facing surface is registration (USER-001), which is already e2e-tested. A dedicated e2e would duplicate that flow.
 
 ## Test commands
-- **Unit:** `npx vitest run src/lib/handles.test.ts`
+- **Unit:**
+  - Lane: `npm test`
+  - Single file: `npx vitest run src/lib/handles.test.ts`
 - **E2E:** N/A — no standalone UI; handle reservation is exercised through registration.
-- **Integration:** `npm run test:integration` (`tests/integration/registration.test.ts`)  ·  **Rules:** `npm run test:rules` (`tests/rules/firestore-rules.test.ts`)
+- **Integration:** `tests/integration/registration.test.ts`
+  - Lane: `npm run test:integration`
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx vitest run --config vitest.integration.config.ts tests/integration/registration.test.ts'`
+- **Rules:** `tests/rules/firestore-rules.test.ts`
+  - Lane: `npm run test:rules`
+  - Single file: `firebase emulators:exec --project demo-paper --only firestore 'npx vitest run --config vitest.rules.config.ts tests/rules/firestore-rules.test.ts'`

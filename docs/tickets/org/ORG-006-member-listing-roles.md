@@ -24,5 +24,9 @@ Each org has exactly one Admin and any number of Members. The org detail page li
 - **e2e — optional.** A browser pass would only re-verify rendering the component test already covers; nice-to-have, not required.
 
 ## Test commands
-- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
-- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.
+- **Unit:** _No unit test yet._
+  - Lane: `npm test`
+  - Single file: `npx vitest run <path>` (add `src/…/<name>.test.{ts,tsx}`)
+- **E2E:** _No e2e spec yet._
+  - Lane: `npm run test:e2e`
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test <name>'` (add `e2e/<name>.spec.ts`)

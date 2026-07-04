@@ -24,5 +24,9 @@ Track when a user last opened a paper to power a "Continue reading" surface.
 - **Component (unit) — done.** `src/components/continue-reading.test.tsx`: empty-state branch, `href` points to the `paperId` route (row keyed by `entryId`), and keyword normalization (lowercased, hyphenated pills). Ordering is the query's job, so it's exercised in e2e, not here.
 
 ## Test commands
-- **Unit:** `npm test` (single file: `npx vitest run src/components/continue-reading.test.tsx`).
-- **E2E:** `npm run test:e2e` (single file: append `read-tracking` to the Playwright invocation).
+- **Unit:**
+  - Lane: `npm test`
+  - Single file: `npx vitest run src/components/continue-reading.test.tsx`
+- **E2E:**
+  - Lane: `npm run test:e2e`
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test read-tracking'`

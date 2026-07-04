@@ -26,5 +26,7 @@ A 768-dim embedding is generated from the paper's `extractedMetadata.title + syn
 - **e2e — not required.** `gemini-embedding-2` is an external, non-emulated service, so a browser e2e can't exercise it hermetically; its user-visible effect is gated behind commit (covered by PAPER-006). The provider call belongs in a stubbed unit/integration test, not e2e.
 
 ## Test commands
-- **Unit:** `npx vitest run src/lib/gemini.test.ts`
+- **Unit:**
+  - Lane: `npm test`
+  - Single file: `npx vitest run src/lib/gemini.test.ts`
 - **E2E:** N/A — embedding generation calls an external provider (not emulated).

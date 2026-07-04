@@ -22,5 +22,9 @@ Every org doc carries an atomic `paperCount` — the number of distinct papers s
 - share (ORG-021), unshare (ORG-022), delete (PAPER-016) write paths
 
 ## Test commands
-- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
-- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.
+- **Unit:** _No unit test yet._
+  - Lane: `npm test`
+  - Single file: `npx vitest run <path>` (add `src/…/<name>.test.{ts,tsx}`)
+- **E2E:** _No e2e spec yet._
+  - Lane: `npm run test:e2e`
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test <name>'` (add `e2e/<name>.spec.ts`)

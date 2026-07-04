@@ -27,4 +27,6 @@ The permissions table and data model require Firestore security rules and compos
 ## Test commands
 - **Unit:** N/A — security rules are validated by the rules lane, not a pure unit test.
 - **E2E:** N/A — rule enforcement is asserted directly against the emulator.
-- **Rules:** `npm run test:rules` (`tests/rules/firestore-rules.test.ts`)
+- **Rules:** `tests/rules/firestore-rules.test.ts`
+  - Lane: `npm run test:rules`
+  - Single file: `firebase emulators:exec --project demo-paper --only firestore 'npx vitest run --config vitest.rules.config.ts tests/rules/firestore-rules.test.ts'`

@@ -39,5 +39,7 @@ At commit, an embedding of the extracted `title + synopsis + keywords` is compar
 - **e2e / integration — N/A (documented):** the borderline branch needs live Gemini embeddings + Firestore Vector Search `findNearest`, neither of which the offline emulator/Playwright lanes support (same rationale as PAPER-003 / PAPER-005). The decision logic is fully covered by the unit + component lanes above.
 
 ## Test commands
-- **Unit:** `npx vitest run src/lib/paper-dedup.test.ts src/components/add-paper-dialog.test.tsx`
+- **Unit:**
+  - Lane: `npm test`
+  - Single file: `npx vitest run src/lib/paper-dedup.test.ts src/components/add-paper-dialog.test.tsx`
 - **E2E:** N/A — borderline needs live Gemini embeddings + Firestore Vector Search, neither emulated.

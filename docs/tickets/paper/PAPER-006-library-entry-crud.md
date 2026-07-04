@@ -32,5 +32,9 @@ The library entry (`/users/{uid}/library/{entryId}`) holds the user's confirmed 
 - **e2e — done.** `e2e/library-crud.spec.ts` seeds entries directly into the emulator (commit can't run offline — it needs Gemini embeddings + Cloud Storage) via `seedLibraryEntry`/`getUidByEmail` helpers, then drives browse (filters + view toggle) → detail → edit → delete, with the detail/list views reading straight from the library entry.
 
 ## Test commands
-- **Unit:** `npm test` (single file: `npx vitest run "src/app/(app)/library/_components/library-client.test.tsx"`).
-- **E2E:** `npm run test:e2e` (single spec: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test library-crud'`).
+- **Unit:**
+  - Lane: `npm test`
+  - Single file: `npx vitest run "src/app/(app)/library/_components/library-client.test.tsx"`
+- **E2E:**
+  - Lane: `npm run test:e2e`
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test library-crud'`

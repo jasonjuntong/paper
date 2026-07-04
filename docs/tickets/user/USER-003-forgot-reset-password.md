@@ -35,5 +35,9 @@ Swapped the client-SDK `sendPasswordResetEmail` (which used Firebase-hosted page
 - Verified: `tsc --noEmit` + `eslint` clean on all new/edited files. Manual emulator e2e pending as with other auth tickets; a Playwright reset-password spec is a noted follow-up (INFRA-001 lanes).
 
 ## Test commands
-- **Unit:** `npx vitest run src/lib/password.test.ts`
-- **E2E:** `firebase emulators:exec --project demo-paper --only auth,firestore 'playwright test e2e/auth.spec.ts'`
+- **Unit:**
+  - Lane: `npm test`
+  - Single file: `npx vitest run src/lib/password.test.ts`
+- **E2E:**
+  - Lane: `npm run test:e2e`
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test e2e/auth.spec.ts'`

@@ -29,5 +29,9 @@ Email + password login only. Establishes an httpOnly session cookie verified ser
 - **e2e** ✓ — `e2e/auth.spec.ts` covers valid sign-in reaching the app, the unverified-account block, and session-gated access.
 
 ## Test commands
-- **Unit:** `npx vitest run src/components/auth/login-form.test.tsx`
-- **E2E:** `firebase emulators:exec --project demo-paper --only auth,firestore 'playwright test e2e/auth.spec.ts'`
+- **Unit:**
+  - Lane: `npm test`
+  - Single file: `npx vitest run src/components/auth/login-form.test.tsx`
+- **E2E:**
+  - Lane: `npm run test:e2e`
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test e2e/auth.spec.ts'`

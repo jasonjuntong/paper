@@ -27,4 +27,6 @@ Neither registration nor forgot-password may reveal whether an email is already 
 
 ## Test commands
 - **Unit:** N/A — enumeration protection has no isolated pure/component surface; it's asserted end-to-end.
-- **E2E:** `firebase emulators:exec --project demo-paper --only auth,firestore 'playwright test e2e/auth.spec.ts'` (both enumeration surfaces)
+- **E2E:** both enumeration surfaces
+  - Lane: `npm run test:e2e`
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test e2e/auth.spec.ts'`

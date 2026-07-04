@@ -23,5 +23,9 @@ Only the Admin can delete an org. It's intentional and permanent (no restore). O
 - `org-manage.tsx` (wire the stubbed button), ORG-013, ORG-022, ORG-023
 
 ## Test commands
-- **Unit:** _No unit test yet_ — run the lane with `npm test`; add `src/…/<name>.test.{ts,tsx}` (single file: `npx vitest run <path>`).
-- **E2E:** _No e2e spec yet_ — run the lane with `npm run test:e2e`; add `e2e/<name>.spec.ts`.
+- **Unit:** _No unit test yet._
+  - Lane: `npm test`
+  - Single file: `npx vitest run <path>` (add `src/…/<name>.test.{ts,tsx}`)
+- **E2E:** _No e2e spec yet._
+  - Lane: `npm run test:e2e`
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test <name>'` (add `e2e/<name>.spec.ts`)
