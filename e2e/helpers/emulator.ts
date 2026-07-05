@@ -118,3 +118,52 @@ export async function seedLibraryEntry(uid: string, entry: SeedEntry): Promise<v
     throw new Error(`seedLibraryEntry failed: ${res.status} ${await res.text()}`)
   }
 }
+
+export interface SeedOrgEntry {
+  orgId: string
+  name: string
+  /** default 'public' */
+  visibility?: 'public' | 'private'
+  /** default 'open' */
+  joinPolicy?: 'open' | 'request' | 'invite'
+  /** default 1 */
+  memberCount?: number
+  /** default 0 */
+  inviteCount?: number
+  /** default 0 */
+  requestCount?: number
+  description?: string
+}
+
+/**
+ * Seed an org doc straight into the Firestore emulator, bypassing the create-org
+ * route. Mirrors the shape that route writes and what the org page reads back.
+ * The non-member org page only reads the org doc + the viewer's own member doc,
+ * so no member subdoc is needed — the cap gate is driven by the count fields
+ * (members + invites + requests). The owner token bypasses security rules.
+ */
+export async function seedOrg(entry: SeedOrgEntry): Promise<void> {
+  const fields: Record<string, unknown> = {
+    name: { stringValue: entry.name },
+    mark: { stringValue: entry.name.slice(0, 2).toUpperCase() },
+    description: { stringValue: entry.description ?? '' },
+    visibility: { stringValue: entry.visibility ?? 'public' },
+    joinPolicy: { stringValue: entry.joinPolicy ?? 'open' },
+    memberCount: { integerValue: String(entry.memberCount ?? 1) },
+    inviteCount: { integerValue: String(entry.inviteCount ?? 0) },
+    requestCount: { integerValue: String(entry.requestCount ?? 0) },
+    createdAt: { timestampValue: '2024-01-01T00:00:00Z' },
+  }
+
+  const res = await fetch(
+    `${FIRESTORE_HOST}/v1/projects/${PROJECT_ID}/databases/(default)/documents/orgs?documentId=${entry.orgId}`,
+    {
+      method: 'POST',
+      headers: { ...OWNER, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields }),
+    },
+  )
+  if (!res.ok) {
+    throw new Error(`seedOrg failed: ${res.status} ${await res.text()}`)
+  }
+}
