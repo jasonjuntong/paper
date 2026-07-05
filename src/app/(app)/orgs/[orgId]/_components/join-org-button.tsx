@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface JoinOrgButtonProps {
@@ -73,7 +74,8 @@ export function JoinOrgButton({
 
   return (
     <div className="flex flex-col items-end gap-1">
-      <Button onClick={handleClick} disabled={submitting}>
+      <Button onClick={handleClick} disabled={submitting} aria-busy={submitting}>
+        {submitting && <Loader2 data-icon="inline-start" className="animate-spin" />}
         {submitting
           ? policy === 'open'
             ? 'Joining…'
