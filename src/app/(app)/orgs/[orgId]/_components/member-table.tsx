@@ -87,21 +87,19 @@ export function MemberTable({
 
   return (
     <div className="flex flex-col gap-3">
-      <Card className="gap-0 overflow-hidden py-0">
-        <div className="border-b p-2">
-          <InputGroup>
-            <InputGroupAddon>
-              <Search />
-            </InputGroupAddon>
-            <InputGroupInput
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search members…"
-            />
-          </InputGroup>
-        </div>
+      <InputGroup className="bg-card dark:bg-card sm:max-w-2/5">
+        <InputGroupAddon>
+          <Search />
+        </InputGroupAddon>
+        <InputGroupInput
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search members…"
+        />
+      </InputGroup>
 
+      <Card className="gap-0 overflow-hidden py-0">
         <Table>
           <TableHeader>
             <TableRow>
