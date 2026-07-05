@@ -32,6 +32,10 @@ At `init`, the file hash is checked against `/papers`. On a hit, the server resp
 - **e2e — N/A (documented).** The full add→re-upload loop can't be driven through the UI offline: the `commit` route needs a real Gemini embedding (the e2e uses a dummy `GEMINI_API_KEY`, so it 500s) and Cloud Storage (not booted in the `auth,firestore` emulator set). The hash→visibility→response wiring is covered by the pure unit + the emulator-backed integration lane instead.
 
 ## Test commands
-- **Unit:** `npx vitest run src/lib/paper-dedup.test.ts` (`decideVisibility`)
+- **Unit:** `decideVisibility`
+  - Lane: `npm test`
+  - Single file: `npx vitest run src/lib/paper-dedup.test.ts`
 - **E2E:** N/A — offline commit can't embed/store; covered by the integration lane instead.
-- **Integration:** `npm run test:integration` (`tests/integration/paper-dedup.test.ts`)
+- **Integration:** `tests/integration/paper-dedup.test.ts`
+  - Lane: `npm run test:integration`
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx vitest run --config vitest.integration.config.ts tests/integration/paper-dedup.test.ts'`

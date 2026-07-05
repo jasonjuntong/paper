@@ -65,3 +65,31 @@ persists in it. The write itself is correct; only the cached claim is old.
 session claims, or (b) re-mint the session cookie after a profile update. Deferred
 because it's a cosmetic staleness that self-heals on next login, and USER-005's
 scope is the settings surface, not the session-refresh mechanism.
+
+---
+
+## N-003 — Paper list-only tier depends on `publicOrgIds`, which nothing populates yet
+
+**Status:** Intentional · dormant-but-correct until PAPER-015 lands
+
+**Nuance.** `checkVisibility` (`src/lib/paper-dedup.ts`) now derives the **list-only**
+access tier — a public org the user hasn't joined — from the denormalized
+`publicOrgIds: string[]` field on the global paper `/papers/{paperId}`. But **no
+code writes that field today**: `commit/route.ts` creates the global paper without
+it, and the share/unshare/visibility-toggle maintenance lives in unbuilt tickets
+(PAPER-015, ORG-021, ORG-003). So in production `publicOrgIds` reads as empty and
+the `list` tier **never fires** — `checkVisibility` yields exactly the pre-existing
+`in-library` / `in-org` / `none` results.
+
+**Why it's this way.** PAPER-010's job is the access *primitive*; PAPER-015 owns
+populating `publicOrgIds`. Consuming the flag now (defaulted to `[]`) is
+forward-compatible: the tier lights up automatically once the flag is maintained
+and the public-org sharing UI (Phase 3) exists — no change to `checkVisibility`.
+The behavior is fully implemented and proven by seeding `publicOrgIds` directly in
+the integration lane (`tests/integration/paper-dedup.test.ts`); it's only *dormant*,
+not missing. This also keeps PAPER-010 free of a hard dependency on PAPER-015.
+
+**Revisit when.** PAPER-015 lands `publicOrgIds` maintenance — verify the list tier
+then surfaces end-to-end (search PAPER-011, discovery PAPER-014, the "Join to read"
+CTA), and that the PDF proxy (`accessTier(vis) !== 'full'` → 403) still denies
+list-only papers once they actually appear.

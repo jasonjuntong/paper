@@ -33,5 +33,9 @@ Groq (`llama-3.3-70b-versatile`, JSON mode) extracts 5 required fields (title, a
 - **Discrepancy dialog is unit-only, by design.** It requires a *non-empty* extracted value to diverge from, which can't be produced hermetically once the AI keys are stubbed offline; the component test owns that path end-to-end.
 
 ## Test commands
-- **Unit:** `npx vitest run src/lib/groq.test.ts src/components/add-paper-dialog.test.tsx`
-- **E2E:** `firebase emulators:exec --project demo-paper --only auth,firestore 'playwright test e2e/paper-details-review.spec.ts'`
+- **Unit:**
+  - Lane: `npm test`
+  - Single file: `npx vitest run src/lib/groq.test.ts src/components/add-paper-dialog.test.tsx`
+- **E2E:**
+  - Lane: `npm run test:e2e`
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test e2e/paper-details-review.spec.ts'`

@@ -9,6 +9,7 @@ import {
   checkVisibility,
   classifyDedupDistance,
   ensureLibraryEntry,
+  isDedupVisible,
 } from '@/lib/paper-dedup'
 import type { CommitResponse, ExistingPaperInfo } from '@/types/paper'
 
@@ -158,8 +159,9 @@ export async function POST(req: NextRequest) {
 
     // Borderline (0.85–0.92): ask the user only when they can already see the
     // candidate — otherwise surfacing its title would leak a private/other-org
-    // paper, so fall through and treat this upload as new.
-    if (tier === 'borderline' && vis.visibility !== 'none') {
+    // paper, so fall through and treat this upload as new. A public-org paper the
+    // user hasn't joined (list-only) is *not* dedup-visible, so it never prompts.
+    if (tier === 'borderline' && isDedupVisible(vis)) {
       return NextResponse.json<CommitResponse>({
         status: 'borderline',
         paper,

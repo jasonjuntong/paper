@@ -42,5 +42,9 @@ Users need a settings surface to view their profile and manage their account. Pr
 - **E2E** (`npm run test:e2e`, or `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test e2e/settings.spec.ts'`): nav dropdown → `/settings`, read-only handle/email + disabled delete, name edit persists across reload, notification toggle persists, and password change (wrong current rejected → correct one works for the next sign-in).
 
 ## Test commands
-- **Unit:** `npx vitest run src/lib/account.test.ts`
-- **E2E:** `firebase emulators:exec --project demo-paper --only auth,firestore 'playwright test e2e/settings.spec.ts'`
+- **Unit:**
+  - Lane: `npm test`
+  - Single file: `npx vitest run src/lib/account.test.ts`
+- **E2E:**
+  - Lane: `npm run test:e2e`
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test e2e/settings.spec.ts'`

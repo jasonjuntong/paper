@@ -60,6 +60,15 @@ There is no `firebase.json` yet; one must be added with an `emulators` block (Au
 - `docs/tickets/README.md` / project docs (emulator + JDK setup notes)
 
 ## Test commands
-- **Unit:** `npm test` — the whole pure/component lane (this ticket *is* the harness).
-- **E2E:** `npm run test:e2e` — Playwright over the offline `demo-paper` emulator.
-- **Rules:** `npm run test:rules`  ·  **Integration:** `npm run test:integration`
+- **Unit:** the whole pure/component lane (this ticket *is* the harness)
+  - Lane: `npm test`
+  - Single file: `npx vitest run <path>`
+- **E2E:** Playwright over the offline `demo-paper` emulator
+  - Lane: `npm run test:e2e`
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test <name>'`
+- **Integration:**
+  - Lane: `npm run test:integration`
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx vitest run --config vitest.integration.config.ts <path>'`
+- **Rules:**
+  - Lane: `npm run test:rules`
+  - Single file: `firebase emulators:exec --project demo-paper --only firestore 'npx vitest run --config vitest.rules.config.ts <path>'`
