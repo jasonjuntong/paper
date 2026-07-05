@@ -1,7 +1,7 @@
 # ORG-001 — Org creation + invariant
 
 **Domain:** org  
-**Status:** Partial — needs unit + e2e  
+**Status:** Done  
 **Spec:** docs/specs/org/org-overview.md#creation  
 **Depends on:** —
 
@@ -23,13 +23,15 @@ Any authenticated user can create an org; the creator becomes Admin. Required: `
 - creation form component
 
 ## Test coverage
-- **Unit — needed.** The visibility↔join-policy invariant (public → open|request, private → invite-only) is pure and should be unit-tested across valid/invalid combos.
-- **e2e — needed.** Create an org → creator becomes Admin; `name` required / `description` optional; defaults pre-selected (public + request) but changeable.
+- **Unit — done (two files).**
+  - `src/app/api/orgs/route.test.ts` — POST handler with mocked `getSession` + `adminFirestore`: 401 (no session), 400 (bad JSON, missing name, and each invalid invariant combo public+invite / private+open / private+request), 201 on each valid combo, creator-as-admin two-doc batch (org `adminId`/counters + member `role: 'admin'`), single commit, mark upper-cased, description defaults to `''`.
+  - `src/app/(app)/orgs/_components/create-org-dialog.test.tsx` — form logic: defaults pre-selected (public + by-request, invite-only disabled), invariant coupling (Private forces invite-only + disables public policies, and back), name-required gating (no fetch), submit payload (auto-derived upper-cased mark) → `router.push('/orgs/{id}')`, and error mapping on a failed request.
+- **e2e — done.** `e2e/org-creation.spec.ts` — register→verify→login, open the dialog, assert defaults, name-required gate (no nav), UI invariant (Private → invite-only), create a public org, land on `/orgs/{id}` as its Admin.
 
 ## Test commands
-- **Unit:** _No unit test yet._
+- **Unit:**
   - Lane: `npm test`
-  - Single file: `npx vitest run <path>` (add `src/…/<name>.test.{ts,tsx}`)
-- **E2E:** _No e2e spec yet._
+  - Single file: `npx vitest run src/app/api/orgs/route.test.ts` · `npx vitest run "src/app/(app)/orgs/_components/create-org-dialog.test.tsx"`
+- **E2E:**
   - Lane: `npm run test:e2e`
-  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test <name>'` (add `e2e/<name>.spec.ts`)
+  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test org-creation'`

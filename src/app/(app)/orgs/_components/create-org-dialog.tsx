@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -190,6 +191,9 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Create a new org</DialogTitle>
+          <DialogDescription>
+            Set up a research group. You&rsquo;ll be its first admin.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
