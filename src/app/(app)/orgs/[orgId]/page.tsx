@@ -329,6 +329,9 @@ export default async function OrgDetailPage({
             isAdmin ? (
               <OrgManage
                 orgId={orgId}
+                name={name}
+                mark={mark}
+                description={description}
                 visibility={visibility}
                 joinPolicy={joinPolicy}
                 inviteCount={inviteCount}

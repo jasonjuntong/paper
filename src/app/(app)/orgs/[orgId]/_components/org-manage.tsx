@@ -6,6 +6,7 @@ import { ArrowRight, Crown, Globe, Lock, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { EditOrgProfile } from './edit-org-profile'
 
 type Visibility = 'public' | 'private'
 type JoinPolicy = 'open' | 'request' | 'invite'
@@ -68,11 +69,17 @@ function OptionPill({
 
 export function OrgManage({
   orgId,
+  name,
+  mark,
+  description,
   visibility: initialVisibility,
   joinPolicy: initialJoinPolicy,
   inviteCount,
 }: {
   orgId: string
+  name: string
+  mark: string
+  description: string
   visibility: Visibility
   joinPolicy: JoinPolicy
   inviteCount: number
@@ -134,6 +141,14 @@ export function OrgManage({
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      {/* Profile — name, mark, description */}
+      <EditOrgProfile
+        orgId={orgId}
+        initialName={name}
+        initialMark={mark}
+        initialDescription={description}
+      />
+
       {/* Visibility */}
       <Card className="gap-4 px-5 py-5">
         <FieldLabel>Visibility</FieldLabel>
