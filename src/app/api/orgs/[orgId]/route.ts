@@ -8,14 +8,35 @@ export const runtime = 'nodejs'
 type Visibility = 'public' | 'private'
 type JoinPolicy = 'open' | 'request' | 'invite'
 
+// Profile field limits mirror the create route (src/app/api/orgs/route.ts).
+const NAME_MAX = 60
+const MARK_MAX = 2
+const DESCRIPTION_MAX = 280
+
 const PatchSchema = z
   .object({
     visibility: z.enum(['public', 'private']).optional(),
     joinPolicy: z.enum(['open', 'request', 'invite']).optional(),
+    name: z.string().trim().min(1, 'Name is required').max(NAME_MAX).optional(),
+    mark: z
+      .string()
+      .trim()
+      .min(1, 'Mark is required')
+      .max(MARK_MAX)
+      .transform((m) => m.toUpperCase())
+      .optional(),
+    // description may be cleared: an explicit '' is a valid update.
+    description: z.string().trim().max(DESCRIPTION_MAX).optional(),
   })
-  .refine((d) => d.visibility !== undefined || d.joinPolicy !== undefined, {
-    message: 'Nothing to update',
-  })
+  .refine(
+    (d) =>
+      d.visibility !== undefined ||
+      d.joinPolicy !== undefined ||
+      d.name !== undefined ||
+      d.mark !== undefined ||
+      d.description !== undefined,
+    { message: 'Nothing to update' }
+  )
 
 // A join policy is valid only for the matching visibility:
 // public → open | request, private → invite-only.
@@ -25,7 +46,7 @@ function isPolicyValid(vis: Visibility, policy: JoinPolicy): boolean {
     : policy === 'invite'
 }
 
-// Edit Org visibility / join policy. Admin only.
+// Edit Org profile (name / mark / description) and visibility / join policy. Admin only.
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ orgId: string }> }
@@ -84,12 +105,35 @@ export async function PATCH(
         nextPolicy = nextVis === 'public' ? 'request' : 'invite'
       }
 
-      if (nextVis !== curVis || nextPolicy !== curPolicy) {
-        tx.update(orgRef, { visibility: nextVis, joinPolicy: nextPolicy })
+      // Profile fields. `undefined` means "not in this request" (leave as-is);
+      // an explicit value (including '' for description) is a change.
+      const curName = (org.name ?? '') as string
+      const curMark = (org.mark ?? '') as string
+      const curDescription = (org.description ?? '') as string
+      const nextName = parsed.data.name ?? curName
+      const nextMark = parsed.data.mark ?? curMark
+      const nextDescription = parsed.data.description ?? curDescription
+
+      // Collect only the fields that actually changed, so an unchanged PATCH is a no-op.
+      const updates: Record<string, unknown> = {}
+      if (nextVis !== curVis) updates.visibility = nextVis
+      if (nextPolicy !== curPolicy) updates.joinPolicy = nextPolicy
+      if (nextName !== curName) updates.name = nextName
+      if (nextMark !== curMark) updates.mark = nextMark
+      if (nextDescription !== curDescription) updates.description = nextDescription
+
+      if (Object.keys(updates).length > 0) {
+        tx.update(orgRef, updates)
       }
       return {
         status: 200 as const,
-        body: { visibility: nextVis, joinPolicy: nextPolicy },
+        body: {
+          visibility: nextVis,
+          joinPolicy: nextPolicy,
+          name: nextName,
+          mark: nextMark,
+          description: nextDescription,
+        },
       }
     })
 
