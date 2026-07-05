@@ -92,6 +92,7 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 | [PAPER-014](paper/PAPER-014-paper-discovery.md) | Paper discovery (public-org pool, ranking) | Todo | PAPER-013, PAPER-015, ORG-021 | paper.md#8-paper-discovery |
 | [ORG-019](org/ORG-019-org-discovery-search-browse.md) | Org discovery: search + browse | Partial | ORG-021, ORG-024 | org-discovery.md#discovery-surfaces |
 | [ORG-020](org/ORG-020-org-suggested.md) | Org suggested/recommended (keyword overlap) | Todo | PAPER-013, ORG-021 | org-discovery.md#suggested--recommended-logic |
+| [ORG-026](org/ORG-026-member-table-sort-filter.md) | Member table sort + filter (nice-to-have) | Todo | ORG-006, ORG-021 | org-membership.md#roles-within-an-org |
 | [PAPER-012](paper/PAPER-012-ai-insights.md) | AI-generated insights (Gemini Pro, streaming) | Todo | PAPER-010 | paper.md#6-ai-generated-insights-on-demand |
 
 ## Phase 7 — Cleanup & cascade
@@ -104,4 +105,4 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 
 ---
 
-**Totals:** 7 USER · 18 PAPER · 25 ORG · 2 INFRA = **52 tickets**.
+**Totals:** 7 USER · 18 PAPER · 26 ORG · 2 INFRA = **53 tickets**.
