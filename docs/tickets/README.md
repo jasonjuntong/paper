@@ -31,7 +31,7 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 | [PAPER-009](paper/PAPER-009-pdf-serving-proxy.md) | PDF serving proxy (access-gated, Range, ETag) | Done | PAPER-010 | paper.md#4-pdf-reader |
 | [ORG-001](org/ORG-001-org-creation.md) | Org creation + invariant | Done | — | org-overview.md#creation |
 | [ORG-002](org/ORG-002-edit-name-description.md) | Edit org name/description | Done | ORG-001 | org-overview.md#org-profile |
-| [ORG-004](org/ORG-004-set-join-policy.md) | Set/change join policy | Partial | ORG-001 | org-joining-invites.md#joining-an-org |
+| [ORG-004](org/ORG-004-set-join-policy.md) | Set/change join policy | Done | ORG-001 | org-joining-invites.md#joining-an-org |
 | [ORG-006](org/ORG-006-member-listing-roles.md) | Member listing + role badges | Partial | ORG-001 | org-membership.md#roles-within-an-org |
 | [ORG-014](org/ORG-014-join-open-public-org.md) | Join open public org | Partial | ORG-001 | org-joining-invites.md#joining-an-org |
 | [ORG-025](org/ORG-025-security-rules-indexes.md) | Firestore security rules + indexes | Partial | — | org-papers-permissions.md#permissions-summary |

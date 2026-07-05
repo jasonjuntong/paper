@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSession } from '@/lib/session'
 import { adminFirestore } from '@/lib/firebase/admin'
+import {
+  defaultJoinPolicy,
+  isJoinPolicyValid,
+  type JoinPolicy,
+  type Visibility,
+} from '@/lib/orgs/join-policy'
 
 export const runtime = 'nodejs'
-
-type Visibility = 'public' | 'private'
-type JoinPolicy = 'open' | 'request' | 'invite'
 
 // Profile field limits mirror the create route (src/app/api/orgs/route.ts).
 const NAME_MAX = 60
@@ -37,14 +40,6 @@ const PatchSchema = z
       d.description !== undefined,
     { message: 'Nothing to update' }
   )
-
-// A join policy is valid only for the matching visibility:
-// public → open | request, private → invite-only.
-function isPolicyValid(vis: Visibility, policy: JoinPolicy): boolean {
-  return vis === 'public'
-    ? policy === 'open' || policy === 'request'
-    : policy === 'invite'
-}
 
 // Edit Org profile (name / mark / description) and visibility / join policy. Admin only.
 export async function PATCH(
@@ -86,12 +81,12 @@ export async function PATCH(
       // A visibility change carries the join policy with it (spec):
       // Private → Public defaults to `request`; Public → Private forces `invite`.
       if (parsed.data.visibility && parsed.data.visibility !== curVis) {
-        nextPolicy = parsed.data.visibility === 'public' ? 'request' : 'invite'
+        nextPolicy = defaultJoinPolicy(parsed.data.visibility)
       }
 
       // An explicit join-policy change must be valid for the resulting visibility.
       if (parsed.data.joinPolicy) {
-        if (!isPolicyValid(nextVis, parsed.data.joinPolicy)) {
+        if (!isJoinPolicyValid(nextVis, parsed.data.joinPolicy)) {
           return {
             status: 400 as const,
             error: 'That join policy is not valid for this visibility',
@@ -101,8 +96,8 @@ export async function PATCH(
       }
 
       // Defense in depth — never persist an invalid pairing.
-      if (!isPolicyValid(nextVis, nextPolicy)) {
-        nextPolicy = nextVis === 'public' ? 'request' : 'invite'
+      if (!isJoinPolicyValid(nextVis, nextPolicy)) {
+        nextPolicy = defaultJoinPolicy(nextVis)
       }
 
       // Profile fields. `undefined` means "not in this request" (leave as-is);
