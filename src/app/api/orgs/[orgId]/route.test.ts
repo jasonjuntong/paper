@@ -151,3 +151,41 @@ describe('PATCH /api/orgs/[orgId] — profile edit', () => {
     expect(txUpdate).not.toHaveBeenCalled()
   })
 })
+
+describe('PATCH /api/orgs/[orgId] — join policy invariant', () => {
+  // BASE_ORG is a public org on the `request` policy.
+  it('lets a public org switch to the open policy', async () => {
+    const res = await call({ joinPolicy: 'open' })
+    expect(res.status).toBe(200)
+    expect(updatePayload()).toEqual({ joinPolicy: 'open' })
+    expect(await res.json()).toMatchObject({ visibility: 'public', joinPolicy: 'open' })
+  })
+
+  it('rejects invite-only for a public org (invalid combo, no write)', async () => {
+    const res = await call({ joinPolicy: 'invite' })
+    expect(res.status).toBe(400)
+    expect(txUpdate).not.toHaveBeenCalled()
+  })
+
+  it('rejects an open policy for a private org', async () => {
+    orgDoc.data = { ...BASE_ORG, visibility: 'private', joinPolicy: 'invite' }
+    const res = await call({ joinPolicy: 'open' })
+    expect(res.status).toBe(400)
+    expect(txUpdate).not.toHaveBeenCalled()
+  })
+
+  it('forces invite-only when a public org goes private (policy carried)', async () => {
+    const res = await call({ visibility: 'private' })
+    expect(res.status).toBe(200)
+    expect(updatePayload()).toEqual({ visibility: 'private', joinPolicy: 'invite' })
+    expect(await res.json()).toMatchObject({ visibility: 'private', joinPolicy: 'invite' })
+  })
+
+  it('falls back to request when a private org goes public', async () => {
+    orgDoc.data = { ...BASE_ORG, visibility: 'private', joinPolicy: 'invite' }
+    const res = await call({ visibility: 'public' })
+    expect(res.status).toBe(200)
+    expect(updatePayload()).toEqual({ visibility: 'public', joinPolicy: 'request' })
+    expect(await res.json()).toMatchObject({ visibility: 'public', joinPolicy: 'request' })
+  })
+})

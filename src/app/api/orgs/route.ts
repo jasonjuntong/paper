@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSession } from '@/lib/session'
 import { adminFirestore } from '@/lib/firebase/admin'
+import { isJoinPolicyValid } from '@/lib/orgs/join-policy'
 
 const NAME_MAX = 60
 const MARK_MAX = 2
@@ -22,13 +23,10 @@ const CreateOrgSchema = z
   })
   // Enforce the visibility ↔ join-policy invariant server-side (defense in depth):
   // public Orgs are open/request; private Orgs are invite-only.
-  .refine(
-    (d) =>
-      d.visibility === 'public'
-        ? d.joinPolicy === 'open' || d.joinPolicy === 'request'
-        : d.joinPolicy === 'invite',
-    { message: 'join policy is not valid for the chosen visibility', path: ['joinPolicy'] }
-  )
+  .refine((d) => isJoinPolicyValid(d.visibility, d.joinPolicy), {
+    message: 'join policy is not valid for the chosen visibility',
+    path: ['joinPolicy'],
+  })
 
 export async function POST(req: NextRequest) {
   const session = await getSession()
