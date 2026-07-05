@@ -1,7 +1,7 @@
 # ORG-006 — Member listing + role badges
 
 **Domain:** org  
-**Status:** Partial — needs a component test for the member table (e2e optional)  
+**Status:** Done — `MemberTable` refactored onto shadcn primitives (Table/Avatar/Badge/InputGroup/Empty) preserving the mono/pill aesthetic; component test added.  
 **Spec:** docs/specs/org/org-membership.md#roles-within-an-org  
 **Depends on:** ORG-001
 
@@ -20,13 +20,8 @@ Each org has exactly one Admin and any number of Members. The org detail page li
 - `src/app/(app)/orgs/[orgId]/page.tsx`
 
 ## Test coverage
-- **Component (unit) — needed (primary lane).** `MemberTable` is pure render logic — the ideal component test: given a member list, assert role badges, join-time formatting, exactly-one-Admin, and pagination behavior. This is the main coverage this ticket needs.
-- **e2e — optional.** A browser pass would only re-verify rendering the component test already covers; nice-to-have, not required.
+- **Component (unit) — done (primary lane).** `src/app/(app)/orgs/[orgId]/_components/member-table.test.tsx` renders `MemberTable` (jsdom) and asserts the owned render logic: role→badge mapping with exactly one Admin, the "You" badge only on the viewer's row, join-timestamp formatting (ISO date vs em dash), case-insensitive name/handle search, the no-match `Empty` state, and the "+N more" cap hint (shown/hidden by query and total). No `next/navigation` mock — the component uses no router hooks.
+- **e2e — N/A (optional).** A browser pass would only re-verify rendering the component test already covers; the ticket marks it optional, so it is intentionally skipped.
 
 ## Test commands
-- **Unit:** _No unit test yet._
-  - Lane: `npm test`
-  - Single file: `npx vitest run <path>` (add `src/…/<name>.test.{ts,tsx}`)
-- **E2E:** _No e2e spec yet._
-  - Lane: `npm run test:e2e`
-  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test <name>'` (add `e2e/<name>.spec.ts`)
+- **Unit:** `npx vitest run "src/app/(app)/orgs/[orgId]/_components/member-table.test.tsx"` (or the full lane, `npm test`).

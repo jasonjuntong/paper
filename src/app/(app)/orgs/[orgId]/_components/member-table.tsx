@@ -2,7 +2,21 @@
 
 import { useMemo, useState } from 'react'
 import { MoreHorizontal, Search } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 export type MemberRow = {
   uid: string
@@ -25,21 +39,30 @@ function formatISO(ms: number): string {
   return new Date(ms).toISOString().slice(0, 10)
 }
 
+// Sharp-cornered, mono micro-badge — matches the `Pill` treatment used across
+// the org page rather than shadcn's default rounded-pill Badge.
+const MICRO_BADGE = 'rounded-[3px] font-mono text-[10px] uppercase tracking-wider'
+
 function RoleBadge({ role }: { role: MemberRow['role'] }) {
   if (role === 'admin') {
     return (
-      <span className="inline-flex items-center gap-1 rounded-[3px] bg-pill px-1.5 py-px font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-        <span className="size-1.5 rounded-full bg-muted-foreground" />
+      <Badge variant="secondary" className={MICRO_BADGE}>
+        <span className="size-1.5 rounded-full bg-current" aria-hidden />
         Admin
-      </span>
+      </Badge>
     )
   }
   return (
-    <span className="rounded-[3px] bg-pill px-1.5 py-px font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+    <Badge variant="outline" className={MICRO_BADGE}>
       Member
-    </span>
+    </Badge>
   )
 }
+
+// Mono, uppercase micro column labels — the org page's header convention.
+const HEAD = 'font-mono text-[11px] uppercase tracking-wider'
+const META_CELL =
+  'hidden text-center font-mono text-xs tabular-nums text-muted-foreground sm:table-cell'
 
 export function MemberTable({
   members,
@@ -64,80 +87,94 @@ export function MemberTable({
 
   return (
     <div className="flex flex-col gap-3">
-      <Card className="gap-0 divide-y py-0">
-        {/* Column headers — the Member column doubles as the search field */}
-        <div className="flex items-center gap-4 px-4 py-2.5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-          <div className="flex min-w-0 basis-3/5 items-center gap-3">
-            <Search className="size-4 shrink-0" aria-hidden />
-            <input
+      <Card className="gap-0 overflow-hidden py-0">
+        <div className="border-b p-2">
+          <InputGroup>
+            <InputGroupAddon>
+              <Search />
+            </InputGroupAddon>
+            <InputGroupInput
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search members…"
-              className="min-w-0 flex-1 bg-transparent font-sans text-sm normal-case tracking-normal text-foreground placeholder:text-muted-foreground focus:outline-none"
             />
-          </div>
-          <span className="hidden flex-1 whitespace-nowrap text-center sm:inline">
-            Joined
-          </span>
-          <span className="hidden flex-1 whitespace-nowrap text-center sm:inline">
-            Shared
-          </span>
-          <span className="flex-1 text-center">Role</span>
-          <span className="flex-1" aria-hidden />
+          </InputGroup>
         </div>
 
-        {filtered.map((m) => (
-          <div key={m.uid} className="flex items-center gap-4 px-4 py-3">
-            {/* Member (avatar + name + handle) */}
-            <div className="flex min-w-0 basis-3/5 items-center gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-pill font-mono text-xs font-semibold text-foreground/80">
-                {initials(m.name)}
-              </span>
-              <div className="flex min-w-0 flex-1 flex-col">
-                <span className="flex items-center gap-1.5 text-sm">
-                  <span className="truncate">{m.name}</span>
-                  {m.uid === currentUid && (
-                    <span className="shrink-0 rounded-[3px] bg-foreground px-1 py-px font-mono text-[10px] uppercase tracking-wider text-background">
-                      You
-                    </span>
-                  )}
-                </span>
-                <span className="truncate font-mono text-xs text-muted-foreground">
-                  @{m.handle}
-                </span>
-              </div>
-            </div>
-
-            {/* Joined */}
-            <span className="hidden flex-1 whitespace-nowrap text-center font-mono text-xs tabular-nums text-muted-foreground sm:inline">
-              {m.joinedAt > 0 ? formatISO(m.joinedAt) : '—'}
-            </span>
-            {/* Shared */}
-            <span className="hidden flex-1 whitespace-nowrap text-center font-mono text-xs tabular-nums text-muted-foreground sm:inline">
-              {m.sharedCount}
-            </span>
-            {/* Role */}
-            <div className="flex flex-1 justify-center">
-              <RoleBadge role={m.role} />
-            </div>
-            {/* Actions */}
-            <div className="flex flex-1 justify-end">
-              <button
-                type="button"
-                aria-label="Member actions"
-                className="text-muted-foreground transition-colors hover:text-foreground"
-              >
-                <MoreHorizontal className="size-4" />
-              </button>
-            </div>
-          </div>
-        ))}
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className={HEAD}>Member</TableHead>
+              <TableHead className={cn(HEAD, 'hidden text-center sm:table-cell')}>
+                Joined
+              </TableHead>
+              <TableHead className={cn(HEAD, 'hidden text-center sm:table-cell')}>
+                Shared
+              </TableHead>
+              <TableHead className={cn(HEAD, 'text-center')}>Role</TableHead>
+              <TableHead className="w-10">
+                <span className="sr-only">Actions</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.map((m) => (
+              <TableRow key={m.uid}>
+                <TableCell>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <Avatar className="size-9">
+                      <AvatarFallback className="bg-pill font-mono text-xs font-semibold text-foreground/80">
+                        {initials(m.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex min-w-0 flex-col">
+                      <span className="flex items-center gap-1.5 text-sm">
+                        <span className="truncate">{m.name}</span>
+                        {m.uid === currentUid && (
+                          <Badge className={MICRO_BADGE}>You</Badge>
+                        )}
+                      </span>
+                      <span className="truncate font-mono text-xs text-muted-foreground">
+                        @{m.handle}
+                      </span>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className={META_CELL}>
+                  {m.joinedAt > 0 ? formatISO(m.joinedAt) : '—'}
+                </TableCell>
+                <TableCell className={META_CELL}>{m.sharedCount}</TableCell>
+                <TableCell className="text-center">
+                  <div className="flex justify-center">
+                    <RoleBadge role={m.role} />
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">
+                  {/* Placeholder — per-member actions (kick) land in ORG-008. */}
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Member actions"
+                  >
+                    <MoreHorizontal />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
 
         {filtered.length === 0 && (
-          <p className="px-4 py-6 text-center text-sm text-muted-foreground">
-            No members match “{query}”.
-          </p>
+          <Empty className="border-0">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Search />
+              </EmptyMedia>
+              <EmptyTitle>No members found</EmptyTitle>
+              <EmptyDescription>No members match “{query}”.</EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         )}
       </Card>
 
