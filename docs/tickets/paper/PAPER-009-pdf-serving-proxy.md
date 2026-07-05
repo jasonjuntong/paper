@@ -1,7 +1,7 @@
 # PAPER-009 — PDF serving proxy (access-gated, Range, ETag)
 
 **Domain:** paper  
-**Status:** Partial — needs unit + integration (browser e2e N/A)  
+**Status:** Done  
 **Spec:** docs/specs/paper/paper.md#4-pdf-reader  
 **Depends on:** PAPER-010
 
@@ -23,14 +23,12 @@
 - `src/lib/paper-dedup.ts` (`checkVisibility`)
 
 ## Test coverage
-- **Unit — needed.** `checkVisibility` (allow/deny given ownership + org membership + shares) is pure and should be unit-tested.
-- **Integration — needed.** HTTP semantics of the file route: `403` on revoked access (incl. `If-None-Match` revalidation), `206` for Range, `304` for allowed-unchanged, `private, no-cache` + stable ETag.
-- **Browser e2e — not the right tool.** Range/ETag/304 are HTTP-level assertions best made at the integration layer; PDF loading in the UI is exercised via the reader (PAPER-008).
+- **Unit — done.** `src/app/api/papers/[paperId]/file/route.test.ts` drives the `GET` handler with `getSession`, `checkVisibility`, and firebase-admin mocked: `401` no session, `403` for both `none` and `list`-only tiers, `404` missing `storagePath`, `304` on matching `If-None-Match` (with `304`-vs-`403` precedence proving access is re-checked before revalidation), `206`/`416` Range with the slice passed through to `createReadStream`, and `200` full stream with `private, no-cache` + a stable `md5Hash` ETag. The pure gate logic the route relies on (`accessTier`/`decideVisibility`) is already covered by `src/lib/paper-dedup.test.ts` (PAPER-010).
+- **Integration — N/A.** Cloud Storage is not emulated (no `storage` block in `firebase.json`) and `getSession` → `verifySessionCookie` can't be forged when the handler is invoked directly, so an emulator-backed test would exercise firebase-admin/emulator behavior (a library) rather than our logic. The Firestore-backed `checkVisibility` the route calls is separately integration-tested in `tests/integration/paper-dedup.test.ts` (PAPER-010); the route's own HTTP semantics are fully asserted with mocked collaborators above. Same lane-drop rationale as PAPER-003/004/010.
+- **Browser e2e — N/A.** Range/ETag/304 are HTTP-level assertions with no distinct UI surface; PDF loading in the UI is exercised via the reader (PAPER-008).
 
 ## Test commands
-- **Unit:** _No unit test yet._
+- **Unit:**
   - Lane: `npm test`
-  - Single file: `npx vitest run <path>` (add `src/…/<name>.test.{ts,tsx}`)
-- **E2E:** _No e2e spec yet._
-  - Lane: `npm run test:e2e`
-  - Single file: `firebase emulators:exec --project demo-paper --only auth,firestore 'npx playwright test <name>'` (add `e2e/<name>.spec.ts`)
+  - Single file: `npx vitest run 'src/app/api/papers/[paperId]/file/route.test.ts'`
+- **E2E:** none — lane is N/A (see Test coverage above).

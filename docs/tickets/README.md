@@ -28,7 +28,7 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 | [PAPER-006](paper/PAPER-006-library-entry-crud.md) | Library entry CRUD | Done | PAPER-003, PAPER-004 | paper.md#data-ownership-model |
 | [PAPER-018](paper/PAPER-018-read-tracking.md) | Read tracking (lastOpenedAt) | Done | PAPER-006 | paper.md#4-pdf-reader |
 | [PAPER-010](paper/PAPER-010-visibility-checkvisibility.md) | Paper visibility derivation + checkVisibility | Done | PAPER-006 | paper.md#3-paper-visibility |
-| [PAPER-009](paper/PAPER-009-pdf-serving-proxy.md) | PDF serving proxy (access-gated, Range, ETag) | Partial | PAPER-010 | paper.md#4-pdf-reader |
+| [PAPER-009](paper/PAPER-009-pdf-serving-proxy.md) | PDF serving proxy (access-gated, Range, ETag) | Done | PAPER-010 | paper.md#4-pdf-reader |
 | [ORG-001](org/ORG-001-org-creation.md) | Org creation + invariant | Partial | — | org-overview.md#creation |
 | [ORG-002](org/ORG-002-edit-name-description.md) | Edit org name/description | Todo | ORG-001 | org-overview.md#org-profile |
 | [ORG-004](org/ORG-004-set-join-policy.md) | Set/change join policy | Partial | ORG-001 | org-joining-invites.md#joining-an-org |
