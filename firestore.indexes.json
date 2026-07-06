@@ -12,6 +12,23 @@
           }
         }
       ]
+    },
+    {
+      "collectionGroup": "papers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "publicOrgIds",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "embedding",
+          "vectorConfig": {
+            "dimension": 768,
+            "flat": {}
+          }
+        }
+      ]
     }
   ],
   "fieldOverrides": [

@@ -114,6 +114,55 @@ describe('/orgs/{orgId}', () => {
   })
 })
 
+// Public-org list access (permissions table): any *authenticated* user may read
+// the metadata snapshot of papers shared to a public org. The exception is
+// sharedPapers-only — a public org's other subcollections stay member-only, and
+// a private org's sharedPapers stay member-only.
+describe('/orgs/{orgId}/sharedPapers — public-org list access', () => {
+  beforeEach(async () => {
+    await seed(async (db) => {
+      await setDoc(doc(db, 'orgs', 'pub'), { visibility: 'public', name: 'Public Org' })
+      await setDoc(doc(db, 'orgs', 'priv'), { visibility: 'private', name: 'Private Org' })
+      await setDoc(doc(db, 'orgs', 'priv', 'members', 'member1'), { role: 'member' })
+      await setDoc(doc(db, 'orgs', 'pub', 'members', 'member2'), { role: 'member' })
+      await setDoc(doc(db, 'orgs', 'pub', 'sharedPapers', 'paper1'), { title: 'A' })
+      await setDoc(doc(db, 'orgs', 'priv', 'sharedPapers', 'paper2'), { title: 'B' })
+      await setDoc(doc(db, 'orgs', 'pub', 'invites', 'invite1'), { handle: 'x' })
+    })
+  })
+
+  it('lets a signed-in non-member read a public org shared paper', async () => {
+    const db = testEnv.authenticatedContext('stranger').firestore()
+    await assertSucceeds(getDoc(doc(db, 'orgs', 'pub', 'sharedPapers', 'paper1')))
+  })
+
+  it('denies an unauthenticated read of a public org shared paper', async () => {
+    const db = testEnv.unauthenticatedContext().firestore()
+    await assertFails(getDoc(doc(db, 'orgs', 'pub', 'sharedPapers', 'paper1')))
+  })
+
+  it('denies a non-member reading a private org shared paper', async () => {
+    const db = testEnv.authenticatedContext('stranger').firestore()
+    await assertFails(getDoc(doc(db, 'orgs', 'priv', 'sharedPapers', 'paper2')))
+  })
+
+  it('lets a member read a private org shared paper', async () => {
+    const db = testEnv.authenticatedContext('member1').firestore()
+    await assertSucceeds(getDoc(doc(db, 'orgs', 'priv', 'sharedPapers', 'paper2')))
+  })
+
+  it('keeps other public-org subcollections member-only (not readable by a non-member)', async () => {
+    const db = testEnv.authenticatedContext('stranger').firestore()
+    await assertFails(getDoc(doc(db, 'orgs', 'pub', 'members', 'member2')))
+    await assertFails(getDoc(doc(db, 'orgs', 'pub', 'invites', 'invite1')))
+  })
+
+  it('denies client writes to a public org shared paper', async () => {
+    const db = testEnv.authenticatedContext('stranger').firestore()
+    await assertFails(setDoc(doc(db, 'orgs', 'pub', 'sharedPapers', 'paper1'), { title: 'hijacked' }))
+  })
+})
+
 describe('default deny (server-managed collections)', () => {
   it('denies reading a user doc even to its owner', async () => {
     const db = testEnv.authenticatedContext('user1').firestore()

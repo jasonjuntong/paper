@@ -93,3 +93,38 @@ not missing. This also keeps PAPER-010 free of a hard dependency on PAPER-015.
 then surfaces end-to-end (search PAPER-011, discovery PAPER-014, the "Join to read"
 CTA), and that the PDF proxy (`accessTier(vis) !== 'full'` → 403) still denies
 list-only papers once they actually appear.
+
+---
+
+## N-004 — The permissions table's *mutations* are enforced in route handlers, not security rules
+
+**Status:** Intentional · structural (ORG-025)
+
+**Nuance.** ORG-025's scope reads "rules enforce the full permissions table
+(Admin-only mutations, owner-only shares, …)." But `firestore.rules` does **not**
+gate any mutation — every privileged write goes through `firebase-admin` in the
+route handlers (`src/app/api/**`), which **bypasses security rules entirely**. The
+client SDK never writes Firestore (it only reads `/handles` for registration
+availability, and public-org reads for a future client surface). So the rules'
+entire contribution to the write side is `allow write: if false` everywhere; the
+member cap, Admin-only actions, owner-only share/unshare, and visibility
+invariants are all enforced in the handlers (e.g. the org-join transaction in
+`src/app/api/orgs/[orgId]/join/route.ts`, the PATCH invariants in
+`src/app/api/orgs/[orgId]/route.ts`).
+
+**Why it's this way.** Rules can only enforce what the client is allowed to *send*.
+With a server-only write model there are no client mutations to authorize, so
+duplicating the permissions table into rules would gate requests that never occur
+— dead logic that drifts from the handlers, which stay the single source of truth.
+Rules therefore do exactly what they can: deny all client writes, and gate the
+handful of legitimate client **reads** (public orgs, public-org `sharedPapers`
+list access, `/handles`). The "rules enforce the table" acceptance criterion is
+met in the only way it can be for this architecture — deny-all-writes plus
+read-gating to the table's read rows.
+
+**Revisit when.** Any mutation moves to the client SDK (e.g. invite accept/decline
+or join-request submit done directly from the browser instead of via a handler).
+That write would then need a real rule mirroring its permissions-table row, plus a
+rules-lane test. Until then, adding client-write rules is speculative and out of
+scope. See [N-003](#n-003--paper-list-only-tier-depends-on-publicorgids-which-nothing-populates-yet)
+for the related `publicOrgIds`-dormant note.
