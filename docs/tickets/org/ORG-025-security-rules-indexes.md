@@ -1,7 +1,7 @@
 # ORG-025 — Firestore security rules + indexes
 
 **Domain:** org (cross-cutting)  
-**Status:** Partial  
+**Status:** Recurring  
 **Spec:** docs/specs/org/org-papers-permissions.md#permissions-summary  
 **Depends on:** —
 

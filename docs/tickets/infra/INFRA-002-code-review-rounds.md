@@ -1,7 +1,7 @@
 # INFRA-002 — Code review (rounds)
 
 **Domain:** infra (cross-cutting)  
-**Status:** Partial  
+**Status:** Recurring  
 **Spec:** — (quality process; recurring)  
 **Depends on:** —
 

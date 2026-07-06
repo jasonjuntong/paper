@@ -2,7 +2,7 @@
 
 A full backlog derived from the hardened specs in [`docs/specs/`](../specs/). One ticket per spec'd feature, organized by domain (`user/`, `paper/`, `org/`).
 
-**Status:** `Done` (implemented, matches spec, **and covered by every test lane that applies to it**) · `Partial` (implemented but missing required test coverage, or a stub/incomplete) · `Todo` (not started).
+**Status:** `Done` (implemented, matches spec, **and covered by every test lane that applies to it**) · `Partial` (implemented but missing required test coverage, or a stub/incomplete) · `Todo` (not started) · `Recurring` (cross-cutting and iterative **by design** — never reaches `Done`; it accretes work each pass rather than closing. `Recurring` tickets are exempt from the Definition of Done and are tracked separately from `Partial` so they don't read as unfinished feature work).
 
 > **Definition of Done:** tests are a hard requirement. The default bar is **both a unit and an e2e test**. The **unit lane** is satisfied by either a pure-logic test **or a React component test** (`@testing-library/react` + jsdom, `*.test.tsx` — see `vitest.config.ts` / `vitest.setup.ts`); UI-bearing tickets almost always have a component-test surface, so "no pure logic" is *not* on its own grounds to drop the unit lane. A ticket may drop a lane *only* when it genuinely doesn't apply — e.g. purely-backend logic with no component (no component test), or an external non-emulated dependency / HTTP-level semantics better tested at integration (no browser e2e) — and it must **say so in its own `## Test coverage` section**, using integration/rules lanes where they fit. A ticket is `Done` when every applicable lane is green; implemented-but-untested work stays `Partial`. INFRA-001 is exempt (it *is* the harness).
 
@@ -15,7 +15,7 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 | ID | Title | Status | Depends on | Spec |
 |----|-------|--------|-----------|------|
 | [INFRA-001](infra/INFRA-001-test-emulator-playwright.md) | Test infrastructure: Firebase emulator + Playwright | Done | — | — (testing infra) |
-| [INFRA-002](infra/INFRA-002-code-review-rounds.md) | Code review (rounds) | Partial | — | — (quality process, recurring) |
+| [INFRA-002](infra/INFRA-002-code-review-rounds.md) | Code review (rounds) | Recurring | — | — (quality process, recurring) |
 | [USER-007](user/USER-007-handle-reservation-uniqueness.md) | Handle reservation & uniqueness (`/handles/{handle}`) | Done | — | user.md#handle |
 | [USER-001](user/USER-001-registration-email-verification.md) | Registration + email verification (incl. `@handle`) | Done | USER-007 | user.md#authentication |
 | [USER-002](user/USER-002-login.md) | Login (email + password) | Done | — | user.md#authentication |
@@ -34,7 +34,7 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 | [ORG-004](org/ORG-004-set-join-policy.md) | Set/change join policy | Done | ORG-001 | org-joining-invites.md#joining-an-org |
 | [ORG-006](org/ORG-006-member-listing-roles.md) | Member listing + role badges | Done | ORG-001 | org-membership.md#roles-within-an-org |
 | [ORG-014](org/ORG-014-join-open-public-org.md) | Join open public org | Done | ORG-001 | org-joining-invites.md#joining-an-org |
-| [ORG-025](org/ORG-025-security-rules-indexes.md) | Firestore security rules + indexes | Partial | — | org-papers-permissions.md#permissions-summary |
+| [ORG-025](org/ORG-025-security-rules-indexes.md) | Firestore security rules + indexes | Recurring | — | org-papers-permissions.md#permissions-summary |
 
 ## Phase 1 — User account basics
 
