@@ -18,15 +18,31 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/orgs/$(orgId)/members/$(request.auth.uid));
     }
 
-    // Orgs. Writes are server-only (firebase-admin) so they can enforce the
-    // member cap, role rules, and visibility invariants — never trust the
-    // client. Reads: public orgs are discoverable by anyone; private orgs and
-    // all org subcollections (members, invites, joinRequests, sharedPapers,
-    // adminTransferOffers) are restricted to members.
+    function isPublicOrg(orgId) {
+      return get(/databases/$(database)/documents/orgs/$(orgId)).data.visibility == 'public';
+    }
+
+    // Orgs. Writes are server-only (firebase-admin), which bypasses these rules;
+    // the permissions table's *mutation* rules (member cap, Admin-only actions,
+    // owner-only shares, visibility invariants) are enforced in the route
+    // handlers, not here — so writes are denied outright and never trusted from
+    // the client. Reads: public orgs are discoverable by anyone; private orgs
+    // and their member/invite/joinRequest/adminTransferOffer subcollections are
+    // member-only.
     match /orgs/{orgId} {
       allow read: if resource.data.visibility == 'public' || isOrgMember(orgId);
       allow write: if false;
 
+      // Public-org list access (permissions table): any authenticated user may
+      // read the metadata snapshot of papers shared to a *public* org. Private
+      // orgs' sharedPapers stay member-only. This exception is sharedPapers-only.
+      match /sharedPapers/{paperId} {
+        allow read: if isOrgMember(orgId) || (isSignedIn() && isPublicOrg(orgId));
+        allow write: if false;
+      }
+
+      // Everything else under an org (members, invites, joinRequests,
+      // adminTransferOffers) is member-read-only.
       match /{sub=**} {
         allow read: if isOrgMember(orgId);
         allow write: if false;
