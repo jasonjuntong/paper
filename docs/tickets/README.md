@@ -112,7 +112,7 @@ already-built Phase 0 work and has no forward dependency, so they can be picked 
 
 | ID | Title | Status | Depends on | Spec |
 |----|-------|--------|-----------|------|
-| [INFRA-003](infra/INFRA-003-firestore-read-rule-hardening.md) | Firestore read-rule hardening (SEC) | Todo | — | org-papers-permissions.md#permissions-summary |
+| [INFRA-003](infra/INFRA-003-firestore-read-rule-hardening.md) | Firestore read-rule hardening (SEC) | Done | — | org-papers-permissions.md#permissions-summary |
 | [USER-008](user/USER-008-session-cookie-hardening.md) | Session-cookie hardening (SEC) | Todo | USER-002 | user.md#authentication |
 | [PAPER-019](paper/PAPER-019-paper-write-path-integrity.md) | Paper write-path integrity + dedup robustness | Todo | PAPER-003, PAPER-006 | paper.md#2-deduplication-strategy |
 | [ORG-027](org/ORG-027-org-route-profile-consolidation.md) | Org route + profile-form consolidation | Todo | ORG-002, ORG-004 | org-overview.md#org-profile |

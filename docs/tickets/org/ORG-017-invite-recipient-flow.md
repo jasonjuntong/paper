@@ -18,8 +18,20 @@ The invited user receives an in-app notification and accepts (joins immediately,
 - [ ] Decline consumes the invite, notifies the Admin, and starts the 48-hr cooldown.
 - [ ] Invites past `expiresAt` and consumed invites cannot be used; expiry/revocation impose no cooldown.
 
+## Rules note (INFRA-003 / N-005)
+[INFRA-003](../infra/INFRA-003-firestore-read-rule-hardening.md) gated `invites` to **Admin-only**
+reads and deferred the recipient-read exception to this ticket. If the recipient reads their own
+invite via the client SDK (e.g. to render the accept/decline card), **un-defer N-005**: add
+`allow read: if isOrgAdmin(orgId) || request.auth.uid == resource.data.recipientUid` (the field
+ORG-016 stores) to the `invites` match block, plus rules-lane tests in
+`tests/rules/firestore-rules.test.ts` — recipient reads their own invite (allow), a stranger reads
+it (deny). If accept/decline goes purely through the server handler (firebase-admin bypasses
+rules), no rule change is needed and N-005 stays deferred; note which path was taken.
+See [N-005](../../nuances.md).
+
 ## Affected files
 - `src/app/api/orgs/[orgId]/invites/[inviteId]/route.ts` (new)
+- `firestore.rules` + `tests/rules/firestore-rules.test.ts` (only if recipient reads via client SDK — see Rules note)
 - ORG-023 notifications
 
 ## Test commands

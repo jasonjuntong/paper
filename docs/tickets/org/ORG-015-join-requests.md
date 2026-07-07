@@ -20,6 +20,14 @@ For public orgs with the **request** policy, users submit join requests and the 
 - [ ] A user with a pending invite is prompted to accept it instead; no dual pending state ever exists.
 - [ ] Pending requests carry over when the org switches to private.
 
+## Rules note (INFRA-003)
+[INFRA-003](../infra/INFRA-003-firestore-read-rule-hardening.md) gated `joinRequests` to
+**Admin-only** reads in `firestore.rules`. This matches the flow: the Admin reviews pending
+requests (an `isOrgAdmin` client read already works if the review list is client-rendered), and
+the **requester learns the result via a notification** (ORG-023), not by reading their own request
+doc. So — unlike invites/transfer offers — join requests need **no** recipient-read exception; N-005
+does not apply here. No `firestore.rules` change is expected for this ticket.
+
 ## Affected files
 - `src/app/api/orgs/[orgId]/join/route.ts`
 - `src/app/api/orgs/[orgId]/requests/` (new, admin approve/reject)
