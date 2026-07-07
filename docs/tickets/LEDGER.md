@@ -2,9 +2,33 @@
 
 A snapshot of overall ticket status — counts only, plus the few tickets that need explicit attention. Full per-ticket detail lives in [`README.md`](./README.md) and each ticket file.
 
-_Last updated: 2026-07-06._ Full change log below.
+_Last updated: 2026-07-07._ Full change log below.
 
 ## Recent changes
+
+### 2026-07-07
+
+- **INFRA-002 Round 1 — full-tree code review (complete).** Ran the first full pass over the
+  whole Phase 0 tree via the `code-review` skill (Standards vs repo docs + Fowler smell
+  baseline; Spec vs `docs/specs/`), sliced into **5 domain lanes** and each anchored to its
+  best-practice skill (`firebase-auth-basics`, `firebase-firestore`, `firebase-basics`,
+  `next-best-practices`, `shadcn`, `frontend-design`), plus a 6th supplementary lane checking
+  the tree against the architecture spec `docs/specs/tech-stack.md`. Nuances N-001…N-004
+  excluded; `should-fix`+ findings re-verified against source before filing. The tech-stack lane
+  added two Zod-boundary should-fixes (Groq output unvalidated → folded into PAPER-019;
+  `api/auth/session` idToken unvalidated + unguarded JSON parse → folded into USER-008) and a
+  `paperCount` atomic-counter divergence (→ ORG-024); most tech-stack mandates conform. **Two security items**
+  (unauthenticated public-org read rule + member-readable moderation subcollections;
+  session-cookie minted with no `auth_time` recency check + no revoke-on-logout — latent per
+  N-004/short-lived tokens but real), **two data-integrity items** (unvalidated `hash` → empty
+  Layer-1 key; non-transactional `ensureLibraryEntry` → duplicate library entries), and a batch
+  of consistency/DRY/a11y/design-token drift. Filed **7 follow-up tickets** — INFRA-003 (rules,
+  SEC), USER-008 (session, SEC), PAPER-019 (paper write integrity), ORG-027 (org route/form
+  consolidation), INFRA-004 (design-language conformance), INFRA-005 (a11y & form semantics),
+  INFRA-006 (shared UI/auth primitives) — and folded three findings into existing tickets
+  (ORG-026, ORG-016/017, USER-006). Round 1 section of INFRA-002 filled in; Round 2 stubbed.
+  Backlog 24 → 31, total 53 → 60. Branch `chore/code-review-round` carries docs/tickets only —
+  no source edits (fixes land in the follow-up tickets).
 
 ### 2026-07-06
 
@@ -33,16 +57,16 @@ Buckets map to the README legend: **Completed** = `Done`, **In progress** = `Par
 |--------|-------|
 | ✅ Completed | 21 |
 | 🟡 In progress | 6 |
-| ⬜ Backlog | 24 |
+| ⬜ Backlog | 31 |
 | 🔄 Recurring | 2 |
-| **Total** | **53** |
+| **Total** | **60** |
 
 ## Needs attention
 
 Only tickets with something non-obvious to track.
 
 - **ORG-025 — `Recurring` (cross-cutting, iterative by design).** Never reaches `Done`; it accretes security rules + indexes as each feature lands. Its `/handles` and `/orgs` rules are covered by the INFRA-001 security-rules suite (`tests/rules/`). Latest pass (2026-07-06): added the public-org `sharedPapers` list-access read rule + its rules-lane tests, and the composite `publicOrgIds`+`embedding` vector index. Established the key framing (nuance N-004): with all writes server-side (`firebase-admin` bypasses rules), the permissions table's *mutations* are enforced in route handlers — rules do deny-all-writes + read-gating only. **Still open:** discovery/search composite indexes (deferred until those queries land).
-- **INFRA-002 — `Recurring` (code review rounds).** Intentionally never `Done`; gains a new `## Round N` section each pass. **Round 1 is open** (opened 2026-07-03) — scope TBD, findings to be recorded and follow-up tickets filed from there.
+- **INFRA-002 — `Recurring` (code review rounds).** Intentionally never `Done`; gains a new `## Round N` section each pass. **Round 1 complete (2026-07-07)** — full Phase 0 tree, 5 lanes, 7 follow-up tickets filed (2 SEC: INFRA-003, USER-008). **Round 2 is stubbed, not started** — opens on the next review pass (post-Phase-2/3), scope TBD.
 
 ## Project notes
 

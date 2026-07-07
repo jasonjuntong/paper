@@ -103,6 +103,23 @@ Tickets are grouped into **phases** below — a dependency-aware build sequence.
 | [USER-006](user/USER-006-account-deletion-cascade.md) | Account deletion + full cascade (incl. handle tombstone) | Todo | ORG-022, ORG-012, ORG-013, ORG-010, PAPER-016, ORG-023, USER-007 | user.md#account-deletion |
 | [PAPER-017](paper/PAPER-017-scheduled-sweep.md) | Scheduled sweep (orphan backstop) | Todo | PAPER-016 | paper.md#scheduled-sweep-safety-net |
 
+## Review follow-ups — INFRA-002 Round 1
+
+Hardening/cleanup tickets discovered by the [INFRA-002](infra/INFRA-002-code-review-rounds.md)
+Round 1 full-tree review (2026-07-07). Not part of the feature build-order — each hardens
+already-built Phase 0 work and has no forward dependency, so they can be picked up any time
+(the two security items first). See the round's Outcomes for detail.
+
+| ID | Title | Status | Depends on | Spec |
+|----|-------|--------|-----------|------|
+| [INFRA-003](infra/INFRA-003-firestore-read-rule-hardening.md) | Firestore read-rule hardening (SEC) | Todo | — | org-papers-permissions.md#permissions-summary |
+| [USER-008](user/USER-008-session-cookie-hardening.md) | Session-cookie hardening (SEC) | Todo | USER-002 | user.md#authentication |
+| [PAPER-019](paper/PAPER-019-paper-write-path-integrity.md) | Paper write-path integrity + dedup robustness | Todo | PAPER-003, PAPER-006 | paper.md#2-deduplication-strategy |
+| [ORG-027](org/ORG-027-org-route-profile-consolidation.md) | Org route + profile-form consolidation | Todo | ORG-002, ORG-004 | org-overview.md#org-profile |
+| [INFRA-004](infra/INFRA-004-design-language-conformance.md) | Design-language token conformance sweep | Todo | — | design-language.md |
+| [INFRA-005](infra/INFRA-005-accessibility-form-semantics.md) | Accessibility & form-semantics pass | Todo | — | design-language.md |
+| [INFRA-006](infra/INFRA-006-shared-ui-auth-primitives.md) | Extract shared UI/auth primitives (DRY) | Todo | — | — (code quality) |
+
 ---
 
-**Totals:** 7 USER · 18 PAPER · 26 ORG · 2 INFRA = **53 tickets**.
+**Totals:** 8 USER · 19 PAPER · 27 ORG · 6 INFRA = **60 tickets**.
