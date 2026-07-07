@@ -8,6 +8,20 @@ _Last updated: 2026-07-07._ Full change log below.
 
 ### 2026-07-07
 
+- **INFRA-003 — Firestore read-rule hardening (completed, SEC).** Closed the first INFRA-002
+  Round 1 security follow-up. In `firestore.rules`: (1) public-org doc reads now require auth
+  (`allow read: if isOrgMember(orgId) || (isSignedIn() && resource.data.visibility == 'public')`),
+  matching the sibling `sharedPapers` gate; (2) added an `isOrgAdmin(orgId)` helper (member-check
+  short-circuits before `get().data`, so no null-`.data` error) and split the `{sub=**}` read
+  catch-all — `members` stays member-readable, `invites`/`joinRequests`/`adminTransferOffers`
+  become Admin-only, anything unlisted falls to the root deny. Kept the per-block
+  `allow write: if false` for consistency (Task 3 judgment call); `isPublicOrg` billed-`get()`
+  left as-is (Task 4). Recipient-read exception for invites/offers deferred to ORG-016/017/010
+  (recipient-uid field not yet specced) — filed nuance **N-005** (relates to N-004). Rules lane
+  `tests/rules/firestore-rules.test.ts` grew 19 → 24 (auth guard on public-org reads, admin-vs-member
+  split, plus the two Round-1-flagged `sharedPapers` branches). Unit/e2e N/A. Backlog 31 → 30,
+  Completed 21 → 22. Branch `fix/firestore-read-rule-hardening`.
+
 - **INFRA-002 Round 1 — full-tree code review (complete).** Ran the first full pass over the
   whole Phase 0 tree via the `code-review` skill (Standards vs repo docs + Fowler smell
   baseline; Spec vs `docs/specs/`), sliced into **5 domain lanes** and each anchored to its
@@ -55,9 +69,9 @@ Buckets map to the README legend: **Completed** = `Done`, **In progress** = `Par
 
 | Bucket | Count |
 |--------|-------|
-| ✅ Completed | 21 |
+| ✅ Completed | 22 |
 | 🟡 In progress | 6 |
-| ⬜ Backlog | 31 |
+| ⬜ Backlog | 30 |
 | 🔄 Recurring | 2 |
 | **Total** | **60** |
 
@@ -65,7 +79,7 @@ Buckets map to the README legend: **Completed** = `Done`, **In progress** = `Par
 
 Only tickets with something non-obvious to track.
 
-- **ORG-025 — `Recurring` (cross-cutting, iterative by design).** Never reaches `Done`; it accretes security rules + indexes as each feature lands. Its `/handles` and `/orgs` rules are covered by the INFRA-001 security-rules suite (`tests/rules/`). Latest pass (2026-07-06): added the public-org `sharedPapers` list-access read rule + its rules-lane tests, and the composite `publicOrgIds`+`embedding` vector index. Established the key framing (nuance N-004): with all writes server-side (`firebase-admin` bypasses rules), the permissions table's *mutations* are enforced in route handlers — rules do deny-all-writes + read-gating only. **Still open:** discovery/search composite indexes (deferred until those queries land).
+- **ORG-025 — `Recurring` (cross-cutting, iterative by design).** Never reaches `Done`; it accretes security rules + indexes as each feature lands. Its `/handles` and `/orgs` rules are covered by the INFRA-001 security-rules suite (`tests/rules/`). Latest pass (2026-07-07): INFRA-003 hardened the org read rules — public-org doc reads now require auth, and the `{sub=**}` catch-all was split so `members` stays member-readable while `invites`/`joinRequests`/`adminTransferOffers` are Admin-only (recipient-read exception deferred, N-005). Prior pass (2026-07-06): public-org `sharedPapers` list-access read rule + composite `publicOrgIds`+`embedding` vector index. Established the key framing (nuance N-004): with all writes server-side (`firebase-admin` bypasses rules), the permissions table's *mutations* are enforced in route handlers — rules do deny-all-writes + read-gating only. **Still open:** discovery/search composite indexes (deferred until those queries land); un-defer the invite/offer recipient-read rule when ORG-016/017/010 land (N-005).
 - **INFRA-002 — `Recurring` (code review rounds).** Intentionally never `Done`; gains a new `## Round N` section each pass. **Round 1 complete (2026-07-07)** — full Phase 0 tree, 5 lanes, 7 follow-up tickets filed (2 SEC: INFRA-003, USER-008). **Round 2 is stubbed, not started** — opens on the next review pass (post-Phase-2/3), scope TBD.
 
 ## Project notes

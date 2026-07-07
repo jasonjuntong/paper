@@ -20,8 +20,16 @@ Invites are entirely in-app (no email/URL), targeted at a specific Scolar user w
 - [ ] Inviting a user with a pending request prompts approval instead; no dual pending state.
 - [ ] Invite delivered as an in-app notification; single-use, with an Admin-chosen 1–14-day expiry (default 7) stored as `expiresAt`.
 
+## Rules note (INFRA-003 / N-005)
+[INFRA-003](../infra/INFRA-003-firestore-read-rule-hardening.md) gated the `invites`
+subcollection to **Admin-only** reads in `firestore.rules` and deferred the recipient-read
+exception because the invite doc has no recipient-uid field yet. This ticket **creates** that
+doc — so store the target's uid on it (e.g. `recipientUid`) so the recipient-read rule ORG-017
+adds can key on it. See [N-005](../../nuances.md).
+
 ## Affected files
 - `src/app/api/orgs/[orgId]/invites/route.ts` (new)
+- `firestore.rules` (if the recipient/UI reads invites via the client SDK — see Rules note)
 - invite UI, ORG-007, ORG-023
 
 ## Test commands

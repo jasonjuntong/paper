@@ -18,6 +18,13 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/orgs/$(orgId)/members/$(request.auth.uid));
     }
 
+    // isOrgMember short-circuits on exists() before the get().data below, so
+    // we never call .data on a missing member doc (which would error the rule).
+    function isOrgAdmin(orgId) {
+      return isOrgMember(orgId) &&
+        get(/databases/$(database)/documents/orgs/$(orgId)/members/$(request.auth.uid)).data.role == 'admin';
+    }
+
     function isPublicOrg(orgId) {
       return get(/databases/$(database)/documents/orgs/$(orgId)).data.visibility == 'public';
     }
@@ -26,11 +33,10 @@ service cloud.firestore {
     // the permissions table's *mutation* rules (member cap, Admin-only actions,
     // owner-only shares, visibility invariants) are enforced in the route
     // handlers, not here — so writes are denied outright and never trusted from
-    // the client. Reads: public orgs are discoverable by anyone; private orgs
-    // and their member/invite/joinRequest/adminTransferOffer subcollections are
-    // member-only.
+    // the client. Reads: public orgs are discoverable by *authenticated* users
+    // (browsing is scoped to signed-in users); private orgs are member-only.
     match /orgs/{orgId} {
-      allow read: if resource.data.visibility == 'public' || isOrgMember(orgId);
+      allow read: if isOrgMember(orgId) || (isSignedIn() && resource.data.visibility == 'public');
       allow write: if false;
 
       // Public-org list access (permissions table): any authenticated user may
@@ -41,10 +47,27 @@ service cloud.firestore {
         allow write: if false;
       }
 
-      // Everything else under an org (members, invites, joinRequests,
-      // adminTransferOffers) is member-read-only.
-      match /{sub=**} {
+      // The member roster is member-readable (member-listing surface).
+      match /members/{memberId} {
         allow read: if isOrgMember(orgId);
+        allow write: if false;
+      }
+
+      // Moderation subcollections are Admin-only — they surface to the Admin,
+      // not to members. The recipient-read exception for invites/offers (the
+      // targeted user reading their own doc) is deferred until ORG-016/017/010
+      // finalize the recipient-uid field; today's docs carry no such field. See
+      // nuance N-005.
+      match /invites/{inviteId} {
+        allow read: if isOrgAdmin(orgId);
+        allow write: if false;
+      }
+      match /joinRequests/{requestId} {
+        allow read: if isOrgAdmin(orgId);
+        allow write: if false;
+      }
+      match /adminTransferOffers/{offerId} {
+        allow read: if isOrgAdmin(orgId);
         allow write: if false;
       }
     }

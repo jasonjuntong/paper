@@ -128,3 +128,32 @@ That write would then need a real rule mirroring its permissions-table row, plus
 rules-lane test. Until then, adding client-write rules is speculative and out of
 scope. See [N-003](#n-003--paper-list-only-tier-depends-on-publicorgids-which-nothing-populates-yet)
 for the related `publicOrgIds`-dormant note.
+
+---
+
+## N-005 — Moderation subcollections are Admin-only; the recipient-read exception is deferred
+
+**Status:** Intentional · deferred until ORG-016/017/010 land (INFRA-003)
+
+**Nuance.** INFRA-003 split the org `{sub=**}` read catch-all so that `invites`,
+`joinRequests`, and `adminTransferOffers` are gated to `isOrgAdmin(orgId)` in
+`firestore.rules`, while `members` stays member-readable. The permissions table,
+though, says an invite/offer **recipient** may read their *own* doc ("Accept or
+decline an invite | Only the invited user"; same for transfer offers). That
+recipient-read path is **not** implemented in the rules yet — the three
+moderation subcollections are Admin-only, full stop.
+
+**Why it's this way.** The recipient-read predicate would key on a recipient-uid
+field on the invite/offer doc, but the flows that create those docs (ORG-016
+create-invites, ORG-017 recipient accept/decline, ORG-010 admin-transfer) are
+unbuilt, so the field isn't specced or written — today's invite doc carries only
+`{ handle }`. Inventing the field now would be speculative and could drift from
+whatever those tickets settle on. Per [N-004](#n-004--the-permissions-tables-mutations-are-enforced-in-route-handlers-not-security-rules)
+no client reads these paths today (all access is server-side via `firebase-admin`),
+so Admin-only is a safe, tighter-than-before default in the meantime.
+
+**Revisit when.** ORG-016/017 (and ORG-010 for transfer offers) finalize how the
+recipient is identified on the doc. At that point add the recipient branch —
+`allow read: if isOrgAdmin(orgId) || request.auth.uid == resource.data.<recipientUid>`
+— plus rules-lane tests for the recipient reading their own invite/offer and being
+denied on others'.

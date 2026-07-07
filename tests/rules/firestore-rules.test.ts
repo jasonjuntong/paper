@@ -67,15 +67,24 @@ describe('/orgs/{orgId}', () => {
     await seed(async (db) => {
       await setDoc(doc(db, 'orgs', 'pub'), { visibility: 'public', name: 'Public Org' })
       await setDoc(doc(db, 'orgs', 'priv'), { visibility: 'private', name: 'Private Org' })
-      // member of the private org only
+      // private org: a plain member and an admin
       await setDoc(doc(db, 'orgs', 'priv', 'members', 'member1'), { role: 'member' })
+      await setDoc(doc(db, 'orgs', 'priv', 'members', 'admin1'), { role: 'admin' })
+      // moderation subcollections (Admin-only reads)
       await setDoc(doc(db, 'orgs', 'priv', 'invites', 'invite1'), { handle: 'x' })
+      await setDoc(doc(db, 'orgs', 'priv', 'joinRequests', 'req1'), { handle: 'y' })
+      await setDoc(doc(db, 'orgs', 'priv', 'adminTransferOffers', 'offer1'), { handle: 'z' })
     })
   })
 
-  it('lets anyone read a public org', async () => {
-    const db = testEnv.unauthenticatedContext().firestore()
+  it('lets an authenticated user read a public org', async () => {
+    const db = testEnv.authenticatedContext('stranger').firestore()
     await assertSucceeds(getDoc(doc(db, 'orgs', 'pub')))
+  })
+
+  it('denies an unauthenticated read of a public org', async () => {
+    const db = testEnv.unauthenticatedContext().firestore()
+    await assertFails(getDoc(doc(db, 'orgs', 'pub')))
   })
 
   it('lets a member read a private org', async () => {
@@ -98,14 +107,28 @@ describe('/orgs/{orgId}', () => {
     await assertFails(setDoc(doc(db, 'orgs', 'priv'), { name: 'hijacked' }))
   })
 
-  it('lets a member read org subcollections', async () => {
+  it('lets a member read the member roster', async () => {
     const db = testEnv.authenticatedContext('member1').firestore()
-    await assertSucceeds(getDoc(doc(db, 'orgs', 'priv', 'invites', 'invite1')))
+    await assertSucceeds(getDoc(doc(db, 'orgs', 'priv', 'members', 'admin1')))
   })
 
-  it('denies a non-member reading org subcollections', async () => {
+  it('denies a non-member reading the member roster', async () => {
     const db = testEnv.authenticatedContext('stranger').firestore()
     await assertFails(getDoc(doc(db, 'orgs', 'priv', 'members', 'member1')))
+  })
+
+  it('lets an admin read moderation subcollections', async () => {
+    const db = testEnv.authenticatedContext('admin1').firestore()
+    await assertSucceeds(getDoc(doc(db, 'orgs', 'priv', 'invites', 'invite1')))
+    await assertSucceeds(getDoc(doc(db, 'orgs', 'priv', 'joinRequests', 'req1')))
+    await assertSucceeds(getDoc(doc(db, 'orgs', 'priv', 'adminTransferOffers', 'offer1')))
+  })
+
+  it('denies a non-admin member reading moderation subcollections', async () => {
+    const db = testEnv.authenticatedContext('member1').firestore()
+    await assertFails(getDoc(doc(db, 'orgs', 'priv', 'invites', 'invite1')))
+    await assertFails(getDoc(doc(db, 'orgs', 'priv', 'joinRequests', 'req1')))
+    await assertFails(getDoc(doc(db, 'orgs', 'priv', 'adminTransferOffers', 'offer1')))
   })
 
   it('denies client writes to org subcollections', async () => {
@@ -136,9 +159,19 @@ describe('/orgs/{orgId}/sharedPapers — public-org list access', () => {
     await assertSucceeds(getDoc(doc(db, 'orgs', 'pub', 'sharedPapers', 'paper1')))
   })
 
+  it('lets a member of the public org read its shared paper', async () => {
+    const db = testEnv.authenticatedContext('member2').firestore()
+    await assertSucceeds(getDoc(doc(db, 'orgs', 'pub', 'sharedPapers', 'paper1')))
+  })
+
   it('denies an unauthenticated read of a public org shared paper', async () => {
     const db = testEnv.unauthenticatedContext().firestore()
     await assertFails(getDoc(doc(db, 'orgs', 'pub', 'sharedPapers', 'paper1')))
+  })
+
+  it('denies an unauthenticated read of a private org shared paper', async () => {
+    const db = testEnv.unauthenticatedContext().firestore()
+    await assertFails(getDoc(doc(db, 'orgs', 'priv', 'sharedPapers', 'paper2')))
   })
 
   it('denies a non-member reading a private org shared paper', async () => {
