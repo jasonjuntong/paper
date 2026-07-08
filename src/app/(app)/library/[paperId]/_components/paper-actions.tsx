@@ -20,7 +20,7 @@ export function PaperActions({ entryId, paper }: PaperActionsProps) {
       <Button
         variant="outline"
         size="sm"
-        className="rounded-lg gap-2 hover:bg-[oklch(0.9491_0.0041_91.616)]"
+        className="rounded-lg gap-2 hover:bg-pill"
         onClick={() => setEditOpen(true)}
       >
         <Pencil className="size-3.5" />

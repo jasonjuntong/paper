@@ -38,7 +38,7 @@ export default async function DashboardPage() {
     {
       description: 'LIBRARY',
       value: libraryCount,
-      footer: libraryCount === 0 ? null : `${weekCount} added this week`,
+      footer: libraryCount === 0 ? 'Nothing added yet' : `${weekCount} added this week`,
       href: '/library',
     },
     { description: 'SHARED WITH YOU', value: null, footer: 'Nothing shared yet' },

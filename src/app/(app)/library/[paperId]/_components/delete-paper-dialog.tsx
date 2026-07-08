@@ -83,9 +83,10 @@ export function DeletePaperDialog({
                 Cancel
               </Button>
               <Button
+                variant="outline"
                 onClick={handleDelete}
                 disabled={step === 'deleting'}
-                className="gap-2 bg-[oklch(0.576_0.186_25deg)] text-white hover:bg-[oklch(0.434_0.140_25deg)] border-transparent"
+                className="gap-2 text-[oklch(0.434_0.140_25deg)] hover:bg-[oklch(0.576_0.186_25deg)] hover:border-[oklch(0.576_0.186_25deg)] hover:text-white"
               >
                 {step === 'deleting' ? (
                   <Loader2 className="size-3.5 animate-spin" />

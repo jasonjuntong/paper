@@ -17,12 +17,12 @@ export function SectionCards({ sections }: { sections: Section[] }) {
         {sections.map((s) => {
           const body = (
             <>
-              <div className="text-muted-foreground text-xs">{s.description}</div>
+              <div className="text-muted-foreground text-xs uppercase">{s.description}</div>
               <div className="text-2xl font-normal tabular-nums">
                 {s.value ?? EM_DASH}
               </div>
               <div className="text-muted-foreground font-mono text-xs">
-                {s.footer ?? EM_DASH}
+                {s.footer}
               </div>
             </>
           )
@@ -31,14 +31,14 @@ export function SectionCards({ sections }: { sections: Section[] }) {
             <Link
               key={s.description}
               href={s.href}
-              className="flex flex-1 flex-col gap-3 p-5 transition-colors hover:bg-[oklch(0.9491_0.0041_91.616)]"
+              className="flex flex-1 flex-col gap-3 p-5 transition-colors hover:bg-pill"
             >
               {body}
             </Link>
           ) : (
             <div
               key={s.description}
-              className="flex flex-1 flex-col gap-3 p-5 transition-colors hover:bg-[oklch(0.9491_0.0041_91.616)]"
+              className="flex flex-1 flex-col gap-3 p-5 transition-colors hover:bg-pill"
             >
               {body}
             </div>

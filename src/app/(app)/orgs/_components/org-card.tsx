@@ -13,7 +13,7 @@ export type OrgItem = {
 export function OrgCard({ org }: { org: OrgItem }) {
   return (
     <Link href={`/orgs/${org.id}`}>
-      <Card className="flex h-36 cursor-pointer flex-col gap-2 p-4 transition-colors hover:bg-[oklch(0.9491_0.0041_91.616)]">
+      <Card className="flex h-36 cursor-pointer flex-col gap-2 p-4 transition-colors hover:bg-pill">
         <div className="flex items-start justify-between gap-2">
           <span className="font-medium leading-snug">{org.name}</span>
           {org.joinPolicy === 'open' && (

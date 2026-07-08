@@ -71,7 +71,7 @@ export function ContinueReading({ papers }: ContinueReadingProps) {
                     {keywords.map((k) => (
                       <span
                         key={k}
-                        className="bg-pill rounded-[3px] px-1.5 py-px text-xs text-muted-foreground"
+                        className="bg-pill rounded-[3px] px-1.5 py-px font-mono text-xs text-muted-foreground"
                       >
                         #{k}
                       </span>

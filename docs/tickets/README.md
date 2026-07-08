@@ -116,7 +116,7 @@ already-built Phase 0 work and has no forward dependency, so they can be picked 
 | [USER-008](user/USER-008-session-cookie-hardening.md) | Session-cookie hardening (SEC) | Todo | USER-002 | user.md#authentication |
 | [PAPER-019](paper/PAPER-019-paper-write-path-integrity.md) | Paper write-path integrity + dedup robustness | Todo | PAPER-003, PAPER-006 | paper.md#2-deduplication-strategy |
 | [ORG-027](org/ORG-027-org-route-profile-consolidation.md) | Org route + profile-form consolidation | Todo | ORG-002, ORG-004 | org-overview.md#org-profile |
-| [INFRA-004](infra/INFRA-004-design-language-conformance.md) | Design-language token conformance sweep | Todo | — | design-language.md |
+| [INFRA-004](infra/INFRA-004-design-language-conformance.md) | Design-language token conformance sweep | Done | — | design-language.md |
 | [INFRA-005](infra/INFRA-005-accessibility-form-semantics.md) | Accessibility & form-semantics pass | Todo | — | design-language.md |
 | [INFRA-006](infra/INFRA-006-shared-ui-auth-primitives.md) | Extract shared UI/auth primitives (DRY) | Todo | — | — (code quality) |
 

@@ -44,7 +44,7 @@ export function PaperTable({ rows }: PaperTableProps) {
       <div className="rounded-xl border overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="hover:bg-transparent bg-[oklch(0.9491_0.0041_91.616)]">
+          <TableRow className="hover:bg-transparent bg-pill">
             <TableHead className="w-[42%] min-w-50 pl-5 text-xs uppercase tracking-wide">
               Title
             </TableHead>
@@ -68,13 +68,13 @@ export function PaperTable({ rows }: PaperTableProps) {
             return (
               <TableRow
                 key={row.entryId}
-                className="cursor-pointer hover:bg-[oklch(0.9491_0.0041_91.616)] transition-colors"
+                className="cursor-pointer hover:bg-pill transition-colors"
                 onClick={() => router.push(`/library/${row.paperId}`)}
               >
                 <TableCell className="pl-5">
                   <div className="flex items-start gap-2.5">
                     <div className="min-w-0">
-                      <span className="truncate font-base leading-snug">
+                      <span className="truncate leading-snug">
                         {row.title}
                       </span>
                       {keywords && (
