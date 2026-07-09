@@ -2,9 +2,29 @@
 
 A snapshot of overall ticket status — counts only, plus the few tickets that need explicit attention. Full per-ticket detail lives in [`README.md`](./README.md) and each ticket file.
 
-_Last updated: 2026-07-07._ Full change log below.
+_Last updated: 2026-07-08._ Full change log below.
 
 ## Recent changes
+
+### 2026-07-08
+
+- **INFRA-004 — design-language token conformance sweep (completed).** Cleared the INFRA-002
+  Round 1 UI-lane drift from `docs/design-language.md`. Replaced every inlined raw
+  `oklch(0.9491 0.0041 91.616)` (== `--pill`) with the `bg-pill`/`hover:bg-pill` token across
+  `paper-card`, `org-card`, `section-cards`, `paper-table`, `view-toggle`, `paper-actions`;
+  added `font-mono` to keyword chips (`paper-card`, `continue-reading`); moved the `OrgBadges`
+  chip off `bg-muted` onto the pill pattern; fixed the pending-activity pill radius/padding;
+  added `uppercase` to the stats-card label and stopped the null footer defaulting to a second
+  em-dash (dashboard now supplies prose for the empty-library case); rebuilt the settings amber
+  banner as the doc's danger-notification pattern (warning-triangle icon + dismiss ✕ + ring);
+  flipped the delete-paper confirm button to the documented red direction (red-text default →
+  bright fill on hover); and removed the dead `font-base` class. The intentional oklch
+  exceptions (Plus-circle, destructive reds, amber theme) are preserved per the doc. Unit lane:
+  new `settings-client.test.tsx` covers the one behavioral surface — the banner appears on a
+  failed toggle and clears on dismiss; the rest is pure styling verified by the grep gate + a
+  visual pass (e2e N/A, documented). `npm test` 194/194; `tsc --noEmit` clean. No
+  `src/components/ui/` files touched. Backlog 30 → 29, Completed 22 → 23. Branch
+  `style/design-token-conformance`.
 
 ### 2026-07-07
 
@@ -69,9 +89,9 @@ Buckets map to the README legend: **Completed** = `Done`, **In progress** = `Par
 
 | Bucket | Count |
 |--------|-------|
-| ✅ Completed | 22 |
+| ✅ Completed | 23 |
 | 🟡 In progress | 6 |
-| ⬜ Backlog | 30 |
+| ⬜ Backlog | 29 |
 | 🔄 Recurring | 2 |
 | **Total** | **60** |
 
@@ -80,7 +100,7 @@ Buckets map to the README legend: **Completed** = `Done`, **In progress** = `Par
 Only tickets with something non-obvious to track.
 
 - **ORG-025 — `Recurring` (cross-cutting, iterative by design).** Never reaches `Done`; it accretes security rules + indexes as each feature lands. Its `/handles` and `/orgs` rules are covered by the INFRA-001 security-rules suite (`tests/rules/`). Latest pass (2026-07-07): INFRA-003 hardened the org read rules — public-org doc reads now require auth, and the `{sub=**}` catch-all was split so `members` stays member-readable while `invites`/`joinRequests`/`adminTransferOffers` are Admin-only (recipient-read exception deferred, N-005). Prior pass (2026-07-06): public-org `sharedPapers` list-access read rule + composite `publicOrgIds`+`embedding` vector index. Established the key framing (nuance N-004): with all writes server-side (`firebase-admin` bypasses rules), the permissions table's *mutations* are enforced in route handlers — rules do deny-all-writes + read-gating only. **Still open:** discovery/search composite indexes (deferred until those queries land); un-defer the invite/offer recipient-read rule when ORG-016/017/010 land (N-005).
-- **INFRA-002 — `Recurring` (code review rounds).** Intentionally never `Done`; gains a new `## Round N` section each pass. **Round 1 complete (2026-07-07)** — full Phase 0 tree, 5 lanes, 7 follow-up tickets filed (2 SEC: INFRA-003, USER-008). **Round 2 is stubbed, not started** — opens on the next review pass (post-Phase-2/3), scope TBD.
+- **INFRA-002 — `Recurring` (code review rounds).** Intentionally never `Done`; gains a new `## Round N` section each pass. **Round 1 complete (2026-07-07)** — full Phase 0 tree, 5 lanes, 7 follow-up tickets filed (2 SEC: INFRA-003, USER-008). Follow-ups closed so far: **INFRA-003** (rules hardening, 2026-07-07) and **INFRA-004** (design-language token conformance, 2026-07-08); the rest (USER-008, PAPER-019, ORG-027, INFRA-005, INFRA-006) remain `Todo`. **Round 2 is stubbed, not started** — opens on the next review pass (post-Phase-2/3), scope TBD.
 
 ## Project notes
 

@@ -6,7 +6,7 @@ import {
   reauthenticateWithCredential,
   updatePassword,
 } from 'firebase/auth'
-import { Check, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Check, Eye, EyeOff, Loader2, TriangleAlert, X } from 'lucide-react'
 import { auth } from '@/lib/firebase/client'
 import { passwordResetSchema } from '@/lib/password'
 import {
@@ -203,9 +203,18 @@ function NotificationsSection({ initial }: { initial: boolean }) {
           />
         </Field>
         {error && (
-          <p className="rounded-[3px] border px-3 py-2 text-sm bg-[oklch(0.907_0.079_85.1deg)] text-[oklch(0.44_0.097_67.3deg)] border-[oklch(0.44_0.097_67.3deg)]">
-            {error}
-          </p>
+          <div className="flex items-start gap-2 rounded-[3px] border px-3 py-2 text-sm bg-[oklch(0.907_0.079_85.1deg)] text-[oklch(0.44_0.097_67.3deg)] border-[oklch(0.44_0.097_67.3deg)] ring-[oklch(0.44_0.097_67.3deg)]">
+            <TriangleAlert className="mt-0.5 size-4 shrink-0" />
+            <span className="flex-1">{error}</span>
+            <button
+              type="button"
+              aria-label="Dismiss"
+              onClick={() => setError('')}
+              className="shrink-0 transition-opacity hover:opacity-70"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
         )}
       </CardContent>
     </Card>

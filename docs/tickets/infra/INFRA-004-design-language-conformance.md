@@ -1,7 +1,7 @@
 # INFRA-004 — Design-language token conformance sweep
 
 **Domain:** infra (cross-cutting UI)  
-**Status:** Todo — should-fix (INFRA-002 Round 1, UI lane)  
+**Status:** Done — should-fix (INFRA-002 Round 1, UI lane)  
 **Spec:** docs/design-language.md  
 **Depends on:** —
 
@@ -33,22 +33,41 @@ values in components"). Individually minor; together they erode the bespoke mono
    `paper-table.tsx:77`.
 
 ## Acceptance criteria
-- [ ] No component references a raw `oklch(...)` string where a token utility exists
-      (`grep -r "oklch(" src/components src/app | grep -v ui/` returns only intentional cases).
-- [ ] Keyword/metadata chips use `bg-pill` + `font-mono` + the documented radius/padding.
-- [ ] No chip uses `bg-muted`/`bg-secondary`.
-- [ ] Amber banner and destructive buttons match the documented patterns.
-- [ ] Dead `font-base` classes removed.
+- [x] No component references a raw `oklch(...)` string where a token utility exists
+      (`grep -r "oklch(" src/components src/app | grep -v ui/` returns only intentional cases:
+      Plus-circle in `nav-main`/`org-mark`; destructive reds in `paper-actions`/`delete-paper-dialog`/
+      `org-manage`; amber notification theme in `settings-client`).
+- [x] Keyword/metadata chips use `bg-pill` + `font-mono` + the documented radius/padding.
+- [x] No chip uses `bg-muted`/`bg-secondary`.
+- [x] Amber banner (icon + dismiss ✕ + ring) and destructive buttons (red-text default →
+      bright fill on hover) match the documented patterns.
+- [x] Dead `font-base` classes removed.
 
 ## Affected files
 - `src/components/paper-card.tsx`, `org-card.tsx`, `continue-reading.tsx`, `section-cards.tsx`,
   `pending-activity.tsx`, `add-paper-dialog.tsx`
 - `src/app/(app)/library/_components/paper-table.tsx`, `view-toggle.tsx`
 - `src/app/(app)/library/[paperId]/_components/paper-actions.tsx`, `delete-paper-dialog.tsx`
-- `src/app/(app)/settings/_components/settings-client.tsx`
+- `src/components/settings/settings-client.tsx` (the amber banner lives here, not under
+  `app/(app)/settings/` — the ticket's original path had drifted)
+- `src/app/(app)/page.tsx` (dashboard — supplies the stats-card prose footer for the
+  empty-library case, so the component no longer defaults a null footer to a second em-dash)
 
 ## Test coverage
-- **Component (unit) — where behavior exists.** Most items are pure styling (no logic to test —
-  per CLAUDE.md, don't test that a class renders). Add assertions only where a token choice is
-  conditional (e.g. the amber banner's dismiss button appears/disappears). Primary verification
-  is the grep gate above + a visual pass.
+- **Component (unit) — done, banner behavior only.** Most items are pure styling (no logic to
+  test — per CLAUDE.md, don't test that a class renders), so the only behavioral surface is the
+  amber banner's dismiss ✕. Added `src/components/settings/settings-client.test.tsx`
+  (`@testing-library/react` + `user-event`, firebase mocked like the auth-form tests): banner is
+  absent initially, appears on a failed notification toggle, and clears when the dismiss ✕ is
+  clicked. Full suite green (194 tests, 22 files).
+- **E2E — N/A (documented).** No behavior beyond the unit-covered dismiss; the rest is visual
+  token conformance verified by the grep gate + a manual visual pass, not a browser flow.
+
+## Verification (done)
+- `grep -rn "oklch(" src/components src/app | grep -v ui/` → only the intentional exceptions
+  above; no `0.9491_0.0041_91.616` pill value remains.
+- `grep -rn "font-base" src/components src/app` → none.
+- `grep -n "bg-muted\|bg-secondary" src/components/add-paper-dialog.tsx` → the `OrgBadges` chip
+  no longer matches (remaining `bg-muted/*` are surfaces/inputs, not chip-shaped elements).
+- `npx tsc --noEmit` clean; `npm test` 194/194. Lint: no new issues in touched files
+  (pre-existing errors live in untouched files).

@@ -166,7 +166,7 @@ function OrgBadges({ orgs }: { orgs: OrgRef[] }) {
       {orgs.map((org) => (
         <span
           key={org.id}
-          className="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium bg-muted text-muted-foreground"
+          className="inline-flex items-center rounded-[3px] bg-pill px-1.5 py-px font-mono text-xs text-muted-foreground"
         >
           {org.name}
         </span>
