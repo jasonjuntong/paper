@@ -130,4 +130,45 @@ describe('CreateOrgDialog — submit', () => {
     ).toBeInTheDocument()
     expect(pushMock).not.toHaveBeenCalled()
   })
+
+  // INFRA-005: the submit button carries `aria-busy` while the POST is in flight.
+  it('marks the submit button aria-busy while creating', async () => {
+    let resolve!: (v: unknown) => void
+    fetchMock.mockReturnValue(new Promise((r) => (resolve = r)))
+    const user = userEvent.setup()
+    renderDialog()
+
+    await user.type(nameField(), 'Robotics Lab')
+    const create = createBtn()
+    expect(create).toHaveAttribute('aria-busy', 'false')
+
+    await user.click(create)
+    expect(create).toHaveAttribute('aria-busy', 'true')
+    expect(create).toBeDisabled()
+
+    resolve({ ok: true, json: async () => ({ orgId: 'new-1' }) })
+    await waitFor(() => expect(pushMock).toHaveBeenCalled())
+  })
+
+  // INFRA-005: the dialog is a real <form>, so Enter in a field submits it.
+  it('submits on Enter pressed within a field', async () => {
+    const user = userEvent.setup()
+    renderDialog()
+
+    await user.type(nameField(), 'Robotics Lab{Enter}')
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled())
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/orgs')
+  })
+})
+
+// INFRA-005: the segmented controls expose their selection to assistive tech.
+describe('CreateOrgDialog — toggle semantics', () => {
+  it('marks the active segment aria-pressed and the others not', () => {
+    renderDialog()
+    expect(seg('Public')).toHaveAttribute('aria-pressed', 'true')
+    expect(seg('Private')).toHaveAttribute('aria-pressed', 'false')
+    expect(seg('by request')).toHaveAttribute('aria-pressed', 'true')
+    expect(seg('open')).toHaveAttribute('aria-pressed', 'false')
+  })
 })

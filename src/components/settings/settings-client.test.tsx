@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 // SettingsClient imports the Firebase client (inits the SDK at module load) and
@@ -54,5 +54,33 @@ describe('SettingsClient notification banner (INFRA-004)', () => {
     await user.click(screen.getByRole('button', { name: /dismiss/i }))
 
     expect(screen.queryByText(BANNER)).not.toBeInTheDocument()
+  })
+})
+
+// INFRA-005: the profile Save button carries `aria-busy` while the request runs.
+describe('SettingsClient profile — pending state (INFRA-005)', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('marks Save aria-busy while saving, then clears it once resolved', async () => {
+    let resolve!: (v: unknown) => void
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockReturnValue(new Promise((r) => (resolve = r)))
+    )
+    const user = userEvent.setup()
+    render(<SettingsClient initial={INITIAL} />)
+
+    await user.type(screen.getByLabelText('Name'), ' II')
+    const save = screen.getByRole('button', { name: 'Save changes' })
+    expect(save).toHaveAttribute('aria-busy', 'false')
+
+    await user.click(save)
+    expect(save).toHaveAttribute('aria-busy', 'true')
+    expect(save).toBeDisabled()
+
+    resolve({ ok: true })
+    await waitFor(() => expect(save).toHaveAttribute('aria-busy', 'false'))
   })
 })

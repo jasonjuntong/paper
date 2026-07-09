@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import {
@@ -52,17 +53,24 @@ function Segmented<T extends string>({
   value,
   options,
   onChange,
+  label,
 }: {
   value: T
   options: { value: T; label: string; disabled?: boolean }[]
   onChange: (v: T) => void
+  label: string
 }) {
   return (
-    <div className="flex h-8 w-full items-center gap-0.5 rounded-lg border border-input p-0.5">
+    <div
+      role="group"
+      aria-label={label}
+      className="flex h-8 w-full items-center gap-0.5 rounded-lg border border-input p-0.5"
+    >
       {options.map((o) => (
         <button
           key={o.value}
           type="button"
+          aria-pressed={value === o.value}
           disabled={o.disabled}
           onClick={() => onChange(o.value)}
           className={cn(
@@ -140,7 +148,9 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
     else if (joinPolicy === 'invite') setJoinPolicy('request')
   }
 
-  async function handleCreate() {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (submitting) return
     const result = OrgSchema.safeParse({ name, mark, description })
     if (!result.success) {
       const flat = result.error.flatten().fieldErrors
@@ -196,7 +206,7 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Name + Mark */}
           <div className="flex gap-3">
             <div className="flex flex-1 flex-col gap-1.5">
@@ -284,6 +294,7 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
               <Segmented<Visibility>
                 value={visibility}
                 onChange={handleVisibilityChange}
+                label="Visibility"
                 options={[
                   { value: 'public', label: 'Public' },
                   { value: 'private', label: 'Private' },
@@ -303,6 +314,7 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
               <Segmented<JoinPolicy>
                 value={joinPolicy}
                 onChange={setJoinPolicy}
+                label="Joining"
                 options={[
                   {
                     value: 'open',
@@ -324,27 +336,29 @@ export function CreateOrgDialog({ open, onOpenChange }: CreateOrgDialogProps) {
               <p className="text-xs text-muted-foreground">{joinPolicyHint}</p>
             </div>
           </div>
-        </div>
 
-        <DialogFooter className="items-center sm:justify-between">
-          {submitError ? (
-            <p className="text-xs text-destructive">{submitError}</p>
-          ) : (
-            <span />
-          )}
-          <div className="flex flex-col-reverse gap-2 sm:flex-row">
-            <Button
-              variant="ghost"
-              onClick={() => handleOpenChange(false)}
-              disabled={submitting}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleCreate} disabled={submitting}>
-              {submitting ? 'Creating…' : 'Create Org'}
-            </Button>
-          </div>
-        </DialogFooter>
+          <DialogFooter className="items-center sm:justify-between">
+            {submitError ? (
+              <p className="text-xs text-destructive">{submitError}</p>
+            ) : (
+              <span />
+            )}
+            <div className="flex flex-col-reverse gap-2 sm:flex-row">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => handleOpenChange(false)}
+                disabled={submitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={submitting} aria-busy={submitting}>
+                {submitting && <Loader2 data-icon="inline-start" className="animate-spin" />}
+                {submitting ? 'Creating…' : 'Create Org'}
+              </Button>
+            </div>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )

@@ -239,7 +239,12 @@ export function RegisterForm() {
         </Field>
       </FieldGroup>
 
-      <Button type="submit" disabled={status === 'loading'} className="w-full">
+      <Button
+        type="submit"
+        disabled={status === 'loading'}
+        aria-busy={status === 'loading'}
+        className="w-full"
+      >
         {status === 'loading' && <Loader2 data-icon="inline-start" className="animate-spin" />}
         {status === 'loading' ? 'Creating account…' : 'Create account'}
       </Button>
