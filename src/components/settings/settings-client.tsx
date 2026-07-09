@@ -134,7 +134,11 @@ function ProfileSection({ initial }: SettingsClientProps) {
           </FieldGroup>
 
           <div className="flex items-center gap-3">
-            <Button type="submit" disabled={!dirty || status === 'saving'}>
+            <Button
+              type="submit"
+              disabled={!dirty || status === 'saving'}
+              aria-busy={status === 'saving'}
+            >
               {status === 'saving' && (
                 <Loader2 data-icon="inline-start" className="animate-spin" />
               )}
@@ -346,7 +350,11 @@ function ChangePasswordSection() {
           </FieldGroup>
 
           <div className="flex items-center gap-3">
-            <Button type="submit" disabled={status === 'submitting'}>
+            <Button
+              type="submit"
+              disabled={status === 'submitting'}
+              aria-busy={status === 'submitting'}
+            >
               {status === 'submitting' && (
                 <Loader2 data-icon="inline-start" className="animate-spin" />
               )}

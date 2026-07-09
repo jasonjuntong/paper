@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { CircleCheck, Pencil } from 'lucide-react'
+import { CircleCheck, Loader2, Pencil } from 'lucide-react'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import {
@@ -266,7 +266,8 @@ export function EditPaperDialog({ entryId, paper, open, onOpenChange }: EditPape
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={saving}>
+              <Button type="submit" disabled={saving} aria-busy={saving}>
+                {saving && <Loader2 data-icon="inline-start" className="animate-spin" />}
                 {saving ? 'Saving…' : 'Save changes'}
               </Button>
             </DialogFooter>

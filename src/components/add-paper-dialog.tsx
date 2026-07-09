@@ -505,7 +505,11 @@ export function AddPaperDialog({
 
         {/* ── Processing ── */}
         {step === 'processing' && (
-          <div className="flex flex-col items-center gap-4 py-8">
+          <div
+            role="status"
+            aria-live="polite"
+            className="flex flex-col items-center gap-4 py-8"
+          >
             <Loader2 className="size-8 animate-spin text-muted-foreground" />
             <div className="text-center">
               <p className="text-sm font-medium">Analysing paper…</p>
@@ -791,7 +795,11 @@ export function AddPaperDialog({
 
         {/* ── Committing ── */}
         {step === 'committing' && (
-          <div className="flex flex-col items-center gap-4 py-8">
+          <div
+            role="status"
+            aria-live="polite"
+            className="flex flex-col items-center gap-4 py-8"
+          >
             <Loader2 className="size-8 animate-spin text-muted-foreground" />
             <div className="text-center">
               <p className="text-sm font-medium">Saving paper…</p>

@@ -13,9 +13,14 @@ export function ViewToggle({
   onChange: (view: View) => void
 }) {
   return (
-    <div className="flex items-center gap-0.5 rounded-lg border p-0.5">
+    <div
+      role="group"
+      aria-label="View"
+      className="flex items-center gap-0.5 rounded-lg border p-0.5"
+    >
       <button
         type="button"
+        aria-pressed={current === 'list'}
         onClick={() => onChange('list')}
         className={cn(
           'inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors',
@@ -29,6 +34,7 @@ export function ViewToggle({
       </button>
       <button
         type="button"
+        aria-pressed={current === 'grid'}
         onClick={() => onChange('grid')}
         className={cn(
           'inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors',

@@ -123,4 +123,53 @@ describe('EditOrgProfile — submit', () => {
     ).toBeInTheDocument()
     expect(refreshMock).not.toHaveBeenCalled()
   })
+
+  // INFRA-005: Save carries `aria-busy` while the PATCH is in flight.
+  it('marks Save aria-busy while saving', async () => {
+    let resolve!: (v: unknown) => void
+    fetchMock.mockReturnValue(new Promise((r) => (resolve = r)))
+    const user = userEvent.setup()
+    renderForm()
+
+    await user.type(nameField(), '!')
+    const save = saveBtn()
+    await user.click(save)
+
+    expect(save).toHaveAttribute('aria-busy', 'true')
+    expect(save).toBeDisabled()
+
+    resolve({
+      ok: true,
+      json: async () => ({
+        name: 'Robotics Lab!',
+        mark: 'RL',
+        description: 'We read robotics papers.',
+      }),
+    })
+    await waitFor(() => expect(refreshMock).toHaveBeenCalled())
+  })
+})
+
+// INFRA-005: the card is a real <form> — Enter submits, but only when dirty.
+describe('EditOrgProfile — Enter to submit', () => {
+  it('submits on Enter within a field once dirty', async () => {
+    const user = userEvent.setup()
+    renderForm()
+
+    await user.type(nameField(), '!{Enter}')
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled())
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/orgs/org-1')
+  })
+
+  it('does not submit on Enter while nothing has changed', async () => {
+    const user = userEvent.setup()
+    renderForm()
+
+    // Focus a field and press Enter without editing → still pristine.
+    nameField().focus()
+    await user.keyboard('{Enter}')
+
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
 })

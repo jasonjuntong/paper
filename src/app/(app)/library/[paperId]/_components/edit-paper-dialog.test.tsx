@@ -137,4 +137,21 @@ describe('EditPaperDialog', () => {
     await waitFor(() => expect(updateCall()).toBeDefined())
     expect(JSON.parse(updateCall()![1].body).title).toBe('A Different Title')
   })
+
+  // INFRA-005: Save carries `aria-busy` while the update request is in flight.
+  it('marks Save aria-busy while the update is in flight', async () => {
+    let resolve!: (v: unknown) => void
+    fetchMock.mockReturnValue(new Promise((r) => (resolve = r)))
+    const user = userEvent.setup()
+    renderDialog()
+
+    const save = screen.getByRole('button', { name: 'Save changes' })
+    await user.click(save)
+
+    expect(save).toHaveAttribute('aria-busy', 'true')
+    expect(save).toBeDisabled()
+
+    resolve({ ok: true, json: async () => ({ status: 'ok' }) })
+    expect(await screen.findByText('Details updated')).toBeInTheDocument()
+  })
 })

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -83,7 +84,10 @@ export function EditOrgProfile({
     if (descError) setDescError(null)
   }
 
-  async function handleSave() {
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    // Enter-to-submit must respect the same gate as the (disabled) Save button.
+    if (saving || !dirty) return
     const result = ProfileSchema.safeParse({ name, mark, description })
     if (!result.success) {
       const flat = result.error.flatten().fieldErrors
@@ -134,88 +138,96 @@ export function EditOrgProfile({
         Profile
       </span>
 
-      {/* Name + Mark */}
-      <div className="flex gap-3">
-        <div className="flex flex-1 flex-col gap-1.5">
-          <Label
-            htmlFor="org-profile-name"
-            className="font-mono text-xs font-normal text-muted-foreground"
-          >
-            NAME *
-          </Label>
-          <Input
-            id="org-profile-name"
-            value={name}
-            onChange={(e) => handleNameChange(e.target.value)}
-            maxLength={NAME_MAX}
-            aria-invalid={!!nameError}
-          />
-          {nameError && <p className="text-xs text-destructive">{nameError}</p>}
+      <form onSubmit={handleSave} className="contents">
+        {/* Name + Mark */}
+        <div className="flex gap-3">
+          <div className="flex flex-1 flex-col gap-1.5">
+            <Label
+              htmlFor="org-profile-name"
+              className="font-mono text-xs font-normal text-muted-foreground"
+            >
+              NAME *
+            </Label>
+            <Input
+              id="org-profile-name"
+              value={name}
+              onChange={(e) => handleNameChange(e.target.value)}
+              maxLength={NAME_MAX}
+              aria-invalid={!!nameError}
+            />
+            {nameError && <p className="text-xs text-destructive">{nameError}</p>}
+          </div>
+
+          <div className="flex w-16 shrink-0 flex-col gap-1.5">
+            <Label
+              htmlFor="org-profile-mark"
+              className="font-mono text-xs font-normal text-muted-foreground"
+            >
+              MARK *
+            </Label>
+            <Input
+              id="org-profile-mark"
+              value={mark}
+              onChange={(e) => handleMarkChange(e.target.value)}
+              maxLength={MARK_MAX}
+              aria-invalid={!!markError}
+              className="text-center font-mono uppercase"
+            />
+            {markError && <p className="text-xs text-destructive">{markError}</p>}
+          </div>
         </div>
 
-        <div className="flex w-16 shrink-0 flex-col gap-1.5">
+        {/* Description */}
+        <div className="flex flex-col gap-1.5">
           <Label
-            htmlFor="org-profile-mark"
+            htmlFor="org-profile-desc"
             className="font-mono text-xs font-normal text-muted-foreground"
           >
-            MARK *
+            DESCRIPTION{' '}
+            <span className="text-muted-foreground/50">(optional)</span>
           </Label>
-          <Input
-            id="org-profile-mark"
-            value={mark}
-            onChange={(e) => handleMarkChange(e.target.value)}
-            maxLength={MARK_MAX}
-            aria-invalid={!!markError}
-            className="text-center font-mono uppercase"
+          <Textarea
+            id="org-profile-desc"
+            value={description}
+            onChange={(e) => handleDescriptionChange(e.target.value)}
+            placeholder="What does this org read and discuss? One or two sentences."
+            rows={3}
+            maxLength={DESCRIPTION_MAX}
+            aria-invalid={!!descError}
+            className="resize-none"
           />
-          {markError && <p className="text-xs text-destructive">{markError}</p>}
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground">
+              {descError ?? 'Shown on the org page and in Discover.'}
+            </p>
+            <span
+              className={cn(
+                'shrink-0 font-mono text-xs tabular-nums',
+                descError ? 'text-destructive' : 'text-muted-foreground'
+              )}
+            >
+              {description.length}/{DESCRIPTION_MAX}
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* Description */}
-      <div className="flex flex-col gap-1.5">
-        <Label
-          htmlFor="org-profile-desc"
-          className="font-mono text-xs font-normal text-muted-foreground"
-        >
-          DESCRIPTION{' '}
-          <span className="text-muted-foreground/50">(optional)</span>
-        </Label>
-        <Textarea
-          id="org-profile-desc"
-          value={description}
-          onChange={(e) => handleDescriptionChange(e.target.value)}
-          placeholder="What does this org read and discuss? One or two sentences."
-          rows={3}
-          maxLength={DESCRIPTION_MAX}
-          aria-invalid={!!descError}
-          className="resize-none"
-        />
         <div className="flex items-center justify-between gap-2">
-          <p className="text-xs text-muted-foreground">
-            {descError ?? 'Shown on the org page and in Discover.'}
-          </p>
-          <span
-            className={cn(
-              'shrink-0 font-mono text-xs tabular-nums',
-              descError ? 'text-destructive' : 'text-muted-foreground'
-            )}
+          {saveError ? (
+            <p className="text-xs text-destructive">{saveError}</p>
+          ) : (
+            <span />
+          )}
+          <Button
+            type="submit"
+            disabled={saving || !dirty}
+            aria-busy={saving}
+            className="w-fit"
           >
-            {description.length}/{DESCRIPTION_MAX}
-          </span>
+            {saving && <Loader2 data-icon="inline-start" className="animate-spin" />}
+            {saving ? 'Saving…' : 'Save changes'}
+          </Button>
         </div>
-      </div>
-
-      <div className="flex items-center justify-between gap-2">
-        {saveError ? (
-          <p className="text-xs text-destructive">{saveError}</p>
-        ) : (
-          <span />
-        )}
-        <Button onClick={handleSave} disabled={saving || !dirty} className="w-fit">
-          {saving ? 'Saving…' : 'Save changes'}
-        </Button>
-      </div>
+      </form>
     </Card>
   )
 }

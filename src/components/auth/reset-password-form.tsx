@@ -153,7 +153,12 @@ export function ResetPasswordForm({ code }: { code: string }) {
             </Field>
           </FieldGroup>
 
-          <Button type="submit" disabled={status === 'submitting'} className="w-full">
+          <Button
+            type="submit"
+            disabled={status === 'submitting'}
+            aria-busy={status === 'submitting'}
+            className="w-full"
+          >
             {status === 'submitting' && (
               <Loader2 data-icon="inline-start" className="animate-spin" />
             )}

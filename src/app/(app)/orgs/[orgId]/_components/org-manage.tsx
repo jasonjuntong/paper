@@ -51,6 +51,7 @@ function OptionPill({
   return (
     <button
       type="button"
+      aria-pressed={active}
       onClick={onClick}
       disabled={disabled}
       className={cn(
@@ -152,7 +153,7 @@ export function OrgManage({
       {/* Visibility */}
       <Card className="gap-4 px-5 py-5">
         <FieldLabel>Visibility</FieldLabel>
-        <div className="flex flex-wrap gap-2">
+        <div role="group" aria-label="Visibility" className="flex flex-wrap gap-2">
           <OptionPill
             active={visibility === 'public'}
             disabled={saving}
@@ -179,7 +180,7 @@ export function OrgManage({
       {/* Join policy */}
       <Card className="gap-4 px-5 py-5">
         <FieldLabel>Join policy</FieldLabel>
-        <div className="flex flex-wrap gap-2">
+        <div role="group" aria-label="Join policy" className="flex flex-wrap gap-2">
           <OptionPill
             active={joinPolicy === 'open'}
             disabled={saving || visibility === 'private'}
